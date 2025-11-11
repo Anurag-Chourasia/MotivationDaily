@@ -1,0 +1,202 @@
+import SwiftUI
+import UIKit
+
+struct FavoriteCellView: View {
+    let favorite: FavoriteQuote
+    let imageURL: URL?
+    let onImageTap: () -> Void
+    let onToggleFavorite: () -> Void
+    let onImageDataResolved: ((Data) -> Void)?
+
+    @State private var renderedImage: UIImage?
+    @State private var isLoading = false
+    @State private var loadTask: Task<Void, Never>?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ZStack(alignment: .topTrailing) {
+                if let renderedImage {
+                    Image(uiImage: renderedImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 210)
+                        .clipped()
+                } else {
+                    imagePlaceholder
+                        .frame(height: 210)
+                        .clipped()
+                }
+
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white)
+                        .padding(10)
+                        .background(Color.black.opacity(0.35))
+                        .clipShape(Circle())
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
+
+                Button(action: onToggleFavorite) {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.red)
+                        .frame(width: 34, height: 34)
+                        .background(Color.white.opacity(0.92))
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.black.opacity(0.12), lineWidth: 1)
+                        )
+                }
+                .padding(12)
+                .buttonStyle(.plain)
+                .accessibilityLabel("Remove Favorite")
+                .accessibilityIdentifier("favorites.removeButton")
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text("\"\(favorite.text)\"")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .lineSpacing(3)
+
+                HStack(spacing: 8) {
+                    tagPill(text: categoryTag)
+                    tagPill(text: sourceTag)
+                }
+
+                Text("— \(favorite.author ?? "Unknown")")
+                    .font(.system(size: 14, weight: .medium, design: .serif))
+                    .italic()
+                    .foregroundColor(.secondary)
+            }
+            .padding(14)
+        }
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.black.opacity(0.08), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.07), radius: 10, x: 0, y: 5)
+        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .accessibilityIdentifier("favorites.cell")
+        .onTapGesture {
+            onImageTap()
+        }
+        .onAppear {
+            renderImageIfNeeded()
+        }
+        .onChange(of: favorite.localImagePath) { _ in
+            renderedImage = nil
+            renderImageIfNeeded()
+        }
+        .onChange(of: imageURL) { _ in
+            renderedImage = nil
+            renderImageIfNeeded()
+        }
+        .onDisappear {
+            loadTask?.cancel()
+        }
+    }
+
+    private var imagePlaceholder: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color.black.opacity(0.5), Color.black.opacity(0.7)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            Image(systemName: "photo")
+                .font(.system(size: 28, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
+    }
+
+    private var categoryTag: String {
+        guard let raw = favorite.categoryKey?.rawValue, !raw.isEmpty else {
+            return "Random"
+        }
+        return raw
+            .replacingOccurrences(of: "-", with: " ")
+            .replacingOccurrences(of: "_", with: " ")
+            .capitalized
+    }
+
+    private var sourceTag: String {
+        switch favorite.source {
+        case .zenQuotes:
+            return "ZenQuotes"
+        case .quotable:
+            return "Quotable"
+        case .quoteGarden:
+            return "QuoteGarden"
+        case .adviceSlip:
+            return "AdviceSlip"
+        }
+    }
+
+    private func tagPill(text: String) -> some View {
+        Text(text.uppercased())
+            .font(.system(size: 10, weight: .semibold))
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color(.systemGray6))
+            .clipShape(Capsule())
+    }
+
+    private func renderImageIfNeeded() {
+        loadTask?.cancel()
+        guard renderedImage == nil else { return }
+
+        if let localPath = favorite.localImagePath,
+           !localPath.isEmpty,
+           let localImage = UIImage(contentsOfFile: localPath) {
+            renderedImage = localImage
+            isLoading = false
+            return
+        }
+
+        guard let url = imageURL else {
+            isLoading = false
+            return
+        }
+
+        if let cached = LightImageCache.shared.image(for: url) {
+            renderedImage = cached
+            isLoading = false
+            persistImageIfNeeded(from: cached)
+            return
+        }
+
+        isLoading = true
+        loadTask = Task {
+            let cachedOnlyImage = await ImageLoader.shared.cachedImage(for: url)
+            if Task.isCancelled { return }
+            await MainActor.run {
+                if let cachedOnlyImage {
+                    renderedImage = cachedOnlyImage
+                    persistImageIfNeeded(from: cachedOnlyImage)
+                }
+                isLoading = false
+            }
+        }
+    }
+
+    private func persistImageIfNeeded(from image: UIImage) {
+        guard favorite.localImagePath?.isEmpty ?? true else {
+            return
+        }
+        let callback = onImageDataResolved
+        DispatchQueue.global(qos: .utility).async {
+            guard let imageData = image.jpegData(compressionQuality: 0.88) else {
+                return
+            }
+            DispatchQueue.main.async {
+                callback?(imageData)
+            }
+        }
+    }
+}
