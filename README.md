@@ -98,24 +98,37 @@ The following items are actively tracked for the Favorites / Bookmarks feature:
 
 ## 🚀 Future Plans & Roadmap
 
-### 1. Modularization via Custom Swift Package Manager (SPM) Packages
-Migrate monolithic project targets into decoupled local Swift Packages:
-- **`MotivationCore`**: Common utilities, extensions, and error primitives.
-- **`MotivationDomain`**: Entities, use cases, and repository interfaces.
-- **`MotivationData`**: Networking, database, disk cache, and remote catalogue stores.
-- **`MotivationUI`**: Design system tokens, quote card components, and side action rails.
-- **`FeatureHome` & `FeatureFavorites`**: Standalone feature packages for isolated testing and faster build times.
+### 1. Architecture & Best Engineering Practices
+- **Best Engineering Practices Alignment**: Refine the Clean Architecture layer boundaries, enforce protocol abstractions, and align dependency injection with modern Swift paradigms.
+- **Strict Concurrency Compliance**: Migrate towards Swift 6 strict concurrency checking (`SWIFT_STRICT_CONCURRENCY=complete`), ensuring Sendable conformance across data transfer objects and actor-isolated stores.
+- **Unidirectional Data Flow (UDF)**: Refine state handling so user intents flow through explicit actions and state transitions to prevent unintended view re-renders.
+- **Modularization via Custom Swift Packages (SPMs)**: Decouple monolithic targets into standalone packages (`MotivationCore`, `MotivationDomain`, `MotivationData`, `MotivationUI`, `FeatureHome`, `FeatureFavorites`) to speed up compilation and enforce architectural boundaries.
 
-### 2. SwiftLint Integration
-- Integrate **SwiftLint** via an SPM Build Tool Plugin and pre-commit hook.
-- Enforce strict code formatting, naming conventions, docstring guidelines, and prevent common SwiftUI anti-patterns (such as state mutations during view updates).
+### 2. Testing & Quality Assurance
+- **Comprehensive UI Testing**: Broaden automated XCUITest suites to cover all core user journeys, tab switching, sheet presentations, share actions, and error recovery states.
+- **Snapshot Testing**: Implement visual regression testing (using Point-Free `swift-snapshot-testing`) across multiple device sizes, light/dark themes, and Dynamic Type accessibility scales.
+- **Stub-Data Submodules**: Create dedicated mock and fixture test submodules to provide deterministic JSON payloads and offline fixtures, fully isolating tests from live network dependencies.
+- **SwiftLint Integration**: Enforce clean code guidelines, naming conventions, docstrings, and anti-pattern prevention via an SPM Build Tool plugin and pre-commit hooks.
+- **Continuous Integration (CI) Pipeline**: Set up automated GitHub Actions to run matrix testing, automated builds, test-result reporting, and code quality verification on every pull request.
 
-### 3. Continuous Integration (CI)
-- Implement automated GitHub Actions CI pipeline:
-  - Automated builds for Debug and Release schemes.
-  - Automated unit and UI test runs (`xcodebuild test`) across multiple iOS simulator configurations.
-  - SwiftLint style and quality gate validation.
-  - Test result and code coverage artifact reporting.
+### 3. User Experience & Feature Enhancements
+- **Tab Bar Navigation**: Modernize primary app navigation into a persistent native Tab Bar (Feed, Favorites/Bookmarks, Explore/Categories, Settings) for intuitive discoverability.
+- **Cross-Device Sync**: Integrate CloudKit / iCloud sync to seamlessly synchronize favorites, custom themes, and reading history across iPhone, iPad, and macOS.
+- **Resilient Image Loading Pipeline**: Enhance the image loader with progressive loading, multi-CDN fallback sources, exponential backoff retries, and disk cache size governance.
+- **Accessibility Support**: Ensure full VoiceOver screen reader auditing, custom accessibility actions, high contrast modes, and respectful reduced-motion accommodations for all animated transitions.
+- **Performance Measurement & Telemetry**: Instrument MetricKit, `os_signpost` intervals, app launch benchmarks, scroll hitch rate monitoring, and memory footprint tracking.
+
+### 4. Technical Debt Governance (Engineering & Customer Journey)
+Establish an active technical debt backlog with dual evaluation:
+- **Engineering Perspective**:
+  - Eliminate absolute filesystem paths in local persistence (`DefaultFavoritesRepository`) by migrating to relative path resolution.
+  - Decouple singleton dependencies (`LightImageCache.shared`, `ImageLoader.shared`) in favor of protocol-injected services.
+  - Isolate live API clients from test targets through protocol mocks.
+- **Customer Journey Perspective**:
+  - Fix favorite resizing so master uncropped images are preserved when saved from custom ratios (e.g. 1:1).
+  - Prevent saved favorites images from being lost across app reopens by eliminating stale sandbox container paths.
+  - Eliminate blank card flickers during fast scrolling via proactive prewarming.
+  - Provide graceful offline recovery banners with automatic retry when connectivity returns.
 
 ---
 
