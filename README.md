@@ -111,14 +111,62 @@ The following items are actively tracked for the Favorites / Bookmarks feature:
 - **SwiftLint Integration**: Enforce clean code guidelines, naming conventions, docstrings, and anti-pattern prevention via an SPM Build Tool plugin and pre-commit hooks.
 - **Continuous Integration (CI) Pipeline**: Set up automated GitHub Actions to run matrix testing, automated builds, test-result reporting, and code quality verification on every pull request.
 
-### 3. User Experience & Feature Enhancements
+### 3. User Experience & Core Enhancements
 - **Tab Bar Navigation**: Modernize primary app navigation into a persistent native Tab Bar (Feed, Favorites/Bookmarks, Explore/Categories, Settings) for intuitive discoverability.
 - **Cross-Device Sync**: Integrate CloudKit / iCloud sync to seamlessly synchronize favorites, custom themes, and reading history across iPhone, iPad, and macOS.
 - **Resilient Image Loading Pipeline**: Enhance the image loader with progressive loading, multi-CDN fallback sources, exponential backoff retries, and disk cache size governance.
 - **Accessibility Support**: Ensure full VoiceOver screen reader auditing, custom accessibility actions, high contrast modes, and respectful reduced-motion accommodations for all animated transitions.
 - **Performance Measurement & Telemetry**: Instrument MetricKit, `os_signpost` intervals, app launch benchmarks, scroll hitch rate monitoring, and memory footprint tracking.
 
-### 4. Technical Debt Governance (Engineering & Customer Journey)
+### 4. iOS System Integrations & Engagement
+- **WidgetKit (Home & Lock Screen Widgets)**:
+  - Small, Medium, Large, and Extra Large Home Screen widgets showing the Quote of the Day with dynamic wallpaper backgrounds.
+  - Circular and rectangular Lock Screen widgets with concise affirmations.
+  - Interactive widgets (iOS 17+) with one-tap refresh directly from the Home Screen.
+  - StandBy mode interactive display for bedside docks.
+- **App Intents, Siri & Shortcuts**:
+  - *"Hey Siri, motivate me"* voice command to trigger spoken or on-screen affirmations.
+  - Action Button integration (iPhone 15 Pro / 16) for one-press daily quote inspiration.
+  - Shortcuts actions (*"Get Daily Quote"*, *"Set Wallpaper"*) allowing users to automate morning routines.
+- **Rich Interactive Notifications**:
+  - Scheduled morning/evening motivation notifications with rich media previews of the wallpaper and quote typography.
+  - Direct notification actions: *"Save to Favorites"* and *"Share Quote"*.
+
+### 5. Multi-Platform Ecosystem
+- **Apple Watch Companion App (watchOS)**:
+  - Standalone Watch app with cached daily quotes and complications (Modular, Circular, Corner) delivering wrist-based affirmations throughout the day.
+- **macOS Companion & Dynamic Wallpaper**:
+  - Native macOS menu bar dropdown companion.
+  - Automatic desktop wallpaper updates matching the daily motivational image.
+- **iPadOS Optimization**:
+  - Adaptive two-column split-view / sidebar navigation and full Stage Manager multi-window support.
+
+### 6. Creative Studio & Personalization
+- **Typography & Canvas Styling**:
+  - Curated font pairings (Modern Serif, Minimalist Sans, Elegant Script, Bold Monospace).
+  - Fine-grained controls for quote card opacity, backdrop blur intensity, and text alignment.
+- **User Photo Backgrounds**:
+  - Allow users to import personal images from their Photos library to pair with any quote.
+- **Animated & Parallax Wallpapers**:
+  - Gyroscope-based 3D depth parallax motion on quote cards when tilting the device.
+
+### 7. Mindfulness & Habit Building
+- **Mood & Intention Tagging**:
+  - Quick mood selector (*Grateful*, *Determined*, *Calm*, *Energized*, *Reflective*) dynamically adapting the recommended feed.
+- **Daily Reflection Micro-Journal**:
+  - Attach a private note or personal reflection to any favorited quote.
+- **Reading Streaks & Mindful Milestones**:
+  - Gentle, non-intrusive habit tracking celebrating consecutive daily check-ins and reflection milestones.
+
+### 8. Localization & Privacy
+- **Localization (i18n) via String Catalogs**:
+  - Multi-language quotes and interface translations (Spanish, French, German, Japanese, Hindi, etc.) using `.xcstrings`.
+- **Biometric Lock (Face ID / Touch ID)**:
+  - Optional biometric protection for personal favorites and private journal entries.
+- **Zero-Tracker Privacy Architecture**:
+  - 100% on-device processing and analytics, with zero third-party advertising trackers or data harvesting.
+
+### 9. Technical Debt Governance (Engineering & Customer Journey)
 Establish an active technical debt backlog with dual evaluation:
 - **Engineering Perspective**:
   - Eliminate absolute filesystem paths in local persistence (`DefaultFavoritesRepository`) by migrating to relative path resolution.
