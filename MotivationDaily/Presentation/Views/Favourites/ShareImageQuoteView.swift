@@ -212,6 +212,7 @@ struct ShareImageQuoteView: View {
                 }
             }
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("share.sheet")
         .onAppear(perform: createShareableImage)
         .onDisappear {

@@ -30,6 +30,7 @@ final class APIService {
         request.httpMethod = "GET"
         request.cachePolicy = cachePolicy
         request.timeoutInterval = 25
+        request.setValue("MotivationDaily/1.0", forHTTPHeaderField: "User-Agent")
 
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else {

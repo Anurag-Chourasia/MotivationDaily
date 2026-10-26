@@ -211,6 +211,8 @@ actor FeedCatalogueStore {
 
     private var seedTask: Task<Void, Never>?
     private var fullSyncTask: Task<Void, Never>?
+    private var sessionQuotesCache: [String: [Quote]] = [:]
+    private let sessionImageOffset: Int = Int.random(in: 1...100_000)
 
     init(
         apiService: APIService,
@@ -574,9 +576,10 @@ actor FeedCatalogueStore {
             }
         }
 
-        let available = snapshot.quotesByCategory[bucketKey]
+        let rawAvailable = snapshot.quotesByCategory[bucketKey]
             ?? (bucketKey == Snapshot.randomKey ? snapshot.randomQuotes : nil)
             ?? []
+        let available = sessionQuotes(for: bucketKey, from: rawAvailable)
 
         guard !available.isEmpty else {
             if bucketKey == Snapshot.randomKey, let advice = try? await fetchAdviceSlipQuote() {
@@ -584,9 +587,10 @@ actor FeedCatalogueStore {
                 snapshot.quotesByCategory[Snapshot.randomKey] = snapshot.randomQuotes
                 snapshot.updatedAt = Date()
                 persistSnapshot()
+                sessionQuotesCache.removeValue(forKey: Snapshot.randomKey)
                 return advice
             }
-            if let random = snapshot.randomQuotes.first, bucketKey == Snapshot.randomKey {
+            if let random = snapshot.randomQuotes.first {
                 return random
             }
             throw FeedCatalogueError.unavailable
@@ -677,12 +681,32 @@ actor FeedCatalogueStore {
         return abs(digest % 997) + 1
     }
 
+    private func sessionQuotes(for bucketKey: String, from source: [Quote]) -> [Quote] {
+        guard !source.isEmpty else { return [] }
+        if let existing = sessionQuotesCache[bucketKey], !existing.isEmpty {
+            if existing.count < source.count {
+                let existingIds = Set(existing.compactMap(\.id))
+                let newItems = source.filter { quote in
+                    guard let id = quote.id else { return false }
+                    return !existingIds.contains(id)
+                }.shuffled()
+                let updated = existing + newItems
+                sessionQuotesCache[bucketKey] = updated
+                return updated
+            }
+            return existing
+        }
+        let shuffled = source.shuffled()
+        sessionQuotesCache[bucketKey] = shuffled
+        return shuffled
+    }
+
     private func resolveImageMeta(x: Int, y: Int) -> CatalogueImageMeta? {
         guard !snapshot.images.isEmpty else {
             return nil
         }
 
-        let hashValue = deterministicHash(x: x, y: y)
+        let hashValue = deterministicHash(x: x, y: y &+ sessionImageOffset)
         let index = Int(hashValue % UInt64(snapshot.images.count))
         return snapshot.images[index]
     }

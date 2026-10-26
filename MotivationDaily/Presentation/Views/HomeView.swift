@@ -642,7 +642,7 @@ struct HomeView: View {
     private func selectCategory(_ key: CategoryKey?) {
         selectedCategory = key
         let lane = laneKey(category: key, ratio: selectedRatio)
-        activeDepth = clampedDepth(depthByLane[lane] ?? activeDepth, for: key)
+        activeDepth = clampedDepth(depthByLane[lane] ?? 0, for: key)
         targetDepth = activeDepth
         currentDepth = activeDepth
         depthByLane[lane] = activeDepth
@@ -860,9 +860,7 @@ struct HomeView: View {
     ) -> FeedPageViewModel.FeedPageContent? {
         let key = coordinate(category: category, depth: depth, ratio: ratio)
         guard let cached = pageCache[key] else { return nil }
-        let adapted = adaptContent(cached, for: ratio)
-        pageCache[key] = adapted
-        return adapted
+        return adaptContent(cached, for: ratio)
     }
 
     private func isCurrentCoordinate(_ value: FeedCoordinate) -> Bool {
@@ -1114,11 +1112,23 @@ struct HomeView: View {
         _ content: FeedPageViewModel.FeedPageContent,
         for ratio: WallpaperAspectRatio
     ) -> FeedPageViewModel.FeedPageContent {
-        guard let targetAspect = ratio.value else { return content }
-        let croppedImage = cropImage(content.image, toAspect: targetAspect)
+        let sourceImage = LightImageCache.shared.image(for: content.imageURL) ?? content.originalImage
+        guard let targetAspect = ratio.value else {
+            return FeedPageViewModel.FeedPageContent(
+                quote: content.quote,
+                image: sourceImage,
+                originalImage: sourceImage,
+                imageURL: content.imageURL,
+                imageSource: content.imageSource,
+                seed: content.seed,
+                imageCategoryTitle: content.imageCategoryTitle
+            )
+        }
+        let croppedImage = cropImage(sourceImage, toAspect: targetAspect)
         return FeedPageViewModel.FeedPageContent(
             quote: content.quote,
             image: croppedImage,
+            originalImage: sourceImage,
             imageURL: content.imageURL,
             imageSource: content.imageSource,
             seed: content.seed,
@@ -1127,7 +1137,6 @@ struct HomeView: View {
     }
 
     private func adaptCachedPages(for ratio: WallpaperAspectRatio) {
-        guard ratio.value != nil else { return }
         pageCache = pageCache.mapValues { content in
             adaptContent(content, for: ratio)
         }
