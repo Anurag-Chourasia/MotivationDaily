@@ -62,4 +62,28 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
             savedDate: savedDate
         )
     }
+
+    var resolvedLocalImageURL: URL? {
+        guard let localImagePath, !localImagePath.isEmpty else { return nil }
+
+        let filename = localImagePath.hasPrefix("/")
+            ? URL(fileURLWithPath: localImagePath).lastPathComponent
+            : localImagePath
+
+        let baseDirectory =
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let fileURL = baseDirectory.appendingPathComponent("FavoriteImages", isDirectory: true).appendingPathComponent(filename)
+
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            return fileURL
+        }
+
+        if localImagePath.hasPrefix("/"), FileManager.default.fileExists(atPath: localImagePath) {
+            return URL(fileURLWithPath: localImagePath)
+        }
+
+        return nil
+    }
 }

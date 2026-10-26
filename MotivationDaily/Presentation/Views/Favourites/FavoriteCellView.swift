@@ -81,6 +81,7 @@ struct FavoriteCellView: View {
         )
         .shadow(color: Color.black.opacity(0.07), radius: 10, x: 0, y: 5)
         .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("favorites.cell")
         .onTapGesture {
             onImageTap()
@@ -151,9 +152,8 @@ struct FavoriteCellView: View {
         loadTask?.cancel()
         guard renderedImage == nil else { return }
 
-        if let localPath = favorite.localImagePath,
-           !localPath.isEmpty,
-           let localImage = UIImage(contentsOfFile: localPath) {
+        if let localURL = favorite.resolvedLocalImageURL,
+           let localImage = UIImage(contentsOfFile: localURL.path) {
             renderedImage = localImage
             isLoading = false
             return

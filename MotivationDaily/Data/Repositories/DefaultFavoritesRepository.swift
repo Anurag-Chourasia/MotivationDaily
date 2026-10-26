@@ -36,7 +36,33 @@ final class DefaultFavoritesRepository: FavoritesRepository {
         }
 
         do {
-            return try decoder.decode([FavoriteQuote].self, from: data)
+            let favorites = try decoder.decode([FavoriteQuote].self, from: data)
+            var needsMigration = false
+            let normalized = favorites.map { item -> FavoriteQuote in
+                guard let path = item.localImagePath, !path.isEmpty else { return item }
+                if path.hasPrefix("/") {
+                    needsMigration = true
+                    let filename = URL(fileURLWithPath: path).lastPathComponent
+                    return FavoriteQuote(
+                        id: item.id,
+                        text: item.text,
+                        author: item.author,
+                        source: item.source,
+                        categoryKey: item.categoryKey,
+                        imageURL: item.imageURL,
+                        localImagePath: filename,
+                        ratioRawValue: item.ratioRawValue,
+                        imageWidth: item.imageWidth,
+                        imageHeight: item.imageHeight,
+                        savedDate: item.savedDate
+                    )
+                }
+                return item
+            }
+            if needsMigration {
+                try? saveFavorites(normalized)
+            }
+            return normalized
         } catch {
             throw AppError.storage("Failed to decode favorites: \(error.localizedDescription)")
         }
@@ -61,11 +87,12 @@ final class DefaultFavoritesRepository: FavoritesRepository {
         }
 
         let safeName = makeSafeFileName(from: quoteID)
-        let fileURL = imagesDirectoryURL.appendingPathComponent("\(safeName).jpg")
+        let fileName = "\(safeName).jpg"
+        let fileURL = imagesDirectoryURL.appendingPathComponent(fileName)
 
         do {
             try data.write(to: fileURL, options: .atomic)
-            return fileURL.path
+            return fileName
         } catch {
             throw AppError.storage("Failed to store favorite image: \(error.localizedDescription)")
         }
@@ -73,9 +100,14 @@ final class DefaultFavoritesRepository: FavoritesRepository {
 
     func removeImage(at localPath: String) {
         guard !localPath.isEmpty else { return }
-        let fileURL = URL(fileURLWithPath: localPath)
-        guard fileManager.fileExists(atPath: fileURL.path) else { return }
-        try? fileManager.removeItem(at: fileURL)
+        let fileName = localPath.hasPrefix("/") ? URL(fileURLWithPath: localPath).lastPathComponent : localPath
+        let fileURL = imagesDirectoryURL.appendingPathComponent(fileName)
+        if fileManager.fileExists(atPath: fileURL.path) {
+            try? fileManager.removeItem(at: fileURL)
+        }
+        if localPath.hasPrefix("/"), fileManager.fileExists(atPath: localPath) {
+            try? fileManager.removeItem(atPath: localPath)
+        }
     }
 
     private func makeSafeFileName(from source: String) -> String {

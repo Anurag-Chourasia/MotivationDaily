@@ -575,7 +575,8 @@ struct HomeView: View {
         }
 
         Task {
-            let localImageData = await jpegDataForStorage(from: content.image)
+            let masterImage = LightImageCache.shared.image(for: content.imageURL) ?? content.originalImage
+            let localImageData = await jpegDataForStorage(from: masterImage)
             let requestSize = pageVM.imageRequestSize(for: selectedRatio)
             await MainActor.run {
                 let resolvedData = localImageData ?? (isUITestMode ? fallbackImageDataForUITest() : nil)

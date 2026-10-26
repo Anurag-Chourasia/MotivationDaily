@@ -318,9 +318,8 @@ struct ShareImageQuoteView: View {
                 return
             }
 
-            if let localPath = favorite.localImagePath,
-               !localPath.isEmpty,
-               let localImage = UIImage(contentsOfFile: localPath) {
+            if let localURL = favorite.resolvedLocalImageURL,
+               let localImage = UIImage(contentsOfFile: localURL.path) {
                 sourceImage = localImage
                 renderComposite(
                     image: localImage,

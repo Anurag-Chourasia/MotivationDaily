@@ -167,16 +167,16 @@ The following items are actively tracked for the Favorites / Bookmarks feature:
   - 100% on-device processing and analytics, with zero third-party advertising trackers or data harvesting.
 
 ### 9. Technical Debt Governance (Engineering & Customer Journey)
-Establish an active technical debt backlog with dual evaluation:
+Active technical debt backlog and tracking with dual evaluation:
 - **Engineering Perspective**:
-  - Eliminate absolute filesystem paths in local persistence (`DefaultFavoritesRepository`) by migrating to relative path resolution.
-  - Decouple singleton dependencies (`LightImageCache.shared`, `ImageLoader.shared`) in favor of protocol-injected services.
-  - Isolate live API clients from test targets through protocol mocks.
+  - [x] **Eliminate absolute filesystem paths in local persistence**: Migrated `DefaultFavoritesRepository` and `FavoriteQuote` to relative filename storage with dynamic container-aware path resolution (`resolvedLocalImageURL`), fixing broken image links across container UUID updates.
+  - [ ] **Decouple singleton dependencies**: Replace direct calls to `LightImageCache.shared` and `ImageLoader.shared` with protocol-injected services in view models and views.
+  - [ ] **Isolate live API clients from test targets**: Provide protocol-based mock adapters and offline JSON fixtures.
 - **Customer Journey Perspective**:
-  - Fix favorite resizing so master uncropped images are preserved when saved from custom ratios (e.g. 1:1).
-  - Prevent saved favorites images from being lost across app reopens by eliminating stale sandbox container paths.
-  - Eliminate blank card flickers during fast scrolling via proactive prewarming.
-  - Provide graceful offline recovery banners with automatic retry when connectivity returns.
+  - [x] **Preserve original master image on custom ratio saves**: Ensure pristine, uncropped master images are saved on disk so users can freely switch aspect ratios (1:1, 16:9, 9:16, Fullscreen) inside Bookmarks/Favorites without blurriness or cropping artifacts.
+  - [x] **Prevent saved favorite images from getting lost on app reopens**: Persisting stable relative image filenames ensures favorites stay intact indefinitely across app launches and sandbox container rotations.
+  - [ ] **Eliminate blank card flickers during fast scrolling**: Proactive prewarming and preloading for adjacent cards in the feed.
+  - [ ] **Graceful offline recovery banners**: Auto-retry quote and image fetching when network connectivity returns.
 
 ---
 
