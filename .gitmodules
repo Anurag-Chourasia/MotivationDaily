@@ -1,0 +1,3 @@
+[submodule "Submodules/AppStubData"]
+	path = Submodules/AppStubData
+	url = https://github.com/Anurag-Chourasia/AppStubData.git

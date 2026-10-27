@@ -171,12 +171,35 @@ Active technical debt backlog and tracking with dual evaluation:
 - **Engineering Perspective**:
   - [x] **Eliminate absolute filesystem paths in local persistence**: Migrated `DefaultFavoritesRepository` and `FavoriteQuote` to relative filename storage with dynamic container-aware path resolution (`resolvedLocalImageURL`), fixing broken image links across container UUID updates.
   - [ ] **Decouple singleton dependencies**: Replace direct calls to `LightImageCache.shared` and `ImageLoader.shared` with protocol-injected services in view models and views.
-  - [ ] **Isolate live API clients from test targets**: Provide protocol-based mock adapters and offline JSON fixtures.
+  - [x] **Isolate live API clients from test targets**: Provide protocol-based mock adapters and offline JSON fixtures via pinned [`Submodules/AppStubData`](Submodules/AppStubData).
 - **Customer Journey Perspective**:
   - [x] **Preserve original master image on custom ratio saves**: Ensure pristine, uncropped master images are saved on disk so users can freely switch aspect ratios (1:1, 16:9, 9:16, Fullscreen) inside Bookmarks/Favorites without blurriness or cropping artifacts.
   - [x] **Prevent saved favorite images from getting lost on app reopens**: Persisting stable relative image filenames ensures favorites stay intact indefinitely across app launches and sandbox container rotations.
   - [ ] **Eliminate blank card flickers during fast scrolling**: Proactive prewarming and preloading for adjacent cards in the feed.
   - [ ] **Graceful offline recovery banners**: Auto-retry quote and image fetching when network connectivity returns.
+
+---
+
+## 📦 Shared Stub Data Submodule
+
+`Motivation Daily` integrates the shared [`AppStubData`](Submodules/AppStubData) Git submodule for deterministic offline testing and previews across `.positive`, `.empty`, and `.negative` scenarios:
+
+```swift
+import AppStubData
+
+// Quotes fixture
+let quotes = try Fixtures.data(for: .motivationDaily).endpoint(.quotes).scenario(.positive)
+
+// Wallpapers fixture
+let wallpapers = try Fixtures.data(for: .motivationDaily).endpoint(.wallpapers).scenario(.positive)
+```
+
+### Submodule Verification & Tests
+Verify pinned submodule commit and test fixtures decoding:
+```bash
+python3 Scripts/verify-submodules.py
+python3 TestSupport/run-stub-fixtures-tests.py
+```
 
 ---
 
