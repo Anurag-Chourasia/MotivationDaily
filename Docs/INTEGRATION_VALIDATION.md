@@ -46,3 +46,13 @@ Result bundles (temporary local artifacts):
 - SwiftLint helper scripts exist, but this checkout lacks the rule/version configuration;
   SwiftLint enforcement is not claimed as part of this integration validation.
 - No coverage percentage claim is made. No new baseline images were accepted.
+
+## CI follow-up — 31 October 2026
+
+The first PR check failed while cloning private AppStubData during checkout.
+Submodules now fetch after repository-specific SSH credentials are installed.
+Eight separate read-only deploy keys were provisioned and their fetch access verified;
+private material was stored in Actions secrets and removed from temporary local storage.
+The default runner changed to `xcode-27`, whose published inventory includes Xcode 27.1
+and iOS 27.0. CI creates the iPhone 11 simulator explicitly, since it is not pre-created
+on that runner. Passing remote test results are still required before merging.
