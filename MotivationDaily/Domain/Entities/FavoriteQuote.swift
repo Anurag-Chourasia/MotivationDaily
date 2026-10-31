@@ -49,7 +49,7 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
         savedDate: Date = Date()
     ) {
         self.init(
-            id: quote.id ?? UUID().uuidString,
+            id: quote.id ?? quote.text,
             text: quote.text,
             author: quote.author,
             source: quote.source,

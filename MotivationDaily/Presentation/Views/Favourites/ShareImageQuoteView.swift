@@ -455,7 +455,7 @@ struct ShareImageQuoteView: View {
         return nil
     }
 
-    private func preferredLayoutSize() -> CGSize? {
+    func preferredLayoutSize() -> CGSize? {
         if let layoutSize, layoutSize.width > 0, layoutSize.height > 0 {
             return layoutSize
         }
@@ -472,7 +472,7 @@ struct ShareImageQuoteView: View {
         return nil
     }
 
-    private func copyToClipboard() {
+    func copyToClipboard() {
         UIPasteboard.general.string = shareContent
         showCopiedAlert = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -480,13 +480,13 @@ struct ShareImageQuoteView: View {
         }
     }
 
-    private func presentSnapshotFailureAlert() {
+    func presentSnapshotFailureAlert() {
         saveAlertTitle = "Share Image Failed"
         saveAlertMessage = "We couldn't prepare the share image. Please try again."
         showSaveAlert = true
     }
 
-    private func isLikelyBlank(_ image: UIImage) -> Bool {
+    func isLikelyBlank(_ image: UIImage) -> Bool {
         guard let cgImage = image.cgImage else { return true }
         let width = 8
         let height = 8

@@ -1,4 +1,6 @@
 import SwiftUI
+import UIComponentsKit
+import DesignTokensKit
 
 struct ConnectivityBannerView: View {
     let message: String
@@ -6,22 +8,26 @@ struct ConnectivityBannerView: View {
     let accent: Color
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: isWarning ? "wifi.slash" : "wifi")
-                .accessibilityHidden(true)
-            Text(message)
-        }
-        .font(.caption)
-        .foregroundColor(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity)
-        .background(backgroundColor)
+        IconMessageBanner(
+            spacing: Spacing.eight,
+            padding: Spacing.eight,
+            font: Typography.caption,
+            foreground: DesignColor.white,
+            icon: {
+                Image(systemName: isWarning ? "wifi.slash" : "wifi")
+            },
+            message: {
+                Text(message)
+            },
+            background: {
+                backgroundColor
+            }
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(message))
     }
 
     private var backgroundColor: Color {
-        isWarning ? Color.red : accent
+        isWarning ? DesignColor.red : accent
     }
 }

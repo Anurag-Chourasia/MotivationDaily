@@ -1,0 +1,30 @@
+{
+  "commonnetworking": {
+    "version": "1.1.0",
+    "revision": "c6ff2b5fb081bb2e8a7f559c1f34b7aff03764cd"
+  },
+  "foundationkit": {
+    "version": "0.1.1",
+    "revision": "bb31bce9d4981684eacf11a560e7e32a2b0975a7"
+  },
+  "localizationkit": {
+    "version": "0.1.1",
+    "revision": "fdb91f3512131496c62a3468781a3ebcdd455841"
+  },
+  "designtokenskit": {
+    "version": "1.2.0",
+    "revision": "511f8e67ade959be858ed384afb29b2c726389bb"
+  },
+  "uicomponentskit": {
+    "version": "1.2.0",
+    "revision": "0fcdd7135099e92fd480bca76dd8488de1e0010d"
+  },
+  "developerprofilekit": {
+    "version": "1.0.0",
+    "revision": "d418170af85d96999955b97dd4707be5288702a9"
+  },
+  "snapshottestkit": {
+    "version": "1.0.2",
+    "revision": "121e979186c23a34001effd812bd01fdf1d66ff7"
+  }
+}

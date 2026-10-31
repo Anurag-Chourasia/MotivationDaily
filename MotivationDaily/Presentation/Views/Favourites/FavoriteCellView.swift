@@ -1,5 +1,7 @@
 import SwiftUI
 import UIKit
+import UIComponentsKit
+import DesignTokensKit
 
 struct FavoriteCellView: View {
     let favorite: FavoriteQuote
@@ -13,7 +15,7 @@ struct FavoriteCellView: View {
     @State private var loadTask: Task<Void, Never>?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: Spacing.zero) {
             ZStack(alignment: .topTrailing) {
                 if let renderedImage {
                     Image(uiImage: renderedImage)
@@ -28,59 +30,60 @@ struct FavoriteCellView: View {
                 }
 
                 if isLoading {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .tint(.white)
-                        .padding(10)
-                        .background(Color.black.opacity(0.35))
-                        .clipShape(Circle())
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    CenteredProgressOverlay(
+                        width: nil,
+                        label: { EmptyView() },
+                        background: { DesignColor.black.opacity(OpacityToken.p0_35) }
+                    )
+                    .clipShape(Circle())
+                    .frame(width: DesignMetric.p40, height: DesignMetric.p40)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
 
                 Button(action: onToggleFavorite) {
                     Image(systemName: "heart.fill")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.red)
-                        .frame(width: 34, height: 34)
-                        .background(Color.white.opacity(0.92))
+                        .font(.system(size: Spacing.fourteen, weight: .bold))
+                        .foregroundColor(DesignColor.red)
+                        .frame(width: DesignMetric.p34, height: DesignMetric.p34)
+                        .background(DesignColor.white.opacity(0.92))
                         .clipShape(Circle())
                         .overlay(
                             Circle()
-                                .stroke(Color.black.opacity(0.12), lineWidth: 1)
+                                .stroke(DesignColor.black.opacity(0.12), lineWidth: StrokeWidth.one)
                         )
                 }
-                .padding(12)
+                .padding(Spacing.twelve)
                 .buttonStyle(.plain)
                 .accessibilityLabel("Remove Favorite")
                 .accessibilityIdentifier("favorites.removeButton")
             }
 
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: Spacing.ten) {
                 Text("\"\(favorite.text)\"")
                     .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .foregroundColor(.primary)
-                    .lineSpacing(3)
+                    .foregroundColor(DesignColor.primary)
+                    .lineSpacing(DesignMetric.p3)
 
-                HStack(spacing: 8) {
+                HStack(spacing: Spacing.eight) {
                     tagPill(text: categoryTag)
                     tagPill(text: sourceTag)
                 }
 
                 Text("— \(favorite.author ?? "Unknown")")
-                    .font(.system(size: 14, weight: .medium, design: .serif))
+                    .font(.system(size: Spacing.fourteen, weight: .medium, design: .serif))
                     .italic()
-                    .foregroundColor(.secondary)
+                    .foregroundColor(DesignColor.secondary)
             }
-            .padding(14)
+            .padding(Spacing.fourteen)
         }
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(DesignColor.groupedSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.black.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous)
+                .stroke(DesignColor.black.opacity(0.08), lineWidth: StrokeWidth.one)
         )
-        .shadow(color: Color.black.opacity(0.07), radius: 10, x: 0, y: 5)
-        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: DesignColor.black.opacity(0.07), radius: Spacing.ten, x: 0, y: Spacing.five)
+        .contentShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("favorites.cell")
         .onTapGesture {

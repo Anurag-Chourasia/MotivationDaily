@@ -24,6 +24,7 @@
       </BuildActionEntries>
    </BuildAction>
    <TestAction
+      codeCoverageEnabled = "YES"
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
@@ -35,9 +36,31 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "346EE2363091AC06006198AF"
+               BuildableName = "MotivationDailyTests.xctest"
+               BlueprintName = "MotivationDailyTests"
+               ReferencedContainer = "container:MotivationDaily.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "T2C1A0010000000000000001"
                BuildableName = "MotivationDailyUITests.xctest"
                BlueprintName = "MotivationDailyUITests"
+               ReferencedContainer = "container:MotivationDaily.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "M07100000000000000000003"
+               BuildableName = "MotivationDailySnapshotTests.xctest"
+               BlueprintName = "MotivationDailySnapshotTests"
                ReferencedContainer = "container:MotivationDaily.xcodeproj">
             </BuildableReference>
          </TestableReference>

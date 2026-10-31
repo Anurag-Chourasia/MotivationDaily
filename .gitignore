@@ -15,3 +15,7 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Generated diagnostics (reference images remain tracked)
+*.diff.png
+__pycache__/

@@ -1,0 +1,87 @@
+name: Shared kits integration
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ${{ vars.IOS_CI_RUNNER || 'macos-latest' }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Configure read-only private dependency access
+        env:
+          DEVELOPERPROFILEKIT_DEPLOY_KEY: ${{ secrets.DEVELOPERPROFILEKIT_DEPLOY_KEY }}
+          FOUNDATIONKIT_DEPLOY_KEY: ${{ secrets.FOUNDATIONKIT_DEPLOY_KEY }}
+          LOCALIZATIONKIT_DEPLOY_KEY: ${{ secrets.LOCALIZATIONKIT_DEPLOY_KEY }}
+          COMMONNETWORKING_DEPLOY_KEY: ${{ secrets.COMMONNETWORKING_DEPLOY_KEY }}
+          DESIGNTOKENSKIT_DEPLOY_KEY: ${{ secrets.DESIGNTOKENSKIT_DEPLOY_KEY }}
+          UICOMPONENTSKIT_DEPLOY_KEY: ${{ secrets.UICOMPONENTSKIT_DEPLOY_KEY }}
+          SNAPSHOTTESTKIT_DEPLOY_KEY: ${{ secrets.SNAPSHOTTESTKIT_DEPLOY_KEY }}
+        run: bash Scripts/configure-private-dependencies.sh
+
+      - name: Select validated Xcode toolchain
+        run: |
+          xcode_path="/Applications/Xcode_27.1.app/Contents/Developer"
+          if [ ! -d "$xcode_path" ]; then xcode_path="/Applications/Xcode 27.1.app/Contents/Developer"; fi
+          test -d "$xcode_path" || { echo "Runner requires Xcode 27.1; configure IOS_CI_RUNNER for a compatible runner."; exit 1; }
+          echo "DEVELOPER_DIR=$xcode_path" >> "$GITHUB_ENV"
+
+
+      - name: Verify submodules
+        run: python3 Scripts/verify-submodules.py
+
+      - name: Check design tokens compliance
+        run: python3 Scripts/check_design_tokens.py
+
+      - name: Verify and resolve exact package pins
+        run: |
+          python3 Scripts/verify_pins.py
+          xcodebuild -resolvePackageDependencies -project MotivationDaily.xcodeproj -scheme MotivationDaily -onlyUsePackageVersionsFromResolvedFile -scmProvider system
+          python3 Scripts/verify_pins.py
+          git diff --exit-code -- '*.resolved'
+
+      - name: Test stub fixtures
+        run: python3 TestSupport/run-stub-fixtures-tests.py
+
+      - name: Test exact package revisions
+        run: python3 Scripts/test_dependencies.py
+
+      - name: Run unit, UI and snapshot tests
+        run: bash Scripts/test-integration.sh
+
+      - name: Build app Release for iOS Simulator
+        run: >-
+          xcodebuild -project MotivationDaily.xcodeproj -scheme MotivationDaily
+          -configuration Release -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath "$RUNNER_TEMP/AppDerived"
+          -onlyUsePackageVersionsFromResolvedFile -disableAutomaticPackageResolution
+          -scmProvider system CODE_SIGNING_ALLOWED=NO build
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motivation-integration-results
+          path: |
+            ${{ runner.temp }}/MotivationIntegration.xcresult
+            MotivationDailySnapshotTests/__Snapshots__/**/*.diff.png
+
+      - name: Remove dependency credentials
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/shared-kit-credentials"

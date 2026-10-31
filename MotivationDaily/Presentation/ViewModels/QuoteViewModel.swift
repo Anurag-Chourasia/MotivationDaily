@@ -69,9 +69,27 @@ final class QuoteViewModel: ObservableObject {
         }
     }
 
+    func removeFromFavorites(quote: Quote) {
+        if let id = quote.id, let favorite = favorites.first(where: { $0.id == id || $0.text == quote.text }) {
+            removeFromFavorites(favorite.id)
+        } else if let favorite = favorites.first(where: { $0.text == quote.text }) {
+            removeFromFavorites(favorite.id)
+        } else if let id = quote.id {
+            removeFromFavorites(id)
+        }
+    }
+
     func isFavorited(_ quoteID: String?) -> Bool {
         guard let quoteID else { return false }
         return favorites.contains { $0.id == quoteID }
+    }
+
+    func isFavorited(quote: Quote?) -> Bool {
+        guard let quote else { return false }
+        if let id = quote.id, !id.isEmpty {
+            return favorites.contains { $0.id == id || $0.text == quote.text }
+        }
+        return favorites.contains { $0.text == quote.text }
     }
 
     func getFavorite(_ quoteID: String) -> FavoriteQuote? {

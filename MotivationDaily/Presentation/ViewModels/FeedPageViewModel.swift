@@ -46,10 +46,12 @@ final class FeedPageViewModel: ObservableObject {
     }
 
     private let catalogueStore: FeedCatalogueStore
+    private let imageLoader: ImageLoader
     private var inFlightTasks: [String: Task<FeedPageContent, Error>] = [:]
 
-    init(catalogueStore: FeedCatalogueStore) {
+    init(catalogueStore: FeedCatalogueStore, imageLoader: ImageLoader = .shared) {
         self.catalogueStore = catalogueStore
+        self.imageLoader = imageLoader
     }
 
     func applyCached(_ content: FeedPageContent) {
@@ -171,7 +173,7 @@ final class FeedPageViewModel: ObservableObject {
                 depth: depth,
                 quoteOverride: quoteOverride
             )
-            let image = try await ImageLoader.shared.load(url: page.imageURL)
+            let image = try await imageLoader.load(url: page.imageURL)
             let content = FeedPageContent(
                 quote: page.quote,
                 image: image,

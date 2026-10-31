@@ -1,5 +1,7 @@
 import SwiftUI
 import UIKit
+import DesignTokensKit
+import UIComponentsKit
 
 private enum FeedBootPhase {
     case cold
@@ -7,14 +9,21 @@ private enum FeedBootPhase {
     case ready
 }
 
-private struct FeedLaneKey: Hashable {
+struct FeedLaneKey: Hashable {
     let categoryRawValue: String
     let ratioRawValue: String
     let imageWidth: Int
     let imageHeight: Int
+
+    init(category: CategoryKey?, ratio: WallpaperAspectRatio, imageSize: (width: Int, height: Int)) {
+        categoryRawValue = category?.rawValue ?? "random"
+        ratioRawValue = ratio.rawValue
+        imageWidth = imageSize.width
+        imageHeight = imageSize.height
+    }
 }
 
-private struct FeedCoordinate: Hashable {
+struct FeedCoordinate: Hashable {
     let lane: FeedLaneKey
     let depth: Int
 }
@@ -41,6 +50,7 @@ struct HomeView: View {
     @State private var showFavorites = false
     @State private var showShareSheet = false
     @State private var showAboutDeveloper = false
+    @State private var sharingContent: FeedPageViewModel.FeedPageContent?
 
     @State private var selectedCategory: CategoryKey?
     @State private var selectedRatio: WallpaperAspectRatio = .fullScreen
@@ -108,12 +118,13 @@ struct HomeView: View {
         .fullScreenCover(isPresented: $showFavorites) {
             FavoritesView(quoteVM: quoteVM)
         }
-        .sheet(isPresented: $showShareSheet) {
+        .sheet(isPresented: $showShareSheet, onDismiss: { sharingContent = nil }) {
+            let activeContent = sharingContent ?? pageVM.current
             ShareImageQuoteView(
                 favorite: nil,
                 favoriteImage: nil,
-                quote: pageVM.current?.quote,
-                wallpaper: pageVM.current?.image,
+                quote: activeContent?.quote,
+                wallpaper: activeContent?.image,
                 layoutSize: shareLayoutSize()
             )
         }
@@ -360,7 +371,7 @@ struct HomeView: View {
             .frame(width: quoteLayout.width, height: quoteCardHeight)
             .position(x: imageRect.midX, y: imageRect.midY)
 
-            sideActionRail(for: content.quote)
+            sideActionRail(for: content)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .padding(.trailing, 16)
                 .padding(.bottom, max(safeAreaInsets.bottom + 24, 32))
@@ -382,19 +393,22 @@ struct HomeView: View {
                 )
                 .ignoresSafeArea()
 
-                RoundedRectangle(cornerRadius: quoteLayout.isCompact ? 16 : 18, style: .continuous)
-                    .fill(Color.white.opacity(0.08))
+                RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
+                    .fill(DesignColor.white.opacity(0.08))
                     .overlay(
-                        RoundedRectangle(cornerRadius: quoteLayout.isCompact ? 16 : 18, style: .continuous)
-                            .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
+                            .stroke(DesignColor.white.opacity(0.18), lineWidth: StrokeWidth.one)
                     )
                     .frame(width: quoteLayout.width, height: quoteCardHeight)
                     .position(x: imageRect.midX, y: imageRect.midY)
 
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(.white.opacity(0.9))
-                    .scaleEffect(1.08)
+                CenteredProgressOverlay(
+                    width: nil,
+                    label: { EmptyView() },
+                    background: { DesignColor.clear }
+                )
+                .tint(DesignColor.white.opacity(0.9))
+                .scaleEffect(ScaleToken.p1_0)
             }
         }
     }
@@ -472,7 +486,7 @@ struct HomeView: View {
             }
     }
 
-    private func project(_ velocity: CGFloat) -> CGFloat {
+    func project(_ velocity: CGFloat) -> CGFloat {
         velocity * 0.32
     }
 
@@ -494,11 +508,11 @@ struct HomeView: View {
         }
     }
 
-    private func wallpaperRect(in container: CGSize) -> CGRect {
+    func wallpaperRect(in container: CGSize) -> CGRect {
         wallpaperRect(in: container, ratio: selectedRatio)
     }
 
-    private func wallpaperRect(in container: CGSize, ratio: WallpaperAspectRatio) -> CGRect {
+    func wallpaperRect(in container: CGSize, ratio: WallpaperAspectRatio) -> CGRect {
         guard container.width > 0, container.height > 0 else { return .zero }
         guard let ratioValue = ratio.value else {
             return CGRect(origin: .zero, size: container)
@@ -514,8 +528,11 @@ struct HomeView: View {
         )
     }
 
-    private func sideActionRail(for quote: Quote?) -> some View {
-        VStack(spacing: 14) {
+    private func sideActionRail(for content: FeedPageViewModel.FeedPageContent) -> some View {
+        let quote = content.quote
+        let isSaved = quoteVM.isFavorited(quote: quote)
+
+        return VStack(spacing: 14) {
             Menu {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectRatio(ratio) }) {
@@ -537,40 +554,36 @@ struct HomeView: View {
             .accessibilityIdentifier("content.ratioButton")
 
             Button(action: {
-                guard let quote else { return }
-                toggleFavorite(for: quote)
+                toggleFavorite(for: content)
             }) {
                 SideActionIconView(
-                    systemName: quote.map { quoteVM.isFavorited($0.id) ? "heart.fill" : "heart" } ?? "heart",
-                    label: quote.map { quoteVM.isFavorited($0.id) ? "Saved" : "Save" } ?? "Save",
-                    tint: quote.map { quoteVM.isFavorited($0.id) ? .red : .white } ?? .white
+                    systemName: isSaved ? "heart.fill" : "heart",
+                    label: isSaved ? "Saved" : "Save",
+                    tint: isSaved ? .red : .white
                 )
             }
-            .disabled(quote == nil)
             .buttonStyle(.plain)
             .accessibilityIdentifier("content.saveButton")
 
-            Button(action: { showShareSheet = true }) {
+            Button(action: {
+                sharingContent = content
+                showShareSheet = true
+            }) {
                 SideActionIconView(
                     systemName: "paperplane.fill",
                     label: "Share",
                     tint: .white
                 )
             }
-            .disabled(pageVM.current == nil)
             .buttonStyle(.plain)
             .accessibilityIdentifier("content.shareButton")
         }
     }
 
-    private func toggleFavorite(for quote: Quote) {
-        if quoteVM.isFavorited(quote.id) {
-            quoteVM.removeFromFavorites(quote.id ?? "")
-            return
-        }
-
-        guard let content = pageVM.current else {
-            pageVM.refreshError = "Image is still preparing. Please tap Save again."
+    private func toggleFavorite(for content: FeedPageViewModel.FeedPageContent) {
+        let quote = content.quote
+        if quoteVM.isFavorited(quote: quote) {
+            quoteVM.removeFromFavorites(quote: quote)
             return
         }
 
@@ -713,41 +726,40 @@ struct HomeView: View {
         scheduleVisualEffectsRestore()
     }
 
-    private func minimumQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
+    func minimumQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
         let layout = QuoteCardLayout.style(for: imageRect)
         return layout.isCompact ? 160 : 220
     }
 
-    private func preferredQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
+    func preferredQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
         let layout = QuoteCardLayout.style(for: imageRect)
         return layout.isCompact ? 248 : 320
     }
 
-    private func resolvedQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
+    func resolvedQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
         let availableHeight = max(imageRect.height - 12, 1)
         let minimumHeight = minimumQuoteCardHeight(for: imageRect)
         let preferredHeight = preferredQuoteCardHeight(for: imageRect)
         return min(preferredHeight, max(availableHeight, minimumHeight))
     }
 
-    private func laneKey(category: CategoryKey?, ratio: WallpaperAspectRatio) -> FeedLaneKey {
+    func laneKey(category: CategoryKey?, ratio: WallpaperAspectRatio) -> FeedLaneKey {
         let requestSize = pageVM.imageRequestSize(for: ratio)
         return FeedLaneKey(
-            categoryRawValue: category?.rawValue ?? "random",
-            ratioRawValue: ratio.rawValue,
-            imageWidth: requestSize.width,
-            imageHeight: requestSize.height
+            category: category,
+            ratio: ratio,
+            imageSize: requestSize
         )
     }
 
-    private func coordinate(category: CategoryKey?, depth: Int, ratio: WallpaperAspectRatio) -> FeedCoordinate {
+    func coordinate(category: CategoryKey?, depth: Int, ratio: WallpaperAspectRatio) -> FeedCoordinate {
         FeedCoordinate(
             lane: laneKey(category: category, ratio: ratio),
             depth: max(depth, 0)
         )
     }
 
-    private func categoryFromRaw(_ rawValue: String) -> CategoryKey? {
+    func categoryFromRaw(_ rawValue: String) -> CategoryKey? {
         rawValue == "random" ? nil : CategoryKey(rawValue: rawValue)
     }
 
@@ -927,7 +939,7 @@ struct HomeView: View {
         }
     }
 
-    private func surroundingCategories(around center: CategoryKey?, radius: Int) -> [CategoryKey?] {
+    func surroundingCategories(around center: CategoryKey?, radius: Int) -> [CategoryKey?] {
         let allCategories: [CategoryKey?] = [nil] + categories.map(\.key)
         guard let centerIndex = allCategories.firstIndex(where: { $0 == center }) else {
             return [center]
@@ -950,7 +962,7 @@ struct HomeView: View {
         return selected
     }
 
-    private func surroundingDepths(around center: Int, radius: Int) -> [Int] {
+    func surroundingDepths(around center: Int, radius: Int) -> [Int] {
         var values: [Int] = []
         for offset in (-radius)...radius {
             let value = center + offset
@@ -1068,21 +1080,21 @@ struct HomeView: View {
         }
     }
 
-    private func categoryTitle(for category: Category) -> String {
+    func categoryTitle(for category: Category) -> String {
         guard let quoteCount = category.quoteCount else {
             return category.displayName
         }
         return "\(category.displayName) (\(quoteCount))"
     }
 
-    private var randomTabTitle: String {
+    var randomTabTitle: String {
         if let randomQuoteCount {
             return "Random (\(randomQuoteCount))"
         }
         return "Random"
     }
 
-    private func maxDepth(for category: CategoryKey?) -> Int? {
+    func maxDepth(for category: CategoryKey?) -> Int? {
         guard let category else { return nil }
         guard let quoteCount = categories.first(where: { $0.key == category })?.quoteCount, quoteCount > 0 else {
             return nil
@@ -1090,7 +1102,7 @@ struct HomeView: View {
         return max(quoteCount - 1, 0)
     }
 
-    private func clampedDepth(_ depth: Int, for category: CategoryKey?) -> Int {
+    func clampedDepth(_ depth: Int, for category: CategoryKey?) -> Int {
         let nonNegativeDepth = max(depth, 0)
         guard let maxDepth = maxDepth(for: category) else { return nonNegativeDepth }
         return min(nonNegativeDepth, maxDepth)
@@ -1100,7 +1112,7 @@ struct HomeView: View {
         activeAlert = FeedAlert(title: title, message: message)
     }
 
-    private func shareLayoutSize() -> CGSize {
+    func shareLayoutSize() -> CGSize {
         let requestSize = pageVM.imageRequestSize(for: selectedRatio)
         let scale = max(UIScreen.main.scale, 1)
         return CGSize(
@@ -1109,7 +1121,7 @@ struct HomeView: View {
         )
     }
 
-    private func adaptContent(
+    func adaptContent(
         _ content: FeedPageViewModel.FeedPageContent,
         for ratio: WallpaperAspectRatio
     ) -> FeedPageViewModel.FeedPageContent {
@@ -1137,13 +1149,13 @@ struct HomeView: View {
         )
     }
 
-    private func adaptCachedPages(for ratio: WallpaperAspectRatio) {
+    func adaptCachedPages(for ratio: WallpaperAspectRatio) {
         pageCache = pageCache.mapValues { content in
             adaptContent(content, for: ratio)
         }
     }
 
-    private func cropImage(_ image: UIImage, toAspect aspect: CGFloat) -> UIImage {
+    func cropImage(_ image: UIImage, toAspect aspect: CGFloat) -> UIImage {
         guard aspect > 0 else { return image }
         let normalized = normalizedImage(image)
         guard let cgImage = normalized.cgImage else { return image }
@@ -1170,7 +1182,7 @@ struct HomeView: View {
         return UIImage(cgImage: cropped, scale: normalized.scale, orientation: .up)
     }
 
-    private func normalizedImage(_ image: UIImage) -> UIImage {
+    func normalizedImage(_ image: UIImage) -> UIImage {
         if image.imageOrientation == .up {
             return image
         }
