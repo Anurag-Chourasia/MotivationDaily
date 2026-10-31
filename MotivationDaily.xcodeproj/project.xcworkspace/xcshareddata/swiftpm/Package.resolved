@@ -1,0 +1,69 @@
+{
+  "originHash" : "d3bf9fc82c9896d40e726a25bda2ae5cf3372859206e8a7096b48b5e9c1a44b7",
+  "pins" : [
+    {
+      "identity" : "commonnetworking",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/CommonNetworking.git",
+      "state" : {
+        "revision" : "c6ff2b5fb081bb2e8a7f559c1f34b7aff03764cd",
+        "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "designtokenskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/DesignTokensKit.git",
+      "state" : {
+        "revision" : "511f8e67ade959be858ed384afb29b2c726389bb",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "developerprofilekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/DeveloperProfileKit.git",
+      "state" : {
+        "revision" : "d418170af85d96999955b97dd4707be5288702a9",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "foundationkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/FoundationKit.git",
+      "state" : {
+        "revision" : "bb31bce9d4981684eacf11a560e7e32a2b0975a7",
+        "version" : "0.1.1"
+      }
+    },
+    {
+      "identity" : "localizationkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/LocalizationKit.git",
+      "state" : {
+        "revision" : "fdb91f3512131496c62a3468781a3ebcdd455841",
+        "version" : "0.1.1"
+      }
+    },
+    {
+      "identity" : "snapshottestkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/SnapshotTestKit.git",
+      "state" : {
+        "revision" : "121e979186c23a34001effd812bd01fdf1d66ff7",
+        "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "uicomponentskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/UIComponentsKit.git",
+      "state" : {
+        "revision" : "0fcdd7135099e92fd480bca76dd8488de1e0010d",
+        "version" : "1.2.0"
+      }
+    }
+  ],
+  "version" : 3
+}

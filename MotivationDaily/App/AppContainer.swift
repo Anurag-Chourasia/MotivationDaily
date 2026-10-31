@@ -1,8 +1,14 @@
 import Foundation
 import UIKit
+import FoundationKit
+import LocalizationKit
 
 final class AppContainer {
     static let live = AppContainer()
+
+    let localization: LocalizationProviding
+    let configuration: AppConfiguration
+    let logger: AppLogger
 
     private let fetchCategoriesUseCase: FetchCategoriesUseCase
     private let fetchWallpaperUseCase: FetchWallpaperUseCase
@@ -13,8 +19,14 @@ final class AppContainer {
     private let clearFavoritesUseCase: ClearFavoritesUseCase
     private let feedCatalogueStore: FeedCatalogueStore
 
-    init() {
-        let arguments = ProcessInfo.processInfo.arguments
+    init(arguments: [String] = ProcessInfo.processInfo.arguments,
+         favoritesDefaults: UserDefaults = .standard) {
+        self.localization = LocalizationController()
+        self.configuration = AppRuntime.configuration
+        self.logger = AppRuntime.logger
+
+        logger.log("Initializing AppContainer in \(configuration.environment.rawValue) mode", level: .info)
+
         let isUITestMode = arguments.contains("-UITestMode")
 
         let apiService = APIService()
@@ -61,7 +73,7 @@ final class AppContainer {
             )
         }
 
-        let favoritesRepository = DefaultFavoritesRepository()
+        let favoritesRepository = DefaultFavoritesRepository(userDefaults: favoritesDefaults)
         if isUITestMode {
             if arguments.contains("-UITestClearFavorites") {
                 _ = try? ClearFavoritesUseCase(favoritesRepository: favoritesRepository).execute()
@@ -127,7 +139,7 @@ final class AppContainer {
     }
 }
 
-private actor UITestWallpaperRepository: WallpaperRepository {
+actor UITestWallpaperRepository: WallpaperRepository {
     private var counter = 0
     private let outputDirectory: URL
 

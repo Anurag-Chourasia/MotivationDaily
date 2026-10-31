@@ -1,66 +1,43 @@
 import Foundation
 import Combine
+import DeveloperProfileKit
+import LocalizationKit
+import FoundationKit
 
 final class AboutViewModel: ObservableObject {
-    struct SocialLink: Identifiable {
-        let title: String
-        let image: String
-        let url: URL
-
-        var id: String { title }
-    }
-
     let navigationTitle = "About Developer"
     let developerName = "Anurag Chourasia"
     let developerRole = "iOS Developer"
-    let appName = "MotivationDaily"
-    let appDescription = "Built with SwiftUI, Clean Architecture and MVVM."
-    let disclaimer = "Quotes and wallpapers are provided by public APIs and may vary."
+    let appName = "Motivation Daily"
+    let appDescription = "Inspirational quotes paired with aesthetic wallpapers. Built with SwiftUI, Clean Architecture and MVVM."
+    let disclaimer = "Quotes and wallpapers are provided by public APIs (Quotable, ZenQuotes, AdviceSlip, and Picsum). All content is owned by their respective authors and creators."
 
-    @Published var showInvalidLinkAlert = false
+    let version: String
+    let build: String
+    let localization: LocalizationProviding
 
-    let socialLinks: [SocialLink] = AboutViewModel.buildSocialLinks()
-
-    var versionText: String {
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
-        return "Version \(version) (\(build))"
+    init(
+        version: String = AppRuntime.version,
+        build: String = AppRuntime.build,
+        localization: LocalizationProviding = AppContainer.live.localization
+    ) {
+        self.version = version
+        self.build = build
+        self.localization = localization
     }
 
-    private static func buildSocialLinks() -> [SocialLink] {
-        [
-            makeSocialLink(
-                title: "GitHub",
-                image: "GitHub",
-                urlString: "https://github.com/Anurag-Chourasia"
-            ),
-            makeSocialLink(
-                title: "LinkedIn",
-                image: "LinkedIn",
-                urlString: "https://www.linkedin.com/in/anurag-chourasia-b66710178/"
-            ),
-            makeSocialLink(
-                title: "Email",
-                image: "Gmail",
-                urlString: "mailto:anuragchourasiaios@gmail.com"
-            ),
-            makeSocialLink(
-                title: "CV",
-                image: "CV",
-                urlString: "https://drive.google.com/file/d/16lYgU9C3WyBlL1Jzf__tKiaXxnsNZ_jd/view"
-            )
-        ]
-        .compactMap { $0 }
-    }
-
-    private static func makeSocialLink(
-        title: String,
-        image: String,
-        urlString: String
-    ) -> SocialLink? {
-        guard let url = URL(string: urlString) else {
-            return nil
-        }
-        return SocialLink(title: title, image: image, url: url)
+    var profileLabels: DeveloperProfileLabels {
+        var labels = DeveloperProfileLabels()
+        labels.appInformation = "App Information"
+        labels.version = "Version"
+        labels.disclaimer = "Disclaimer"
+        labels.social = "Connect"
+        labels.readMore = "Read More"
+        labels.showLess = "Show Less"
+        labels.linkHint = "Double tap to open in browser"
+        labels.errorTitle = "Unable to Open Link"
+        labels.errorMessage = "Please try again later."
+        labels.okay = L10n.Common.ok(using: localization)
+        return labels
     }
 }

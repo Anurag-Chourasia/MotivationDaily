@@ -249,7 +249,7 @@ actor FeedCatalogueStore {
         if let seededSnapshot {
             self.snapshot = seededSnapshot
             self.didLoadFromDisk = true
-            persistSnapshot()
+            Self.write(snapshot: seededSnapshot, to: snapshotURL, encoder: self.encoder)
         }
     }
 
@@ -314,7 +314,7 @@ actor FeedCatalogueStore {
 
     private func ensureSeedRefreshStarted() {
         guard allowsNetworkSync else { return }
-        Task {
+        Task { [self] in
             await ensureSnapshotLoaded()
             if seedTask != nil {
                 return
@@ -717,13 +717,17 @@ actor FeedCatalogueStore {
         return "seed-\(stableStringHash(raw))"
     }
 
-    private func persistSnapshot() {
+    private static func write(snapshot: Snapshot, to url: URL, encoder: JSONEncoder) {
         guard let data = try? encoder.encode(snapshot) else { return }
         do {
-            try data.write(to: snapshotURL, options: .atomic)
+            try data.write(to: url, options: .atomic)
         } catch {
             // Best effort cache persistence.
         }
+    }
+
+    private func persistSnapshot() {
+        Self.write(snapshot: snapshot, to: snapshotURL, encoder: encoder)
     }
 
     private func mergeImages(

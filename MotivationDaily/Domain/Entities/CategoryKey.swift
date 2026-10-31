@@ -1,9 +1,9 @@
 import Foundation
 
-struct CategoryKey: RawRepresentable, Hashable, Codable {
+struct CategoryKey: RawRepresentable, Hashable, Codable, Sendable {
     let rawValue: String
 
-    init(rawValue: String) {
+    nonisolated init(rawValue: String) {
         self.rawValue = rawValue
     }
 }

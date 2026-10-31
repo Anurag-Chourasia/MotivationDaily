@@ -43,7 +43,7 @@ flowchart LR
 ### Technologies
 - **UI Framework**: SwiftUI
 - **Concurrency**: Swift Concurrency (`async`/`await`, `Task`, `actor`)
-- **Minimum Target**: iOS 15.0+
+- **Minimum Target**: iOS 16.0+
 - **Image Pipeline**: Custom `LightImageCache` with async image downsampling and display preparation (`preparingForDisplay()`).
 
 ---
@@ -81,18 +81,34 @@ Motivation Daily/
 
 ---
 
-## 📋 Known Issues & Tracking
+## Integration status
 
-The following items are actively tracked for the Favorites / Bookmarks feature:
+The original-image retention and relative-filename persistence fixes are implemented.
+Shared networking, runtime primitives, design tokens, UI components and developer-profile
+resources are wired into the app. LocalizationKit is available through the container;
+most visible strings still need migration.
 
-### 1. Custom Ratio Favorite Image Retention
-- **Description**: Saving a quote when set to a custom aspect ratio (e.g. `1:1`) writes the cropped image data to disk. When reviewing the saved quote in Bookmarks/Favorites, resizing back to Fullscreen or other ratios cannot restore the original uncropped image canvas.
-- **Planned Solution**: Persist the uncropped original master image (`content.originalImage`) alongside the chosen aspect ratio metadata, allowing non-destructive re-cropping on demand in the favorites full-screen viewer.
+The design-token guard scans all 66 application Swift files. Its explicit baseline
+tracks 185 existing violations; passing means no new violations, not full compliance.
+Run `python3 Scripts/check_design_tokens.py` to verify. Baseline changes require review.
 
-### 2. Sandbox Container Image Persistence Across Reopens
-- **Description**: Saved favorite images can become unavailable after the app is reopened multiple times.
-- **Root Cause**: `DefaultFavoritesRepository` currently stores absolute file paths (`fileURL.path`) in `UserDefaults`. In iOS, the sandbox container UUID changes between app launches and updates, causing absolute paths to become invalid.
-- **Planned Solution**: Store only relative file names in `FavoriteQuote.localImagePath` and reconstruct the full path dynamically at runtime using `FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)`.
+CI runs unit, UI and snapshot tests and checks that all three suites actually passed.
+It also builds Release and uploads the result bundle. The runner needs Xcode 27.1,
+an iPhone 11 simulator with iOS 27.0 (matching the visual baselines), and the private
+package secrets listed in `Scripts/configure-private-dependencies.sh`. Set the repository
+variable `IOS_CI_RUNNER` if the default runner does not provide that toolchain.
+Remote CI execution and minimum-iOS device acceptance must be verified separately.
+The Home snapshot covers its cold-start surface only; loaded-feed journeys run in
+HomeFlowTests. Accessibility images are visual checks, not proof of VoiceOver order.
+
+From this repository, run:
+
+```sh
+DEVELOPER_DIR='/Applications/Xcode 27.1.app/Contents/Developer' bash Scripts/test-integration.sh
+```
+
+Use `TEST_DESTINATION` and a fresh `TEST_RESULT_PATH` to override the destination/result.
+Do not record snapshots in CI. Review changed reference images before accepting them.
 
 ---
 
@@ -106,7 +122,7 @@ The following items are actively tracked for the Favorites / Bookmarks feature:
 
 ### 2. Testing & Quality Assurance
 - **Comprehensive UI Testing**: Broaden automated XCUITest suites to cover all core user journeys, tab switching, sheet presentations, share actions, and error recovery states.
-- **Snapshot Testing**: Implement visual regression testing (using Point-Free `swift-snapshot-testing`) across multiple device sizes, light/dark themes, and Dynamic Type accessibility scales.
+- **Snapshot Testing**: Expand visual regression testing using our `SnapshotTestKit` across multiple device sizes, light/dark themes, and Dynamic Type accessibility scales.
 - **Stub-Data Submodules**: Create dedicated mock and fixture test submodules to provide deterministic JSON payloads and offline fixtures, fully isolating tests from live network dependencies.
 - **SwiftLint Integration**: Enforce clean code guidelines, naming conventions, docstrings, and anti-pattern prevention via an SPM Build Tool plugin and pre-commit hooks.
 - **Continuous Integration (CI) Pipeline**: Set up automated GitHub Actions to run matrix testing, automated builds, test-result reporting, and code quality verification on every pull request.
@@ -180,6 +196,55 @@ Active technical debt backlog and tracking with dual evaluation:
 
 ---
 
+## 📦 Modular SPM Packages Ecosystem
+
+`Motivation Daily` consumes modular Swift Package Manager (SPM) libraries to enforce strict separation of concerns, eliminate duplicate assets/code, and share common capabilities across apps:
+
+| Package | Pin / Revision | Responsibility & Consumption |
+| :--- | :--- | :--- |
+| **`CommonNetworking`** | `1.1.0` (`c6ff2b5`) | Production HTTP networking client (`HTTPClient`) with structured request logging, response decoding, and robust error mapping used in `APIService`. |
+| **`FoundationKit`** | `0.1.1` (`bb31bce`) | Core app runtime primitives (`AppConfiguration`, `BuildEnvironment`, `FeatureFlags`, `AppLogger`, `SystemClock`) orchestrated in `AppRuntime`. |
+| **`LocalizationKit`** | `0.1.1` (`fdb91f3`) | Standardized localization protocol (`LocalizationProviding`) and bundled string providers injected into `AppContainer`. |
+| **`DesignTokensKit`** | `1.2.0` (`511f8e6`) | Centralized typography, colors, padding, spacing, border radii, line widths, and opacity tokens across quote cards, empty states, and overlays. |
+| **`UIComponentsKit`** | `1.2.0` (`0fcdd71`) | Accessible and token-driven UI widgets: `StateMessage` (empty favorites), `IconMessageBanner` (connectivity warning), and `CenteredProgressOverlay` (loading states). |
+| **`DeveloperProfileKit`** | `1.0.0` (`d418170`) | Reusable `DeveloperProfileView` for the About sheet, bundling bio metadata (`DeveloperAppInfo`), contact links, and asset catalogs (`Anurag`, `CV`, `GitHub`, `LinkedIn`, `Gmail`). |
+| **`SnapshotTestKit`** | `1.0.2` (`121e979`) | Cross-variant snapshot test harness (`SnapshotAssert.assertVariants`) covering Light, Dark, and Dynamic Type / Accessibility modes. |
+| **`AppStubData`** | `Submodules/AppStubData` (`903da26`) | Pinned local submodule with deterministic JSON fixtures (`.positive`, `.empty`, `.negative`) for offline mock providers and tests. |
+
+---
+
+## 🔒 Dependency & Code Quality Governance
+
+To prevent dependency drift, unvetted commits, and raw styling anti-patterns, the project enforces automated verification scripts:
+
+### 1. Exact Pin Verification
+Verifies the seven remote package pins against `Scripts/dependencies.json`, then checks AppStubData against its Git submodule pin:
+```bash
+python3 Scripts/verify_pins.py
+python3 Scripts/verify-submodules.py
+```
+
+### 2. Standalone Package Dependency Tests
+Tests each external dependency package independently via `swift test`:
+```bash
+python3 Scripts/test_dependencies.py
+```
+
+### 3. Design Token Linting
+Enforces the strict rule that no view uses hardcoded colors, point dimensions, font sizes, corner radii, or padding:
+```bash
+python3 Scripts/check_design_tokens.py
+```
+
+### 4. Code Style & SwiftLint
+Configured with dedicated scripts and CI integration:
+```bash
+bash Scripts/install-swiftlint.sh
+bash Scripts/lint.sh
+```
+
+---
+
 ## 📦 Shared Stub Data Submodule
 
 `Motivation Daily` integrates the shared [`AppStubData`](Submodules/AppStubData) Git submodule for deterministic offline testing and previews across `.positive`, `.empty`, and `.negative` scenarios:
@@ -207,8 +272,8 @@ python3 TestSupport/run-stub-fixtures-tests.py
 
 ### Prerequisites
 - macOS 14.0 or newer
-- Xcode 16.0+ (Tested on Xcode 27.1 Developer Tools)
-- iOS 15.0+ Simulator or Physical Device
+- Xcode 27.1 for the validated build/test workflow
+- iOS 16.0+ Simulator or Physical Device
 
 ### Building & Running
 Open the project in Xcode:
@@ -225,10 +290,31 @@ xcrun xcodebuild build \
 ```
 
 ### Running Tests
-Execute the complete UI and integration test suite:
+
+#### 1. Snapshot Tests
+Verify UI components across Light, Dark, and Accessibility configurations:
+```bash
+xcrun xcodebuild test \
+  -project "Motivation Daily/MotivationDaily.xcodeproj" \
+  -scheme MotivationDailySnapshotTests \
+  -destination 'platform=iOS Simulator,name=iPhone 11' \
+  -only-testing:MotivationDailySnapshotTests
+```
+
+To re-record or update reference snapshots when intentional design changes occur:
+```bash
+RECORD_SNAPSHOTS=1 xcrun xcodebuild test \
+  -project "Motivation Daily/MotivationDaily.xcodeproj" \
+  -scheme MotivationDailySnapshotTests \
+  -destination 'platform=iOS Simulator,name=iPhone 11' \
+  -only-testing:MotivationDailySnapshotTests
+```
+
+#### 2. UI & Integration Tests
+Execute automated user flow tests (`HomeFlowTests`, `FavoritesFlowTests`, `AboutFlowTests`):
 ```bash
 xcrun xcodebuild test \
   -project "Motivation Daily/MotivationDaily.xcodeproj" \
   -scheme MotivationDailyUITests \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+  -destination 'platform=iOS Simulator,name=iPhone 11'
 ```

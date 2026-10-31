@@ -1,15 +1,24 @@
 import Foundation
+import CommonNetworking
 
 final class APIService {
     static let shared = APIService()
 
     private let session: URLSession
     private let trustDelegate: APIServiceTrustDelegate?
+    private let client: CommonNetworking.HTTPClient
 
     init(session: URLSession? = nil) {
         if let session {
             self.session = session
             self.trustDelegate = nil
+            #if DEBUG
+            let logging = UserDefaults.standard.object(forKey: "developer.httpLogs") as? Bool
+                ?? (ProcessInfo.processInfo.environment["HTTP_LOGGING"] == "1")
+            self.client = CommonNetworking.HTTPClient(session: session, logger: logging ? .console : nil)
+            #else
+            self.client = CommonNetworking.HTTPClient(session: session)
+            #endif
             return
         }
 
@@ -22,7 +31,16 @@ final class APIService {
         )
         let delegate = APIServiceTrustDelegate(allowedHosts: ["api.quotable.io"])
         self.trustDelegate = delegate
-        self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
+        let createdSession = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
+        self.session = createdSession
+
+        #if DEBUG
+        let logging = UserDefaults.standard.object(forKey: "developer.httpLogs") as? Bool
+            ?? (ProcessInfo.processInfo.environment["HTTP_LOGGING"] == "1")
+        self.client = CommonNetworking.HTTPClient(session: createdSession, logger: logging ? .console : nil)
+        #else
+        self.client = CommonNetworking.HTTPClient(session: createdSession)
+        #endif
     }
 
     func getData(_ url: URL, cachePolicy: URLRequest.CachePolicy = .returnCacheDataElseLoad) async throws -> Data {
@@ -32,17 +50,27 @@ final class APIService {
         request.timeoutInterval = 25
         request.setValue("MotivationDaily/1.0", forHTTPHeaderField: "User-Agent")
 
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse else {
-            throw AppError.networkMessage("Invalid response.")
+        do {
+            let response = try await client.send(request)
+            guard (200...299).contains(response.statusCode) else {
+                throw AppError.network(status: response.statusCode)
+            }
+            guard !response.data.isEmpty else {
+                throw AppError.emptyResponse
+            }
+            return response.data
+        } catch let error as HTTPClientError {
+            switch error {
+            case .nonHTTPResponse:
+                throw AppError.networkMessage("Invalid response.")
+            case .unsuccessfulStatus(let http):
+                throw AppError.network(status: http.statusCode)
+            case .emptyBody:
+                throw AppError.emptyResponse
+            }
+        } catch is CancellationError {
+            throw URLError(.cancelled)
         }
-        guard (200...299).contains(http.statusCode) else {
-            throw AppError.network(status: http.statusCode)
-        }
-        guard !data.isEmpty else {
-            throw AppError.emptyResponse
-        }
-        return data
     }
 
     func getDecodable<T: Decodable>(
@@ -53,8 +81,8 @@ final class APIService {
         let data = try await getData(url, cachePolicy: cachePolicy)
         do {
             return try decoder.decode(T.self, from: data)
-        } catch {
-            throw AppError.decoding("Failed to decode response: \(error.localizedDescription)")
+        } catch let decodingError as DecodingError {
+            throw AppError.decoding("Failed to decode response: \(decodingError.localizedDescription)")
         }
     }
 

@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import DesignTokensKit
 
 struct SideActionIconView: View {
     let systemName: String
@@ -7,28 +8,28 @@ struct SideActionIconView: View {
     let tint: Color
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: CornerRadius.six) {
             Image(systemName: resolvedSystemName)
                 .symbolVariant(.none)
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: DesignMetric.p20, weight: .bold))
                 .foregroundColor(tint)
-                .frame(width: 50, height: 50)
-                .background(Color.black.opacity(0.42))
+                .frame(width: DesignMetric.p50, height: DesignMetric.p50)
+                .background(DesignColor.black.opacity(0.42))
                 .clipShape(Circle())
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.28), lineWidth: 1)
+                        .stroke(DesignColor.white.opacity(0.28), lineWidth: StrokeWidth.one)
                 )
-                .shadow(color: Color.black.opacity(0.28), radius: 8, x: 0, y: 4)
+                .shadow(color: DesignColor.black.opacity(0.28), radius: Spacing.eight, x: 0, y: Spacing.four)
 
             Text(label)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.black.opacity(0.45))
+                .foregroundColor(DesignColor.white)
+                .padding(.horizontal, Spacing.eight)
+                .padding(.vertical, Spacing.four)
+                .background(DesignColor.black.opacity(0.45))
                 .clipShape(Capsule())
-                .shadow(color: Color.black.opacity(0.24), radius: 4, x: 0, y: 2)
+                .shadow(color: DesignColor.black.opacity(0.24), radius: Spacing.four, x: 0, y: StrokeWidth.two)
         }
     }
 
