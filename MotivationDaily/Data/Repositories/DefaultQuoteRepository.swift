@@ -51,16 +51,20 @@ final class DefaultQuoteRepository: QuoteRepository {
     func fetchRandom() async throws -> Quote {
         do {
             let zen = try await zenClient.fetchRandomQuote()
-            return Quote(
+            let quote = Quote(
                 id: UUID().uuidString,
                 text: zen.q,
                 author: zen.a.replacingOccurrences(of: ", type.works", with: ""),
                 source: .zenQuotes,
                 categoryKey: nil
             )
+            QuoteDiskCache.shared.save([quote])
+            return quote
         } catch {
             do {
-                return try await fetchAdviceSlipQuote(categoryKey: nil)
+                let quote = try await fetchAdviceSlipQuote(categoryKey: nil)
+                QuoteDiskCache.shared.save([quote])
+                return quote
             } catch {
                 return fallbackQuote(for: nil)
             }
@@ -70,7 +74,9 @@ final class DefaultQuoteRepository: QuoteRepository {
     func fetchByCategory(_ key: CategoryKey) async throws -> Quote {
         guard let mapping = mappingStore.mapping(for: key) else {
             do {
-                return try await fetchAdviceSlipQuote(categoryKey: key)
+                let quote = try await fetchAdviceSlipQuote(categoryKey: key)
+                QuoteDiskCache.shared.save([quote])
+                return quote
             } catch {
                 return fallbackQuote(for: nil)
             }
@@ -79,20 +85,24 @@ final class DefaultQuoteRepository: QuoteRepository {
         if let tags = mapping.quotableTags {
             do {
                 let quotable = try await quotableClient.fetchRandomQuote(tags: tags)
-                return Quote(
+                let quote = Quote(
                     id: quotable._id,
                     text: quotable.content,
                     author: quotable.author,
                     source: .quotable,
                     categoryKey: key
                 )
+                QuoteDiskCache.shared.save([quote])
+                return quote
             } catch {
                 // Fall through
             }
         }
 
         do {
-            return try await fetchAdviceSlipQuote(categoryKey: key)
+            let quote = try await fetchAdviceSlipQuote(categoryKey: key)
+            QuoteDiskCache.shared.save([quote])
+            return quote
         } catch {
             return fallbackQuote(for: key)
         }
@@ -103,6 +113,9 @@ final class DefaultQuoteRepository: QuoteRepository {
     }
 
     private func fallbackQuote(for key: CategoryKey?) -> Quote {
+        if let cached = QuoteDiskCache.shared.load(category: key) {
+            return cached
+        }
         let quotes = fallbackQuotes[key] ?? fallbackQuotes[nil] ?? []
         let selected = quotes.randomElement() ?? (text: "Keep going.", author: "Unknown")
         return Quote(

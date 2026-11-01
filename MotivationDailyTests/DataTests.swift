@@ -572,4 +572,27 @@ final class DataTests: XCTestCase {
         let randomCount = await store.randomQuoteCount()
         XCTAssertGreaterThanOrEqual(randomCount, 0)
     }
+
+    func testQuoteDiskCacheSavesLoadsAndFallsBackOffline() {
+        let cache = QuoteDiskCache.shared
+        cache.clear()
+        defer { cache.clear() }
+
+        let quote = Quote(
+            id: "offline-quote-1",
+            text: "Offline courage grows with action.",
+            author: "Tester",
+            source: .zenQuotes,
+            categoryKey: CategoryKey(rawValue: "wisdom")
+        )
+        cache.save([quote])
+
+        let loaded = cache.load()
+        XCTAssertEqual(loaded.count, 1)
+        XCTAssertEqual(loaded.first?.text, "Offline courage grows with action.")
+
+        let loadedCategory = cache.load(category: CategoryKey(rawValue: "wisdom"))
+        XCTAssertNotNil(loadedCategory)
+        XCTAssertEqual(loadedCategory?.author, "Tester")
+    }
 }
