@@ -31,8 +31,8 @@ Validation: all three Debug simulator builds passed using isolated source copies
 sign-in/session/refresh/local-sign-out tests passed. Motivation Daily's Back-button
 UI journey passed. ShowBook account-scope/logout unit tests passed.
 
-The apps are installed on iPhone 11 / iOS 27.0 for manual testing. Host app source
-changes remain local; AuthKit 0.2.0 is published privately and its CI passed.
+The apps are installed on iPhone 11 / iOS 27.0 for manual testing. Host integration changes are tracked on the milestone completion branch.
+The app dependency record pins AuthKit 0.2.3.
 
 Google/GitHub browser sign-in and email recovery still require end-to-end simulator validation.
 
