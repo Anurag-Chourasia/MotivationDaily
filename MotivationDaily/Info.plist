@@ -2,6 +2,29 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AUTH_CALLBACK_URL</key>
+	<string>motivationdaily-auth://auth/callback</string>
+	<key>AUTHKIT_ENABLED</key>
+	<false/>
+	<key>AUTH_PROVIDERS</key>
+	<string>google,github</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>motivationdaily-auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>motivationdaily-auth</string>
+			</array>
+		</dict>
+	</array>
+	<key>SUPABASE_PUBLISHABLE_KEY</key>
+	<string>sb_publishable_1E6uHLzc52xPFVTrT7tl7Q_x2udH9R2</string>
+	<key>SUPABASE_URL</key>
+	<string>https://ulszjssbmmfnheemfwiy.supabase.co</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

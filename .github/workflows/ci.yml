@@ -27,6 +27,7 @@ jobs:
       - name: Configure read-only private dependency access
         env:
           APPSTUBDATA_DEPLOY_KEY: ${{ secrets.APPSTUBDATA_DEPLOY_KEY }}
+          AUTHKIT_DEPLOY_KEY: ${{ secrets.AUTHKIT_DEPLOY_KEY }}
           DEVELOPERPROFILEKIT_DEPLOY_KEY: ${{ secrets.DEVELOPERPROFILEKIT_DEPLOY_KEY }}
           FOUNDATIONKIT_DEPLOY_KEY: ${{ secrets.FOUNDATIONKIT_DEPLOY_KEY }}
           LOCALIZATIONKIT_DEPLOY_KEY: ${{ secrets.LOCALIZATIONKIT_DEPLOY_KEY }}

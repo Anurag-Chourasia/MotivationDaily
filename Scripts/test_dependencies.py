@@ -4,6 +4,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 expected = json.loads((root / 'Scripts/dependencies.json').read_text())
 names = {
+    'authkit': 'AuthKit',
     'developerprofilekit': 'DeveloperProfileKit',
     'commonnetworking': 'CommonNetworking',
     'foundationkit': 'FoundationKit',

@@ -3,6 +3,15 @@ import FoundationKit
 
 /// Application runtime environment, version info, and configuration powered by FoundationKit.
 enum AppRuntime {
+    /// Debug opt-in; production rollout never reads developer preferences.
+    static var authenticationEnabled: Bool {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "developer.authentication")
+        #else
+        return Bundle.main.object(forInfoDictionaryKey: "AUTHKIT_ENABLED") as? Bool ?? false
+        #endif
+    }
+
     static let actualVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     static let actualBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
 
