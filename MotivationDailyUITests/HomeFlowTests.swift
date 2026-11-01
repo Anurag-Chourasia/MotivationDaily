@@ -88,7 +88,11 @@ final class HomeFlowTests: UITestBase {
 
     func testRealCategoryTabsLoading() {
         let realApp = XCUIApplication()
+        realApp.launchArguments = ["-developer.authentication", "NO"]
         realApp.launch()
+        let openApp = realApp.buttons["developer-open-app"]
+        XCTAssertTrue(openApp.waitForExistence(timeout: 10))
+        openApp.tap()
 
         waitFor(realApp.buttons["content.menuButton"], timeout: 15)
         let categoryTabs = realApp.scrollViews["content.categoryTabs"].firstMatch
@@ -109,7 +113,11 @@ final class HomeFlowTests: UITestBase {
 
         for _ in 0..<3 {
             let instance = XCUIApplication()
+            instance.launchArguments = ["-developer.authentication", "NO"]
             instance.launch()
+            let openApp = instance.buttons["developer-open-app"]
+            XCTAssertTrue(openApp.waitForExistence(timeout: 10))
+            openApp.tap()
 
             let quoteLabel = instance.staticTexts.matching(NSPredicate(format: "label BEGINSWITH '\"'")).firstMatch
             XCTAssertTrue(quoteLabel.waitForExistence(timeout: 15), "Quote text should exist on launch")
