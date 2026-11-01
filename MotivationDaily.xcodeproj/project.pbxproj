@@ -10,6 +10,8 @@
 		346EE02C309117C6006198AF /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2C1A0070000000000000001 /* XCTest.framework */; };
 		346EE02D309117C6006198AF /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		346EE02E309117C6006198AF /* SnapshotTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00700000000000000000002 /* SnapshotTestKit */; };
+		7544F1DB267F4C7AA1F540A4 /* AuthKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5E4534C332C0400D99B19C9E /* AuthKit */; };
+		8ADAACDF10904600ADFA7657 /* AuthKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = E162D437EDA7442DA326C667 /* AuthKitUI */; };
 		B2C1A0010000000000000001 /* UITestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0010000000000000001 /* UITestBase.swift */; };
 		B2C1A0020000000000000001 /* HomeFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0020000000000000001 /* HomeFlowTests.swift */; };
 		B2C1A0030000000000000001 /* FavoritesFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0030000000000000001 /* FavoritesFlowTests.swift */; };
@@ -104,6 +106,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7544F1DB267F4C7AA1F540A4 /* AuthKit in Frameworks */,
+				8ADAACDF10904600ADFA7657 /* AuthKitUI in Frameworks */,
 				M00100000000000000000003 /* CommonNetworking in Frameworks */,
 				M00200000000000000000003 /* FoundationKit in Frameworks */,
 				M00300000000000000000003 /* LocalizationKit in Frameworks */,
@@ -207,6 +211,8 @@
 			);
 			name = MotivationDaily;
 			packageProductDependencies = (
+				5E4534C332C0400D99B19C9E /* AuthKit */,
+				E162D437EDA7442DA326C667 /* AuthKitUI */,
 				M00100000000000000000002 /* CommonNetworking */,
 				M00200000000000000000002 /* FoundationKit */,
 				M00300000000000000000002 /* LocalizationKit */,
@@ -320,6 +326,7 @@
 			mainGroup = 344A41632EC37AE100B74E80;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */,
 				M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */,
 				M00200000000000000000001 /* XCRemoteSwiftPackageReference "FoundationKit" */,
 				M00300000000000000000001 /* XCRemoteSwiftPackageReference "LocalizationKit" */,
@@ -843,6 +850,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Anurag-Chourasia/AuthKit.git";
+			requirement = {
+				kind = exactVersion;
+				version = 0.2.3;
+			};
+		};
 		M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Anurag-Chourasia/CommonNetworking.git";
@@ -872,7 +887,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/DesignTokensKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.2.0;
+				version = 1.3.0;
 			};
 		};
 		M00500000000000000000001 /* XCRemoteSwiftPackageReference "UIComponentsKit" */ = {
@@ -880,7 +895,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/UIComponentsKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.2.0;
+				version = 1.3.0;
 			};
 		};
 		M00600000000000000000001 /* XCRemoteSwiftPackageReference "DeveloperProfileKit" */ = {
@@ -888,7 +903,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/DeveloperProfileKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.0.0;
+				version = 1.0.1;
 			};
 		};
 		M00700000000000000000001 /* XCRemoteSwiftPackageReference "SnapshotTestKit" */ = {
@@ -902,6 +917,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5E4534C332C0400D99B19C9E /* AuthKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */;
+			productName = AuthKit;
+		};
+		E162D437EDA7442DA326C667 /* AuthKitUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */;
+			productName = AuthKitUI;
+		};
 		M00100000000000000000002 /* CommonNetworking */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */;

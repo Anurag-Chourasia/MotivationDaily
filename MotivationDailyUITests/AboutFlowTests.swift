@@ -7,8 +7,9 @@ final class AboutFlowTests: UITestBase {
         openAbout()
         waitFor(app.navigationBars["About Developer"])
 
-        let doneButton = app.navigationBars.buttons["Done"]
+        let doneButton = app.buttons["about.backButton"]
         waitFor(doneButton)
         doneButton.tap()
+        waitFor(app.buttons["content.menuButton"])
     }
 }

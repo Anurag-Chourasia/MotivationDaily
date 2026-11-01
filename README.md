@@ -1,5 +1,10 @@
 # Motivation Daily 🌟
 
+## Reproduce the simulator build
+
+On a Mac with Xcode 27, its iOS Simulator SDK, Python 3, and GitHub access to the private dependencies, run `bash Scripts/bootstrap.sh` from a fresh checkout. Set `DEVELOPER_DIR` to your Xcode installation if needed. The command initializes submodules, verifies the checked-in dependency revisions, resolves those revisions and builds Debug. Use `BUILD_CONFIGURATION=Release bash Scripts/bootstrap.sh` for Release. The build uses unsigned simulator compilation. Runtime authentication verification requires a signed test host.
+
+
 A modern, fluid iOS application delivering daily inspirational quotes paired with curated, high-resolution aesthetic wallpapers. Built with SwiftUI and Swift Concurrency following Clean Architecture and MVVM principles.
 
 ---

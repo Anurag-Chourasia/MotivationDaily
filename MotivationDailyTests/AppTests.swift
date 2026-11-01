@@ -1,10 +1,25 @@
 import XCTest
+import UIKit
 import SwiftUI
 import FoundationKit
 @testable import MotivationDaily
 
 @MainActor
 final class AppTests: XCTestCase {
+
+    func testBrandColorsStayOpaqueInBothAppearances() throws {
+        let names = ["BrandBackground", "BrandSurface", "BrandAction",
+                     "AuthBackground", "AuthForeground", "AuthAction", "AuthOnAction"]
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            let traits = UITraitCollection(userInterfaceStyle: style)
+            for name in names {
+                let color = try XCTUnwrap(UIColor(named: name, in: .main, compatibleWith: traits))
+                XCTAssertEqual(color.resolvedColor(with: traits).cgColor.alpha, 1, accuracy: 0.001,
+                               "\(name) must remain opaque")
+            }
+        }
+    }
+
 
     // MARK: - AppRuntime Tests
 
@@ -79,5 +94,28 @@ final class AppTests: XCTestCase {
     func testMotivationDailyApp() {
         let app = MotivationDailyApp()
         XCTAssertNotNil(app.body)
+    }
+}
+
+@MainActor
+final class AuthenticationFlagTests: XCTestCase {
+    func testAuthenticationIsOptInAndDeveloperPreferenceIsDebugOnly() {
+        let defaults = UserDefaults.standard
+        let key = "developer.authentication"
+        let original = defaults.object(forKey: key)
+        defer {
+            if let original { defaults.set(original, forKey: key) }
+            else { defaults.removeObject(forKey: key) }
+        }
+        defaults.removeObject(forKey: key)
+        XCTAssertFalse(AppRuntime.authenticationEnabled)
+        defaults.set(true, forKey: key)
+        #if DEBUG
+        XCTAssertTrue(AppRuntime.authenticationEnabled)
+        #else
+        XCTAssertFalse(AppRuntime.authenticationEnabled)
+        #endif
+        defaults.set(false, forKey: key)
+        XCTAssertFalse(AppRuntime.authenticationEnabled)
     }
 }
