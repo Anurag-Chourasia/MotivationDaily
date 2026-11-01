@@ -15,7 +15,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  swiftlint:
+    name: swiftlint
+    runs-on: xcode-27
+    timeout-minutes: 10
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.0.0.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Install pinned SwiftLint
+        run: bash Scripts/install-swiftlint.sh "$RUNNER_TEMP/swiftlint"
+      - name: Enforce SwiftLint rules
+        env:
+          SWIFTLINT_BIN: ${{ runner.temp }}/swiftlint/swiftlint
+        run: bash Scripts/lint.sh
+
   build-and-test:
+    needs: swiftlint
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ${{ vars.IOS_CI_RUNNER || 'xcode-27' }}
     timeout-minutes: 45
@@ -51,11 +69,6 @@ jobs:
 
       - name: Verify submodules
         run: python3 Scripts/verify-submodules.py
-
-      - name: Enforce pinned SwiftLint rules
-        run: |
-          bash Scripts/install-swiftlint.sh "$RUNNER_TEMP/swiftlint"
-          SWIFTLINT_BIN="$RUNNER_TEMP/swiftlint/swiftlint" bash Scripts/lint.sh
 
       - name: Check design tokens compliance
         run: python3 Scripts/check_design_tokens.py
