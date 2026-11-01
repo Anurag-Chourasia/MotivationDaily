@@ -4,24 +4,20 @@ import CommonNetworking
 final class APIService {
     static let shared = APIService()
 
-    private let session: URLSession
-    private let trustDelegate: APIServiceTrustDelegate?
     private let client: CommonNetworking.HTTPClient
 
     init(session: URLSession? = nil) {
-        if let session {
-            self.session = session
-            self.trustDelegate = nil
-            #if DEBUG
-            let logging = UserDefaults.standard.object(forKey: "developer.httpLogs") as? Bool
-                ?? (ProcessInfo.processInfo.environment["HTTP_LOGGING"] == "1")
-            self.client = CommonNetworking.HTTPClient(session: session, logger: logging ? .console : nil)
-            #else
-            self.client = CommonNetworking.HTTPClient(session: session)
-            #endif
-            return
-        }
+        let session = session ?? Self.makeSession()
+        #if DEBUG
+        let logging = UserDefaults.standard.object(forKey: "developer.httpLogs") as? Bool
+            ?? (ProcessInfo.processInfo.environment["HTTP_LOGGING"] == "1")
+        self.client = CommonNetworking.HTTPClient(session: session, logger: logging ? .console : nil)
+        #else
+        self.client = CommonNetworking.HTTPClient(session: session)
+        #endif
+    }
 
+    static func makeSession() -> URLSession {
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .returnCacheDataElseLoad
         config.urlCache = URLCache(
@@ -29,18 +25,7 @@ final class APIService {
             diskCapacity: 40 * 1024 * 1024,
             diskPath: "motivationdaily-urlcache"
         )
-        let delegate = APIServiceTrustDelegate(allowedHosts: ["api.quotable.io"])
-        self.trustDelegate = delegate
-        let createdSession = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
-        self.session = createdSession
-
-        #if DEBUG
-        let logging = UserDefaults.standard.object(forKey: "developer.httpLogs") as? Bool
-            ?? (ProcessInfo.processInfo.environment["HTTP_LOGGING"] == "1")
-        self.client = CommonNetworking.HTTPClient(session: createdSession, logger: logging ? .console : nil)
-        #else
-        self.client = CommonNetworking.HTTPClient(session: createdSession)
-        #endif
+        return URLSession(configuration: config)
     }
 
     func getData(_ url: URL, cachePolicy: URLRequest.CachePolicy = .returnCacheDataElseLoad) async throws -> Data {
@@ -100,28 +85,5 @@ final class APIService {
             throw AppError.invalidURL
         }
         return url
-    }
-}
-
-private final class APIServiceTrustDelegate: NSObject, URLSessionDelegate {
-    private let allowedHosts: Set<String>
-
-    init(allowedHosts: Set<String>) {
-        self.allowedHosts = allowedHosts
-    }
-
-    func urlSession(
-        _ session: URLSession,
-        didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
-    ) {
-        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-              let trust = challenge.protectionSpace.serverTrust,
-              allowedHosts.contains(challenge.protectionSpace.host) else {
-            completionHandler(.performDefaultHandling, nil)
-            return
-        }
-
-        completionHandler(.useCredential, URLCredential(trust: trust))
     }
 }

@@ -50,6 +50,11 @@ jobs:
       - name: Verify submodules
         run: python3 Scripts/verify-submodules.py
 
+      - name: Enforce pinned SwiftLint rules
+        run: |
+          bash Scripts/install-swiftlint.sh "$RUNNER_TEMP/swiftlint"
+          SWIFTLINT_BIN="$RUNNER_TEMP/swiftlint/swiftlint" bash Scripts/lint.sh
+
       - name: Check design tokens compliance
         run: python3 Scripts/check_design_tokens.py
 
