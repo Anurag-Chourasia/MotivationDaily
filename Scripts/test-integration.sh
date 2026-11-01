@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# Keep the full suite reproducible when invoked directly or from CI.
+if [[ -z "${TEST_RUNNER_MOTIVATION_TLS_FIXTURE:-}" ]]; then
+    exec python3 Scripts/test-local-tls.py --integration
+fi
 # Baselines are tied to this device/runtime; never silently choose another OS.
 destination="${TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 11,OS=27.0}"
 result="${TEST_RESULT_PATH:-${RUNNER_TEMP:-/tmp}/MotivationIntegration.xcresult}"

@@ -4,6 +4,28 @@ import UIKit
 
 @MainActor
 final class FailurePathTests: XCTestCase {
+    func testProductionSessionLeavesServerTrustToThePlatform() {
+        let session = APIService.makeSession()
+        defer { session.invalidateAndCancel() }
+        XCTAssertNil(session.delegate)
+        XCTAssertNil(Bundle.main.object(forInfoDictionaryKey: "NSAppTransportSecurity"))
+    }
+
+    // The local TLS runner supplies a self-signed server; normal unit runs stay offline.
+    func testSelfSignedServerIsRejected() async throws {
+        guard let address = ProcessInfo.processInfo.environment["MOTIVATION_TLS_FIXTURE"] else {
+            throw XCTSkip("Run Scripts/test-local-tls.py to supply the TLS fixture")
+        }
+        let url = try XCTUnwrap(URL(string: address))
+        do {
+            _ = try await APIService().getData(url, cachePolicy: .reloadIgnoringLocalCacheData)
+            XCTFail("An untrusted server returned data")
+        } catch let error as URLError {
+            XCTAssertTrue([URLError.Code.serverCertificateUntrusted, .serverCertificateHasUnknownRoot,
+                           .secureConnectionFailed].contains(error.code), "Unexpected error: \(error)")
+        }
+    }
+
     private func quote(_ id: String = "q") -> Quote {
         Quote(id: id, text: "Keep learning", author: "Author", source: .zenQuotes, categoryKey: nil)
     }
@@ -239,7 +261,6 @@ final class FailurePathTests: XCTestCase {
 
     func testRandomCatalogueExtensionPreservesAlreadySeenPage() async throws {
         let session = MockURLProtocol.makeMockSession()
-        defer { session.invalidateAndCancel(); MockURLProtocol.requestHandler = nil }
         MockURLProtocol.requestHandler = { request in
             let payload: String
             if request.url?.host == "zenquotes.io" {
@@ -255,6 +276,11 @@ final class FailurePathTests: XCTestCase {
         let images = (0..<20).map { FeedCatalogueStore.CatalogueImageMeta(id: "\($0)", author: "A", width: 10, height: 10, url: imageURL, downloadURL: imageURL) }
         let catalogue = FeedCatalogueStore(apiService: api, quotableClient: QuotableClient(apiService: api), zenClient: ZenQuotesClient(apiService: api), adviceSlipClient: AdviceSlipClient(apiService: api), cacheRootURL: try temporaryDirectory(), allowsNetworkSync: true,
             seededSnapshot: .init(categories: [], randomQuotes: quotes, quotesByCategory: [FeedCatalogueStore.Snapshot.randomKey: quotes], images: images, updatedAt: Date()))
+        addTeardownBlock {
+            await catalogue.waitForBackgroundSync()
+            session.invalidateAndCancel()
+            MockURLProtocol.requestHandler = nil
+        }
         let first = try await catalogue.page(category: nil, depth: 0, quoteOverride: nil)
         _ = try await catalogue.page(category: nil, depth: 25, quoteOverride: nil)
         let count = await catalogue.randomQuoteCount()

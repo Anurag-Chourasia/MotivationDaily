@@ -1,7 +1,5 @@
 import Foundation
 
-import Foundation
-
 private struct DummyJSONQuotesResponseDTO: Decodable {
     struct Item: Decodable {
         let id: Int

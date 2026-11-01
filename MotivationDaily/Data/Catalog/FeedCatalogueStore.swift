@@ -399,6 +399,10 @@ actor FeedCatalogueStore {
         startBackgroundFullSyncIfNeeded()
     }
 
+    func waitForBackgroundSync() async {
+        await fullSyncTask?.value
+    }
+
     private func startBackgroundFullSyncIfNeeded() {
         guard allowsNetworkSync else { return }
         guard fullSyncTask == nil else { return }

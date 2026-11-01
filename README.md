@@ -107,6 +107,8 @@ From this repository, run:
 DEVELOPER_DIR='/Applications/Xcode 27.1.app/Contents/Developer' bash Scripts/test-integration.sh
 ```
 
+The suite starts a temporary HTTPS server on loopback and verifies that a self-signed certificate is rejected. For the failure-path suite alone, run `python3 Scripts/test-local-tls.py` with the same Xcode selected. The fixture requires Python 3 and OpenSSL.
+
 Use `TEST_DESTINATION` and a fresh `TEST_RESULT_PATH` to override the destination/result.
 Do not record snapshots in CI. Review changed reference images before accepting them.
 
@@ -239,8 +241,8 @@ python3 Scripts/check_design_tokens.py
 ### 4. Code Style & SwiftLint
 Configured with dedicated scripts and CI integration:
 ```bash
-bash Scripts/install-swiftlint.sh
-bash Scripts/lint.sh
+bash Scripts/install-swiftlint.sh "$PWD/.build/swiftlint"
+SWIFTLINT_BIN="$PWD/.build/swiftlint/swiftlint" bash Scripts/lint.sh
 ```
 
 ---
