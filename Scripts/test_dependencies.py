@@ -24,5 +24,10 @@ with tempfile.TemporaryDirectory(prefix='verified-kits-') as temp:
         assert subprocess.check_output(['git', '-C', str(p), 'rev-parse', 'HEAD'], text=True).strip() == pin['revision']
         # SnapshotTestKit tests run on iOS target, others on macosx
         if identity != 'snapshottestkit':
-            subprocess.run(['xcrun', 'swift', 'test', '--package-path', str(p), '--triple', 'arm64-apple-macosx14.0', '-Xswiftc', '-strict-concurrency=complete', '-Xswiftc', '-warnings-as-errors'], check=True)
+            flags = ['-Xswiftc', '-strict-concurrency=complete']
+            # AuthKit 0.2.3 retains the iOS 16 onChange API, deprecated on macOS 14.
+            # Match AuthKit's own CI while keeping compatibility warnings visible.
+            if identity != 'authkit':
+                flags += ['-Xswiftc', '-warnings-as-errors']
+            subprocess.run(['xcrun', 'swift', 'test', '--package-path', str(p), '--triple', 'arm64-apple-macosx14.0', *flags], check=True)
 print('All SPM dependencies cloned, pinned revisions verified, and package tests passed!')
