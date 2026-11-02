@@ -28,6 +28,7 @@ final class AppContainer {
         logger.log("Initializing AppContainer in \(configuration.environment.rawValue) mode", level: .info)
 
         let isUITestMode = arguments.contains("-UITestMode")
+        let isStubMode = isUITestMode || AppRuntime.stubScenario != nil
 
         let apiService = APIService()
         let mappingStore = CategoryMappingStore()
@@ -36,7 +37,7 @@ final class AppContainer {
         let quotableClient = QuotableClient(apiService: apiService)
         let adviceSlipClient = AdviceSlipClient(apiService: apiService)
         let picsumFactory = PicsumURLFactory()
-        if isUITestMode {
+        if isStubMode {
             self.feedCatalogueStore = FeedCatalogueStore.makeUITestStore(
                 apiService: apiService,
                 quotableClient: quotableClient,
@@ -64,7 +65,7 @@ final class AppContainer {
         )
 
         let wallpaperRepository: any WallpaperRepository
-        if isUITestMode {
+        if isStubMode {
             wallpaperRepository = UITestWallpaperRepository()
         } else {
             wallpaperRepository = DefaultWallpaperRepository(

@@ -23,6 +23,24 @@ enum AppRuntime {
         #endif
     }
 
+    static var dataSource: String {
+        #if DEBUG
+        return UserDefaults.standard.string(forKey: "developer.source") ?? "live"
+        #else
+        return "live"
+        #endif
+    }
+
+    static var stubScenario: String? {
+        #if DEBUG
+        guard UserDefaults.standard.string(forKey: "developer.source") == "stub" else { return nil }
+        let scenario = UserDefaults.standard.string(forKey: "developer.scenario") ?? "success"
+        return ["success", "empty", "offline"].contains(scenario) ? scenario : "success"
+        #else
+        return nil
+        #endif
+    }
+
     static var version: String {
         #if DEBUG
         let value = UserDefaults.standard.string(forKey: "developer.version")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""

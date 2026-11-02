@@ -110,17 +110,80 @@ private struct DebugSettingsPresenter: UIViewControllerRepresentable {
 struct DeveloperSettingsView: View {
     var buttonTitle = "Apply and close"
     var onContinue: () -> Void
+    @AppStorage("developer.source") private var source = "live"
+    @AppStorage("developer.scenario") private var scenario = "success"
     @AppStorage("developer.authentication") private var authentication = false
     @AppStorage("developer.httpLogs") private var logs = false
     @AppStorage("developer.version") private var version = ""
     @AppStorage("developer.build") private var build = ""
+    @State private var cacheSummary = ""
+
+    private let diskCache = QuoteDiskCache.shared
 
     var body: some View {
         Form {
             Section {
-                Text("Configure Motivation Daily, then continue. Shake the device from any screen to return to these settings.")
+                Text("Configure Motivation Daily runtime, cache, and feature flags. Shake device from any screen to reopen.")
                 Button(buttonTitle, action: onContinue)
                     .accessibilityIdentifier("developer-open-app")
+            }
+            Section("Quick presets") {
+                Button {
+                    source = "stub"
+                    scenario = "success"
+                    onContinue()
+                } label: {
+                    Label("Showcase (Populated)", systemImage: "sparkles")
+                }
+                .accessibilityIdentifier("developer-preset-showcase")
+
+                Button {
+                    source = "stub"
+                    scenario = "empty"
+                    onContinue()
+                } label: {
+                    Label("Empty State (Zero Results)", systemImage: "tray")
+                }
+                .accessibilityIdentifier("developer-preset-empty")
+
+                Button {
+                    source = "stub"
+                    scenario = "offline"
+                    onContinue()
+                } label: {
+                    Label("Offline Resilience", systemImage: "wifi.slash")
+                }
+                .accessibilityIdentifier("developer-preset-offline")
+
+                Button {
+                    source = "live"
+                    onContinue()
+                } label: {
+                    Label("Live Feed", systemImage: "globe")
+                }
+                .accessibilityIdentifier("developer-preset-live")
+            }
+            Section("Cache & offline storage") {
+                LabeledContent("Disk cache", value: cacheSummary.isEmpty ? "Checking..." : cacheSummary)
+                Button("Purge quote cache", role: .destructive) {
+                    diskCache.clear()
+                    refreshCacheSummary()
+                }
+                .accessibilityIdentifier("developer-purge-cache")
+            }
+            Section("Environment") {
+                Picker("Data source", selection: $source) {
+                    Text("Live · Quotable & ZenQuotes").tag("live")
+                    Text("Stub · local fixtures").tag("stub")
+                }
+                if source == "stub" {
+                    Picker("Scenario", selection: $scenario) {
+                        Text("Success").tag("success")
+                        Text("Empty results").tag("empty")
+                        Text("Offline error").tag("offline")
+                    }
+                }
+                Text("Stub mode uses local quotes and wallpapers without making remote network requests.")
             }
             Section("Feature flags") {
                 Toggle("Authentication · AuthKit", isOn: $authentication)
@@ -141,12 +204,25 @@ struct DeveloperSettingsView: View {
             }
             Section {
                 Button("Reset developer settings", role: .destructive) {
+                    source = "live"; scenario = "success"
                     authentication = false; logs = false; version = ""; build = ""
                 }
             }
         }
         .navigationTitle("Developer settings")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            refreshCacheSummary()
+        }
+    }
+
+    private func refreshCacheSummary() {
+        let count = diskCache.entryCount
+        if count == 0 {
+            cacheSummary = "0 quotes (0 KB)"
+        } else {
+            cacheSummary = "\(count) quotes (\(diskCache.formattedFileSize))"
+        }
     }
 }
 #endif
