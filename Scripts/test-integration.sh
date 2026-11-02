@@ -7,6 +7,9 @@ if [[ -z "${TEST_RUNNER_MOTIVATION_TLS_FIXTURE:-}" ]]; then
 fi
 # Baselines are tied to this device/runtime; never silently choose another OS.
 destination="${TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 11,OS=27.0}"
+if [[ "$destination" =~ id=([A-Fa-f0-9-]+) ]]; then
+    xcrun simctl bootstatus "${BASH_REMATCH[1]}" -b || true
+fi
 result="${TEST_RESULT_PATH:-${RUNNER_TEMP:-/tmp}/MotivationIntegration.xcresult}"
 if [[ -e "$result" ]]; then echo "Result already exists: $result; choose TEST_RESULT_PATH" >&2; exit 1; fi
 if [[ "${CI:-}" != "" && ( "${RECORD_SNAPSHOTS:-0}" == 1 || "${SNAPSHOT_RECORD:-0}" == 1 ) ]]; then
