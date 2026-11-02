@@ -31,11 +31,36 @@ enum AppRuntime {
         #endif
     }
 
+    #if DEBUG
+    /// Indicates whether the app was launched with the Showcase CLI argument or environment.
+    static var isShowcaseLaunch: Bool {
+        ProcessInfo.processInfo.arguments.contains("-Showcase") ||
+        ProcessInfo.processInfo.arguments.contains("-ShowcaseMode") ||
+        ProcessInfo.processInfo.environment["SHOWCASE_MODE"] == "1"
+    }
+
+    /// True when running in the curated credential-free Showcase experience.
+    static var isShowcaseMode: Bool {
+        if let scenario = stubScenario {
+            return scenario == "showcase" || isShowcaseLaunch
+        }
+        return isShowcaseLaunch
+    }
+    #else
+    static var isShowcaseLaunch: Bool { false }
+    static var isShowcaseMode: Bool { false }
+    #endif
+
     static var stubScenario: String? {
         #if DEBUG
-        guard UserDefaults.standard.string(forKey: "developer.source") == "stub" else { return nil }
-        let scenario = UserDefaults.standard.string(forKey: "developer.scenario") ?? "success"
-        return ["success", "empty", "offline"].contains(scenario) ? scenario : "success"
+        let source = UserDefaults.standard.string(forKey: "developer.source")
+        if source == "live" { return nil }
+        if source == "stub" {
+            let scenario = UserDefaults.standard.string(forKey: "developer.scenario") ?? "success"
+            return ["success", "showcase", "empty", "offline"].contains(scenario) ? scenario : "success"
+        }
+        if isShowcaseLaunch { return "showcase" }
+        return nil
         #else
         return nil
         #endif

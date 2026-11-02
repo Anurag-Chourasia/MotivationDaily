@@ -285,16 +285,26 @@ python3 TestSupport/run-stub-fixtures-tests.py
 ### Building & Running
 Open the project in Xcode:
 ```bash
-open "Motivation Daily/MotivationDaily.xcodeproj"
+open "MotivationDaily.xcodeproj"
 ```
 
 Or build directly from the command line:
 ```bash
 xcrun xcodebuild build \
-  -project "Motivation Daily/MotivationDaily.xcodeproj" \
+  -project MotivationDaily.xcodeproj \
   -scheme MotivationDaily \
   -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
 ```
+
+#### Showcase Mode (Credential-Free Demo)
+To launch directly into the populated Showcase experience without the initial Developer Settings panel, run the `MotivationDaily Showcase` scheme or supply the `-Showcase` launch argument / `SHOWCASE_MODE=1` environment variable:
+```bash
+xcrun xcodebuild test \
+  -project MotivationDaily.xcodeproj \
+  -scheme "MotivationDaily Showcase" \
+  -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+```
+When running in Showcase mode, the app displays a subtle `SHOWCASE DEMO` pill at the top of the screen. Tapping it opens the Developer Settings sheet so runtime parameters can still be adjusted at any time. In standard debug launches, shake the simulator or device to reopen Developer Settings.
 
 ### Running Tests
 

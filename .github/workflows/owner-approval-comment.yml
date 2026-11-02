@@ -50,12 +50,24 @@ jobs:
               const reviewer = context.payload.requested_reviewer?.login;
               if (!reviewer) return;
 
+              const requester = context.payload.sender.login;
+              const prAuthor = pr.user.login;
+
+              // Prevent self-review requests (e.g. requesting review from oneself or PR author reviewing themselves)
+              if (requester.toLowerCase() === reviewer.toLowerCase()) {
+                console.log(`${requester} requested review from themselves — skipping notification.`);
+                return;
+              }
+              if (reviewer.toLowerCase() === prAuthor.toLowerCase()) {
+                console.log(`${reviewer} is the PR author — skipping notification.`);
+                return;
+              }
+
               if (!owners.includes(reviewer.toLowerCase())) {
                 console.log(`${reviewer} is not in the owners group — skipping.`);
                 return;
               }
 
-              const requester = context.payload.sender.login;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
