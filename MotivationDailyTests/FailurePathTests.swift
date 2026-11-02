@@ -26,6 +26,61 @@ final class FailurePathTests: XCTestCase {
         }
     }
 
+    // The local TLS runner supplies an expired certificate server; normal unit runs stay offline.
+    func testExpiredCertificateServerIsRejected() async throws {
+        guard let address = ProcessInfo.processInfo.environment["MOTIVATION_TLS_EXPIRED_FIXTURE"] else {
+            throw XCTSkip("Run Scripts/test-local-tls.py to supply the expired TLS fixture")
+        }
+        let url = try XCTUnwrap(URL(string: address))
+        do {
+            _ = try await APIService().getData(url, cachePolicy: .reloadIgnoringLocalCacheData)
+            XCTFail("An expired certificate server returned data")
+        } catch let error as URLError {
+            let expectedErrors: [URLError.Code] = [
+                .serverCertificateUntrusted,
+                .serverCertificateHasUnknownRoot,
+                .serverCertificateHasBadDate,
+                .secureConnectionFailed
+            ]
+            XCTAssertTrue(expectedErrors.contains(error.code), "Unexpected error: \(error)")
+        }
+    }
+
+    // The local TLS runner supplies a wrong-host certificate server; normal unit runs stay offline.
+    func testWrongHostCertificateServerIsRejected() async throws {
+        guard let address = ProcessInfo.processInfo.environment["MOTIVATION_TLS_WRONG_HOST_FIXTURE"] else {
+            throw XCTSkip("Run Scripts/test-local-tls.py to supply the wrong-host TLS fixture")
+        }
+        let url = try XCTUnwrap(URL(string: address))
+        do {
+            _ = try await APIService().getData(url, cachePolicy: .reloadIgnoringLocalCacheData)
+            XCTFail("A wrong-host certificate server returned data")
+        } catch let error as URLError {
+            let expectedErrors: [URLError.Code] = [
+                .serverCertificateUntrusted,
+                .serverCertificateHasUnknownRoot,
+                .serverCertificateNotYetValid,
+                .secureConnectionFailed
+            ]
+            XCTAssertTrue(expectedErrors.contains(error.code), "Unexpected error: \(error)")
+        }
+    }
+
+    func testValidTLSSucceedsWithoutLiveEndpoint() async throws {
+        let session = MockURLProtocol.makeMockSession()
+        defer {
+            session.invalidateAndCancel()
+            MockURLProtocol.requestHandler = nil
+        }
+        MockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, Data(#"{"status":"ok"}"#.utf8))
+        }
+        let url = try XCTUnwrap(URL(string: "https://api.example.com/quote"))
+        let data = try await APIService(session: session).getData(url, cachePolicy: .reloadIgnoringLocalCacheData)
+        XCTAssertEqual(String(decoding: data, as: UTF8.self), #"{"status":"ok"}"#)
+    }
+
     private func quote(_ id: String = "q") -> Quote {
         Quote(id: id, text: "Keep learning", author: "Author", source: .zenQuotes, categoryKey: nil)
     }
