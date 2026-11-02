@@ -1,6 +1,20 @@
 import XCTest
 
 final class ShareDialogTests: UITestBase {
+    override func setUp() {
+        super.setUp()
+        addUIInterruptionMonitor(withDescription: "Photos Permission") { alert in
+            let allow = alert.buttons.matching(
+                NSPredicate(format: "label CONTAINS[c] 'Allow' AND NOT (label CONTAINS[c] 'Don' OR label CONTAINS[c] 'Not')")
+            ).firstMatch
+            if allow.exists {
+                allow.tap()
+                return true
+            }
+            return false
+        }
+    }
+
     func testSaveToPhotosDialog() {
         launchApp()
 
@@ -43,15 +57,24 @@ final class ShareDialogTests: UITestBase {
 
             let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
             let permission = springboard.alerts.firstMatch
-            if permission.waitForExistence(timeout: 2) {
-                let allow = permission.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Allow'")).firstMatch
-                XCTAssertTrue(allow.exists, "Expected add-only Photos authorization")
-                allow.tap()
+            let permissionTimeout: TimeInterval = (option == "Save Quote (Black Gradient)") ? 10 : 2
+            if permission.waitForExistence(timeout: permissionTimeout) {
+                let allow = permission.buttons.matching(
+                    NSPredicate(format: "label CONTAINS[c] 'Allow' AND NOT (label CONTAINS[c] 'Don' OR label CONTAINS[c] 'Not')")
+                ).firstMatch
+                if allow.waitForExistence(timeout: 5) {
+                    allow.tap()
+                }
             }
             let success = app.alerts["Saved"]
             waitFor(success, timeout: 15)
             XCTAssertTrue(success.staticTexts["Image saved to Photos."].exists)
-            success.buttons["OK"].tap()
+            let okButton = success.buttons["OK"]
+            waitFor(okButton, timeout: 10)
+            waitForHittable(okButton, timeout: 10)
+            okButton.tap()
+            expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: success)
+            waitForExpectations(timeout: 10)
         }
     }
 

@@ -89,6 +89,7 @@ jobs:
       - name: Create baseline simulator
         run: |
           device_id=$(xcrun simctl create "Motivation CI iPhone 11" com.apple.CoreSimulator.SimDeviceType.iPhone-11 com.apple.CoreSimulator.SimRuntime.iOS-27-0)
+          xcrun simctl bootstatus "$device_id" -b
           echo "TEST_DESTINATION=platform=iOS Simulator,id=$device_id" >> "$GITHUB_ENV"
 
       - name: Run unit, UI and snapshot tests

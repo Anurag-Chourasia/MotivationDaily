@@ -15,6 +15,7 @@ struct ShareImageQuoteView: View {
     let layoutSize: CGSize?
 
     @Environment(\.dismiss) private var dismiss
+    @State private var showCopiedBadge = false
     @State private var showCopiedAlert = false
     @State private var compositeImage: UIImage?
     @State private var sourceImage: UIImage?
@@ -189,7 +190,7 @@ struct ShareImageQuoteView: View {
                                         .foregroundColor(.white.opacity(0.7))
                                 }
                                 Spacer()
-                                if showCopiedAlert {
+                                if showCopiedBadge {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(.white)
                                 }
@@ -474,9 +475,10 @@ struct ShareImageQuoteView: View {
 
     func copyToClipboard() {
         UIPasteboard.general.string = shareContent
+        showCopiedBadge = true
         showCopiedAlert = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            showCopiedAlert = false
+            showCopiedBadge = false
         }
     }
 

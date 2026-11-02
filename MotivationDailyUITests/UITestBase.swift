@@ -11,6 +11,9 @@ class UITestBase: XCTestCase {
 
     func launchApp(additionalArguments: [String] = []) {
         app.launchArguments = ["-UITestMode"] + additionalArguments
+        if app.state == .runningForeground || app.state == .runningBackground {
+            app.terminate()
+        }
         app.launch()
     }
 
