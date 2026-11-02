@@ -46,6 +46,30 @@ final class AppTests: XCTestCase {
         }
         XCTAssertEqual(AppRuntime.version, "9.9.9")
         XCTAssertEqual(AppRuntime.build, "999")
+
+        // Test stub scenario and showcase mode resolution
+        let sourceKey = "developer.source"
+        let scenarioKey = "developer.scenario"
+        let origSource = UserDefaults.standard.object(forKey: sourceKey)
+        let origScenario = UserDefaults.standard.object(forKey: scenarioKey)
+        defer {
+            if let origSource { UserDefaults.standard.set(origSource, forKey: sourceKey) }
+            else { UserDefaults.standard.removeObject(forKey: sourceKey) }
+            if let origScenario { UserDefaults.standard.set(origScenario, forKey: scenarioKey) }
+            else { UserDefaults.standard.removeObject(forKey: scenarioKey) }
+        }
+
+        UserDefaults.standard.set("stub", forKey: sourceKey)
+        UserDefaults.standard.set("showcase", forKey: scenarioKey)
+        XCTAssertEqual(AppRuntime.stubScenario, "showcase")
+        XCTAssertTrue(AppRuntime.isShowcaseMode)
+
+        UserDefaults.standard.set("empty", forKey: scenarioKey)
+        XCTAssertEqual(AppRuntime.stubScenario, "empty")
+        XCTAssertFalse(AppRuntime.isShowcaseMode)
+
+        UserDefaults.standard.set("live", forKey: sourceKey)
+        XCTAssertNil(AppRuntime.stubScenario)
     }
 
     // MARK: - AppContainer Tests
