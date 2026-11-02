@@ -14,6 +14,20 @@ final class QuoteDiskCache {
         self.fileURL = cacheDir.appendingPathComponent("quotes.json")
     }
 
+    var entryCount: Int {
+        load().count
+    }
+
+    var fileSizeBytes: Int {
+        (try? Data(contentsOf: fileURL))?.count ?? 0
+    }
+
+    var formattedFileSize: String {
+        let bytes = fileSizeBytes
+        guard bytes > 0 else { return "0 KB" }
+        return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+    }
+
     func save(_ quotes: [Quote]) {
         guard !quotes.isEmpty else { return }
         var current = load()
