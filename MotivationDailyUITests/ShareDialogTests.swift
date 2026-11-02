@@ -1,6 +1,20 @@
 import XCTest
 
 final class ShareDialogTests: UITestBase {
+    override func setUp() {
+        super.setUp()
+        addUIInterruptionMonitor(withDescription: "Photos Permission") { alert in
+            let allow = alert.buttons.matching(
+                NSPredicate(format: "label CONTAINS[c] 'Allow' AND NOT (label CONTAINS[c] 'Don' OR label CONTAINS[c] 'Not')")
+            ).firstMatch
+            if allow.exists {
+                allow.tap()
+                return true
+            }
+            return false
+        }
+    }
+
     func testSaveToPhotosDialog() {
         launchApp()
 
@@ -46,7 +60,7 @@ final class ShareDialogTests: UITestBase {
             let permissionTimeout: TimeInterval = (option == "Save Quote (Black Gradient)") ? 10 : 2
             if permission.waitForExistence(timeout: permissionTimeout) {
                 let allow = permission.buttons.matching(
-                    NSPredicate(format: "label BEGINSWITH[c] 'Allow' OR label CONTAINS[c] 'Allow'")
+                    NSPredicate(format: "label CONTAINS[c] 'Allow' AND NOT (label CONTAINS[c] 'Don' OR label CONTAINS[c] 'Not')")
                 ).firstMatch
                 if allow.waitForExistence(timeout: 5) {
                     allow.tap()
