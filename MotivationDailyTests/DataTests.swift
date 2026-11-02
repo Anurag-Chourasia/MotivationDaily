@@ -587,6 +587,11 @@ final class DataTests: XCTestCase {
         )
         cache.save([quote])
 
+        XCTAssertEqual(cache.entryCount, 1)
+        XCTAssertGreaterThan(cache.fileSizeBytes, 0)
+        XCTAssertFalse(cache.formattedFileSize.isEmpty)
+        XCTAssertNotEqual(cache.formattedFileSize, "0 KB")
+
         let loaded = cache.load()
         XCTAssertEqual(loaded.count, 1)
         XCTAssertEqual(loaded.first?.text, "Offline courage grows with action.")
@@ -594,5 +599,9 @@ final class DataTests: XCTestCase {
         let loadedCategory = cache.load(category: CategoryKey(rawValue: "wisdom"))
         XCTAssertNotNil(loadedCategory)
         XCTAssertEqual(loadedCategory?.author, "Tester")
+
+        cache.clear()
+        XCTAssertEqual(cache.entryCount, 0)
+        XCTAssertEqual(cache.formattedFileSize, "0 KB")
     }
 }
