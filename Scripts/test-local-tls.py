@@ -42,46 +42,21 @@ def generate_self_signed_cert(directory: Path) -> tuple[str, str]:
 
 
 def generate_expired_cert(directory: Path) -> tuple[str, str]:
-    """Generate a certificate with start/end dates in the past."""
-    ca_key = str(directory / "ca_key.pem")
-    ca_cert = str(directory / "ca_cert.pem")
-    ca_cfg = directory / "ca.cnf"
-    ca_cfg.write_text(
-        f"[ ca ]\ndefault_ca = CA_default\n"
-        f"[ CA_default ]\ndir = {directory}\n"
-        f"database = {directory / 'index.txt'}\n"
-        f"new_certs_dir = {directory / 'newcerts'}\n"
-        f"certificate = {ca_cert}\n"
-        f"serial = {directory / 'serial'}\n"
-        f"private_key = {ca_key}\n"
-        f"default_days = 365\ndefault_md = sha256\npolicy = policy_any\n"
-        f"[ policy_any ]\ncommonName = supplied\n"
-        f"[ req ]\ndistinguished_name = dn\nx509_extensions = ext\n"
-        f"[ dn ]\n[ ext ]\nsubjectAltName = IP:127.0.0.1\n"
-    )
-    (directory / "index.txt").touch()
-    (directory / "serial").write_text("01\n")
-    (directory / "newcerts").mkdir(exist_ok=True)
-
-    subprocess.run(
-        [
-            "openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
-            "-keyout", ca_key, "-out", ca_cert, "-days", "365",
-            "-subj", "/CN=TestCA", "-config", str(ca_cfg)
-        ],
-        check=True,
-        capture_output=True
-    )
-
+    """Generate a self-signed certificate with start/end dates in the past."""
     exp_key = str(directory / "expired_key.pem")
     exp_csr = str(directory / "expired.csr")
     exp_cert = str(directory / "expired_cert.pem")
+    exp_cfg = directory / "expired.cnf"
+    exp_cfg.write_text(
+        "[req]\ndistinguished_name=dn\nx509_extensions=ext\n"
+        "[dn]\n[ext]\nsubjectAltName=IP:127.0.0.1\n"
+    )
 
     subprocess.run(
         [
-            "openssl", "req", "-newkey", "rsa:2048", "-nodes",
+            "openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
             "-keyout", exp_key, "-out", exp_csr,
-            "-subj", "/CN=127.0.0.1", "-config", str(ca_cfg)
+            "-subj", "/CN=127.0.0.1", "-config", str(exp_cfg)
         ],
         check=True,
         capture_output=True
@@ -89,10 +64,9 @@ def generate_expired_cert(directory: Path) -> tuple[str, str]:
 
     subprocess.run(
         [
-            "openssl", "ca", "-batch", "-config", str(ca_cfg),
-            "-in", exp_csr, "-out", exp_cert,
-            "-extensions", "ext",
-            "-startdate", "20200101000000Z", "-enddate", "20200102000000Z"
+            "openssl", "x509", "-req", "-in", exp_csr, "-signkey", exp_key,
+            "-out", exp_cert, "-extfile", str(exp_cfg), "-extensions", "ext",
+            "-not_before", "20200101000000Z", "-not_after", "20200102000000Z"
         ],
         check=True,
         capture_output=True
