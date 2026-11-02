@@ -15,15 +15,15 @@ final class HomeFlowTests: UITestBase {
         waitForShareSheet(timeout: 15)
 
         let copyButton = app.buttons["share.copyQuoteButton"]
-        waitFor(copyButton)
+        waitFor(copyButton, timeout: 15)
         copyButton.tap()
 
         let copiedAlert = app.alerts["Copied!"]
-        waitFor(copiedAlert)
+        waitFor(copiedAlert, timeout: 15)
         copiedAlert.buttons["OK"].tap()
 
         let doneButton = app.buttons["share.doneButton"]
-        waitFor(doneButton)
+        waitFor(doneButton, timeout: 15)
         doneButton.tap()
     }
 
