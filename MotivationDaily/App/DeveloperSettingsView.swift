@@ -253,6 +253,21 @@ struct DeveloperSettingsView: View {
                 TextField("Simulated build", text: $build)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
             }
+            Section("Privacy & Support") {
+                Link(destination: URL(string: "https://github.com/Anurag-Chourasia/Motivation-Daily/blob/main/Docs/PrivacyInventory.md")!) {
+                    Label("Privacy Policy", systemImage: "hand.raised")
+                }
+                .accessibilityIdentifier("developer-privacy-policy")
+
+                Link(destination: URL(string: "mailto:anuragchourasiaios@gmail.com")!) {
+                    Label("Developer Support", systemImage: "envelope")
+                }
+                .accessibilityIdentifier("developer-support")
+
+                Text("Motivation Daily stores favorited quotes and lightweight settings locally on your device. Quote and wallpaper fetching is unauthenticated. No personal data is tracked or sold to third parties.")
+                    .font(Typography.caption)
+                    .foregroundColor(DesignColor.secondary)
+            }
             Section {
                 Button("Reset developer settings", role: .destructive) {
                     source = "live"; scenario = "success"
