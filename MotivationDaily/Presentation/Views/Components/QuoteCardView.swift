@@ -21,9 +21,9 @@ struct QuoteCardView: View {
     var body: some View {
         VStack(spacing: contentSpacing) {
             HStack {
-                Image(systemName: "quote.opening")
+                Image(symbol: .quoteOpening)
                     .font(.system(size: iconSize, weight: .semibold))
-                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_3))
+                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_8))
                 Spacer()
             }
 
@@ -31,7 +31,7 @@ struct QuoteCardView: View {
                 .font(.system(size: quoteFontSize, weight: .semibold, design: .rounded))
                 .multilineTextAlignment(.center)
                 .lineSpacing(lineSpacing)
-                .minimumScaleFactor(OpacityToken.p0_5 + OpacityToken.p0_15 / 1.5)
+                .minimumScaleFactor(OpacityToken.p0_6)
                 .allowsTightening(true)
                 .foregroundColor(DesignColor.white)
                 .padding(.horizontal, CornerRadius.six)
@@ -42,7 +42,7 @@ struct QuoteCardView: View {
                     .frame(width: DesignMetric.p22_58, height: StrokeWidth.two)
                 Text(quote.author ?? "Unknown")
                     .font(.system(size: authorFontSize, weight: .semibold))
-                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_35 + OpacityToken.p0_15 / 3))
+                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_9))
                 Capsule()
                     .fill(DesignColor.white.opacity(OpacityToken.p0_5))
                     .frame(width: DesignMetric.p22_58, height: StrokeWidth.two)
@@ -68,11 +68,11 @@ struct QuoteCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .stroke(DesignColor.white.opacity(OpacityToken.p0_15 + OpacityToken.p0_3 / 10), lineWidth: StrokeWidth.one)
+                .stroke(DesignColor.white.opacity(OpacityToken.p0_18), lineWidth: StrokeWidth.one)
         )
         .frame(maxWidth: .infinity, minHeight: fixedCardHeight, maxHeight: fixedCardHeight)
         .shadow(
-            color: showsDepthEffects ? DesignColor.black.opacity(OpacityToken.p0_2 + OpacityToken.p0_3 / 3.75) : DesignColor.clear,
+            color: showsDepthEffects ? DesignColor.black.opacity(OpacityToken.p0_3) : DesignColor.clear,
             radius: showsDepthEffects ? Spacing.sixteen : 0,
             x: 0,
             y: showsDepthEffects ? Spacing.eight : 0

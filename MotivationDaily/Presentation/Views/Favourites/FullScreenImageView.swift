@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import DesignTokensKit
+import LocalizationKit
 
 struct FullScreenImageView: View {
     let favorite: FavoriteQuote?
@@ -8,6 +9,7 @@ struct FullScreenImageView: View {
     @Binding var isPresented: Bool
     let onImageDataResolved: ((String, Data) -> Void)?
 
+    @Environment(\.motivationL10n) private var l10n
     @State private var showShareSheet = false
     @State private var displayedImage: UIImage?
     @State private var isLoadingImage = false
@@ -85,7 +87,7 @@ struct FullScreenImageView: View {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectedRatio = ratio }) {
                         if ratio == selectedRatio {
-                            Label(ratio.rawValue, systemImage: "checkmark")
+                            Label(ratio.rawValue, symbol: .checkmark)
                         } else {
                             Text(ratio.rawValue)
                         }
@@ -93,7 +95,7 @@ struct FullScreenImageView: View {
                 }
             } label: {
                 SideActionIconView(
-                    systemName: "crop",
+                    systemName: AppSymbol.crop.rawValue,
                     label: selectedRatio.rawValue,
                     tint: DesignColor.white
                 )
@@ -103,8 +105,8 @@ struct FullScreenImageView: View {
 
             Button(action: { showShareSheet = true }) {
                 SideActionIconView(
-                    systemName: "paperplane.fill",
-                    label: "Share",
+                    systemName: AppSymbol.paperplaneFill.rawValue,
+                    label: l10n.common.share,
                     tint: DesignColor.white
                 )
             }
@@ -113,8 +115,8 @@ struct FullScreenImageView: View {
 
             Button(action: { isPresented = false }) {
                 SideActionIconView(
-                    systemName: "xmark",
-                    label: "Close",
+                    systemName: AppSymbol.xmark.rawValue,
+                    label: l10n.common.close,
                     tint: DesignColor.white
                 )
             }
@@ -149,10 +151,10 @@ struct FullScreenImageView: View {
     private var emptyImage: some View {
         VStack(spacing: Spacing.sixteen) {
             Spacer()
-            Image(systemName: "photo.fill")
+            Image(symbol: .photoFill)
                 .font(.system(size: DesignMetric.p60))
                 .foregroundColor(DesignColor.gray)
-            Text("Image not available")
+            Text(l10n.domain.imageNotAvailable)
                 .foregroundColor(DesignColor.white)
             Spacer()
         }

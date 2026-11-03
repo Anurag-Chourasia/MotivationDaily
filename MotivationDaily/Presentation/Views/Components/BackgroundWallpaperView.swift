@@ -48,12 +48,12 @@ struct BackgroundWallpaperView: View {
                 if isLoading, currentImage == nil {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .tint(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_3))
+                        .tint(DesignColor.white.opacity(OpacityToken.p0_8))
                         .scaleEffect(ScaleToken.p1_15)
                         .padding(Spacing.twelve)
-                        .background(DesignColor.black.opacity(OpacityToken.p0_2 + OpacityToken.p0_15 / 3))
+                        .background(DesignColor.black.opacity(OpacityToken.p0_25))
                         .clipShape(Circle())
-                        .opacity(OpacityToken.p0_5 + OpacityToken.p0_15 / 1.5)
+                        .opacity(OpacityToken.p0_6)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -80,9 +80,9 @@ struct BackgroundWallpaperView: View {
             } else {
                 LinearGradient(
                     colors: [
-                        DesignColor.black.opacity(OpacityToken.p0_5 + OpacityToken.p0_35 + OpacityToken.p0_15 / 5),
+                        DesignColor.black.opacity(OpacityToken.p0_85),
                         DesignColor.ink,
-                        DesignColor.black.opacity(OpacityToken.p1_0 - OpacityToken.p0_15 / 2.5)
+                        DesignColor.black.opacity(OpacityToken.p0_9)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing

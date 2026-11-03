@@ -1,9 +1,11 @@
 import SwiftUI
 import DesignTokensKit
+import LocalizationKit
 
 struct FavoritesView: View {
     @ObservedObject var quoteVM: QuoteViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.motivationL10n) private var l10n
 
     @State private var selectedFavorite: FavoriteQuote?
     @State private var showFullScreen = false
@@ -24,11 +26,11 @@ struct FavoritesView: View {
                     )
                 }
             }
-            .navigationTitle("❤️ Favorite Quotes")
+            .navigationTitle(l10n.domain.favourites)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") {
+                    Button(l10n.common.done) {
                         dismiss()
                     }
                     .accessibilityIdentifier("favorites.doneButton")
@@ -40,10 +42,10 @@ struct FavoritesView: View {
                             Button(role: .destructive) {
                                 quoteVM.clearAllFavorites()
                             } label: {
-                                Label("Clear All", systemImage: "trash.fill")
+                                Label(l10n.domain.clearAll, systemImage: "trash.fill")
                             }
                         } label: {
-                            Image(systemName: "ellipsis.circle")
+                            Image(symbol: .ellipsisCircle)
                         }
                     }
                 }

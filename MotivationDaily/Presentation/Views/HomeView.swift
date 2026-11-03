@@ -204,7 +204,7 @@ struct HomeView: View {
             ZStack {
                 Text("MotivationDaily")
                     .font(Typography.headline)
-                    .minimumScaleFactor(OpacityToken.p0_5 + OpacityToken.p0_3)
+                    .minimumScaleFactor(OpacityToken.p0_8)
                     .foregroundColor(selectedAccentTheme.color)
 
                 HStack {
@@ -234,8 +234,8 @@ struct HomeView: View {
         .background(
             LinearGradient(
                 colors: [
-                    DesignColor.black.opacity(OpacityToken.p1_0 - OpacityToken.p0_15 / 3.75),
-                    DesignColor.ink.opacity(OpacityToken.p0_5 + OpacityToken.p0_35),
+                    DesignColor.black.opacity(OpacityToken.p0_9),
+                    DesignColor.ink.opacity(OpacityToken.p0_85),
                     DesignColor.clear
                 ],
                 startPoint: .top,
@@ -254,13 +254,13 @@ struct HomeView: View {
                             ZStack {
                                 if isSelected {
                                     RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous)
-                                        .fill(selectedAccentTheme.color.opacity(OpacityToken.p0_2 + OpacityToken.p0_15 / 3))
+                                        .fill(selectedAccentTheme.color.opacity(OpacityToken.p0_25))
                                         .matchedGeometryEffect(id: "category-tab", in: categoryTabNamespace)
                                 }
 
                                 Text(tab.title)
                                     .font(Typography.footnote)
-                                    .foregroundColor(isSelected ? selectedAccentTheme.color : DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
+                                    .foregroundColor(isSelected ? selectedAccentTheme.color : DesignColor.white.opacity(OpacityToken.p0_7))
                                     .padding(.horizontal, Spacing.twelve)
                                     .padding(.vertical, Spacing.five)
                             }
@@ -394,10 +394,10 @@ struct HomeView: View {
                 .ignoresSafeArea()
 
                 RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
-                    .fill(DesignColor.white.opacity(OpacityToken.p0_15 / 2))
+                    .fill(DesignColor.white.opacity(OpacityToken.p0_1))
                     .overlay(
                         RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
-                            .stroke(DesignColor.white.opacity(OpacityToken.p0_15 + OpacityToken.p0_3 / 10), lineWidth: StrokeWidth.one)
+                            .stroke(DesignColor.white.opacity(OpacityToken.p0_18), lineWidth: StrokeWidth.one)
                     )
                     .frame(width: quoteLayout.width, height: quoteCardHeight)
                     .position(x: imageRect.midX, y: imageRect.midY)
@@ -407,7 +407,7 @@ struct HomeView: View {
                     label: { EmptyView() },
                     background: { DesignColor.clear }
                 )
-                .tint(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_35 + OpacityToken.p0_15 / 3))
+                .tint(DesignColor.white.opacity(OpacityToken.p0_9))
                 .scaleEffect(ScaleToken.p1_0)
             }
         }
