@@ -10,7 +10,7 @@ final class AboutViewModel: ObservableObject {
     let developerRole = "iOS Developer"
     let appName = "Motivation Daily"
     let appDescription = "Inspirational quotes paired with aesthetic wallpapers. Built with SwiftUI, Clean Architecture and MVVM."
-    let disclaimer = "Quotes and wallpapers are provided by public APIs (Quotable, ZenQuotes, AdviceSlip, and Picsum). All content is owned by their respective authors and creators. Review our [Privacy Policy](https://github.com/Anurag-Chourasia/Motivation-Daily/blob/main/Docs/PrivacyInventory.md) or contact [Developer Support](mailto:anuragchourasiaios@gmail.com)."
+    let disclaimer = "Quotes and wallpapers are provided by public APIs (Quotable, ZenQuotes, AdviceSlip, and Picsum). All content is owned by their respective authors and creators."
 
     let version: String
     let build: String
