@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import Photos
 import DesignTokensKit
+import LocalizationKit
 
 private struct SharePayload: Identifiable {
     let id = UUID()
@@ -16,6 +17,7 @@ struct ShareImageQuoteView: View {
     let layoutSize: CGSize?
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.motivationL10n) private var l10n
     @State private var showCopiedBadge = false
     @State private var showCopiedAlert = false
     @State private var compositeImage: UIImage?
@@ -62,12 +64,12 @@ struct ShareImageQuoteView: View {
     var body: some View {
         VStack(spacing: Spacing.twenty) {
             HStack {
-                Text("Share")
-                    .font(Typography.headline)
+                Text(l10n.common.share)
+                    .tokenFont(\.headline)
 
                 Spacer()
 
-                Button("Done") {
+                Button(l10n.common.done) {
                     dismiss()
                 }
                 .accessibilityIdentifier("share.doneButton")
@@ -83,16 +85,16 @@ struct ShareImageQuoteView: View {
                             .frame(maxHeight: DesignMetric.p400 - DesignMetric.p100)
                             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
 
-                        Text("Preview - This is what will be shared")
-                            .font(Typography.caption)
+                        Text(l10n.domain.previewShareTitle)
+                            .tokenFont(\.caption)
                             .foregroundColor(DesignColor.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, Spacing.sixteen)
                     } else if isPreparingImage {
                         HStack(spacing: Spacing.ten) {
                             ProgressView()
-                            Text("Preparing image...")
-                                .font(Typography.caption)
+                            Text(l10n.domain.preparingImage)
+                                .tokenFont(\.caption)
                                 .foregroundColor(DesignColor.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -105,14 +107,14 @@ struct ShareImageQuoteView: View {
                             openShare(items: [compositeImage])
                         }) {
                             shareButtonContent(
-                                icon: "photo.badge.checkmark.fill",
-                                title: "Share Quote + Image",
-                                subtitle: "Quote embedded in image",
-                                colors: [DesignColor.blue.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.blue]
+                                symbol: .photoBadgeCheckmarkFill,
+                                title: l10n.domain.shareQuoteAndImage,
+                                subtitle: l10n.domain.quoteEmbeddedInImage,
+                                colors: [DesignColor.blue.opacity(OpacityToken.p0_8), DesignColor.blue]
                             )
                         }
                         .disabled(compositeImage == nil)
-                        .opacity(compositeImage == nil ? OpacityToken.p0_5 + OpacityToken.p0_15 / 3 : OpacityToken.p1_0)
+                        .opacity(compositeImage == nil ? OpacityToken.p0_55 : OpacityToken.p1_0)
                         .accessibilityIdentifier("share.quoteAndImageButton")
 
                         Button(action: {
@@ -120,29 +122,29 @@ struct ShareImageQuoteView: View {
                             openShare(items: [sourceImage])
                         }) {
                             shareButtonContent(
-                                icon: "photo.fill",
-                                title: "Share Only Image",
-                                subtitle: "Wallpaper image only",
-                                colors: [DesignColor.turquoise.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.turquoise]
+                                symbol: .photoFill,
+                                title: l10n.domain.shareImageOnly,
+                                subtitle: l10n.domain.wallpaperBackgroundOnly,
+                                colors: [DesignColor.turquoise.opacity(OpacityToken.p0_8), DesignColor.turquoise]
                             )
                         }
                         .disabled(sourceImage == nil)
-                        .opacity(sourceImage == nil ? OpacityToken.p0_5 + OpacityToken.p0_15 / 3 : OpacityToken.p1_0)
+                        .opacity(sourceImage == nil ? OpacityToken.p0_55 : OpacityToken.p1_0)
                         .accessibilityIdentifier("share.imageOnlyButton")
 
                         Button(action: {
                             showSaveOptionsDialog = true
                         }) {
-                            HStack(spacing: Spacing.ten) {
-                                Image(systemName: "square.and.arrow.down")
-                                    .font(Typography.title3)
-                                VStack(alignment: .leading, spacing: StrokeWidth.two) {
-                                    Text(isSavingImage ? "Saving..." : "Save to Photos")
+                            HStack(spacingKeyPath: \.ten) {
+                                Image(symbol: .squareAndArrowDown)
+                                    .tokenFont(\.title3)
+                                VStack(alignment: .leading, strokeWidthKeyPath: \.two) {
+                                    Text(isSavingImage ? l10n.domain.preparingImage : l10n.domain.saveToPhotos)
                                         .fontWeight(.semibold)
-                                        .font(Typography.body)
-                                    Text("Choose what to save")
-                                        .font(Typography.caption)
-                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
+                                        .tokenFont(\.body)
+                                    Text(l10n.domain.chooseWhatToSave)
+                                        .tokenFont(\.caption)
+                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
                                 }
                                 Spacer()
                                 if isSavingImage {
@@ -154,7 +156,7 @@ struct ShareImageQuoteView: View {
                             .padding(Spacing.fourteen)
                             .background(
                                 LinearGradient(
-                                    colors: [DesignColor.oceanAction.opacity(OpacityToken.p0_5 + OpacityToken.p0_35), DesignColor.oceanAction],
+                                    colors: [DesignColor.oceanAction.opacity(OpacityToken.p0_85), DesignColor.oceanAction],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -163,36 +165,36 @@ struct ShareImageQuoteView: View {
                             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
                         }
                         .disabled((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage)
-                        .opacity(((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage) ? OpacityToken.p0_5 + OpacityToken.p0_15 / 3 : OpacityToken.p1_0)
+                        .opacity(((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage) ? OpacityToken.p0_55 : OpacityToken.p1_0)
                         .accessibilityIdentifier("share.saveToPhotosButton")
 
                         Button(action: {
                             openShare(items: [shareContent])
                         }) {
                             shareButtonContent(
-                                icon: "text.quote.fill",
-                                title: "Share Only Quote",
-                                subtitle: "Text only, no image",
-                                colors: [DesignColor.green.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.green]
+                                symbol: .quoteOpening,
+                                title: l10n.domain.shareQuoteOnly,
+                                subtitle: l10n.domain.blackGradientBackground,
+                                colors: [DesignColor.green.opacity(OpacityToken.p0_8), DesignColor.green]
                             )
                         }
                         .accessibilityIdentifier("share.quoteOnlyButton")
 
                         Button(action: copyToClipboard) {
-                            HStack(spacing: Spacing.ten) {
-                                Image(systemName: "doc.on.doc.fill")
-                                    .font(Typography.title3)
-                                VStack(alignment: .leading, spacing: StrokeWidth.two) {
-                                    Text("Copy Quote")
+                            HStack(spacingKeyPath: \.ten) {
+                                Image(symbol: .docOnDocFill)
+                                    .tokenFont(\.title3)
+                                VStack(alignment: .leading, strokeWidthKeyPath: \.two) {
+                                    Text(l10n.domain.copyQuote)
                                         .fontWeight(.semibold)
-                                        .font(Typography.body)
-                                    Text("Paste anywhere")
-                                        .font(Typography.caption)
-                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
+                                        .tokenFont(\.body)
+                                    Text(l10n.domain.pasteAnywhere)
+                                        .tokenFont(\.caption)
+                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
                                 }
                                 Spacer()
                                 if showCopiedBadge {
-                                    Image(systemName: "checkmark.circle.fill")
+                                    Image(symbol: .checkmarkCircleFill)
                                         .foregroundColor(DesignColor.white)
                                 }
                             }
@@ -200,7 +202,7 @@ struct ShareImageQuoteView: View {
                             .padding(Spacing.fourteen)
                             .background(
                                 LinearGradient(
-                                    colors: [DesignColor.orange.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.orange],
+                                    colors: [DesignColor.orange.opacity(OpacityToken.p0_8), DesignColor.orange],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -224,65 +226,65 @@ struct ShareImageQuoteView: View {
             ActivityShareSheet(activityItems: payload.items)
         }
         .alert("Copied!", isPresented: $showCopiedAlert) {
-            Button("OK") {}
+            Button(l10n.common.ok) {}
         } message: {
-            Text("Quote copied to clipboard")
+            Text(l10n.domain.quoteCopiedToast)
         }
         .alert(saveAlertTitle, isPresented: $showSaveAlert) {
-            Button("OK") {}
+            Button(l10n.common.ok) {}
         } message: {
             Text(saveAlertMessage)
         }
         .confirmationDialog("Photo Access Needed", isPresented: $showPermissionSettingsDialog, titleVisibility: .visible) {
-            Button("Open Settings") {
+            Button(l10n.domain.openSettings) {
                 openAppSettings()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(l10n.common.cancel, role: .cancel) {}
         } message: {
-            Text("Allow Photos access in Settings to save wallpapers.")
+            Text(l10n.domain.photosAccessAlertMessage)
         }
-        .confirmationDialog("Save to Photos", isPresented: $showSaveOptionsDialog, titleVisibility: .visible) {
+        .confirmationDialog(l10n.domain.saveToPhotos, isPresented: $showSaveOptionsDialog, titleVisibility: .visible) {
             if let quoteOnlyImage {
-                Button("Save Quote (Black Gradient)") {
+                Button(l10n.domain.saveQuoteGradient) {
                     Task {
                         await saveImageToPhotos(quoteOnlyImage)
                     }
                 }
             }
             if let sourceImage {
-                Button("Save Only Image") {
+                Button(l10n.domain.saveOnlyImage) {
                     Task {
                         await saveImageToPhotos(sourceImage)
                     }
                 }
             }
             if let compositeImage {
-                Button("Save Image + Quote") {
+                Button(l10n.domain.saveImagePlusQuote) {
                     Task {
                         await saveImageToPhotos(compositeImage)
                     }
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(l10n.common.cancel, role: .cancel) {}
         }
     }
 
     private func shareButtonContent(
-        icon: String,
+        symbol: AppSymbol,
         title: String,
         subtitle: String,
         colors: [Color]
     ) -> some View {
-        HStack(spacing: Spacing.ten) {
-            Image(systemName: icon)
-                .font(Typography.title3)
-            VStack(alignment: .leading, spacing: StrokeWidth.two) {
+        HStack(spacingKeyPath: \.ten) {
+            Image(symbol: symbol)
+                .tokenFont(\.title3)
+            VStack(alignment: .leading, strokeWidthKeyPath: \.two) {
                 Text(title)
                     .fontWeight(.semibold)
-                    .font(Typography.body)
+                    .tokenFont(\.body)
                 Text(subtitle)
-                    .font(Typography.caption)
-                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
+                    .tokenFont(\.caption)
+                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
             }
             Spacer()
         }

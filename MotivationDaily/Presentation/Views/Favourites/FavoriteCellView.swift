@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import UIComponentsKit
 import DesignTokensKit
+import LocalizationKit
 
 struct FavoriteCellView: View {
     let favorite: FavoriteQuote
@@ -10,6 +11,7 @@ struct FavoriteCellView: View {
     let onToggleFavorite: () -> Void
     let onImageDataResolved: ((Data) -> Void)?
 
+    @Environment(\.motivationL10n) private var l10n
     @State private var renderedImage: UIImage?
     @State private var isLoading = false
     @State private var loadTask: Task<Void, Never>?
@@ -41,11 +43,11 @@ struct FavoriteCellView: View {
                 }
 
                 Button(action: onToggleFavorite) {
-                    Image(systemName: "heart.fill")
+                    Image(symbol: .heartFill)
                         .font(.system(size: Spacing.fourteen, weight: .bold))
                         .foregroundColor(DesignColor.red)
                         .frame(width: DesignMetric.p34, height: DesignMetric.p34)
-                        .background(DesignColor.white.opacity(OpacityToken.p1_0 - OpacityToken.p0_15 / 2))
+                        .background(DesignColor.white.opacity(OpacityToken.p0_9))
                         .clipShape(Circle())
                         .overlay(
                             Circle()
@@ -54,7 +56,7 @@ struct FavoriteCellView: View {
                 }
                 .padding(Spacing.twelve)
                 .buttonStyle(.plain)
-                .accessibilityLabel("Remove Favorite")
+                .accessibilityLabel(l10n.domain.removeFavorite)
                 .accessibilityIdentifier("favorites.removeButton")
             }
 
@@ -80,9 +82,9 @@ struct FavoriteCellView: View {
         .clipShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous)
-                .stroke(DesignColor.black.opacity(OpacityToken.p0_15 / 2), lineWidth: StrokeWidth.one)
+                .stroke(DesignColor.black.opacity(OpacityToken.p0_1), lineWidth: StrokeWidth.one)
         )
-        .shadow(color: DesignColor.black.opacity(OpacityToken.p0_15 / 2), radius: Spacing.ten, x: 0, y: Spacing.five)
+        .shadow(color: DesignColor.black.opacity(OpacityToken.p0_1), radius: Spacing.ten, x: 0, y: Spacing.five)
         .contentShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("favorites.cell")
@@ -108,19 +110,19 @@ struct FavoriteCellView: View {
     private var imagePlaceholder: some View {
         ZStack {
             LinearGradient(
-                colors: [DesignColor.black.opacity(OpacityToken.p0_5), DesignColor.black.opacity(OpacityToken.p0_5 + OpacityToken.p0_2)],
+                colors: [DesignColor.black.opacity(OpacityToken.p0_5), DesignColor.black.opacity(OpacityToken.p0_7)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            Image(systemName: "photo")
+            Image(symbol: .photo)
                 .font(Typography.title)
-                .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
+                .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
         }
     }
 
     private var categoryTag: String {
         guard let raw = favorite.categoryKey?.rawValue, !raw.isEmpty else {
-            return "Random"
+            return l10n.domain.randomCategory
         }
         return raw
             .replacingOccurrences(of: "-", with: " ")
