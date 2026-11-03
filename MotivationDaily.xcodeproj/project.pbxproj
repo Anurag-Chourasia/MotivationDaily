@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DA752D2D34EA542331C8A730 /* LocalizationAndRTLJourneyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 818F519400EDD7B6C4BCBE42 /* LocalizationAndRTLJourneyTests.swift */; };
 		346EE02C309117C6006198AF /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2C1A0070000000000000001 /* XCTest.framework */; };
 		346EE02D309117C6006198AF /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		346EE02E309117C6006198AF /* SnapshotTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00700000000000000000002 /* SnapshotTestKit */; };
@@ -53,6 +54,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		818F519400EDD7B6C4BCBE42 /* LocalizationAndRTLJourneyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationAndRTLJourneyTests.swift; sourceTree = "<group>"; };
 		344A416C2EC37AE100B74E80 /* MotivationDaily.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotivationDaily.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		346EE2373091AC06006198AF /* MotivationDailyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotivationDailyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2C1A0010000000000000001 /* UITestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestBase.swift; sourceTree = "<group>"; };
@@ -855,7 +857,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/AuthKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.2.3;
+				version = 0.2.6;
 			};
 		};
 		M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */ = {
@@ -879,7 +881,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/LocalizationKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.1.1;
+				version = 0.2.0;
 			};
 		};
 		M00400000000000000000001 /* XCRemoteSwiftPackageReference "DesignTokensKit" */ = {

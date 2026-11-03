@@ -1,7 +1,7 @@
 {
   "authkit": {
-    "version": "0.2.3",
-    "revision": "35c503599aa35d31e6f054c40a7b07627f1fd0c3"
+    "version": "0.2.6",
+    "revision": "79d935a88843268e542f91ba8f8d27ab4de8538a"
   },
   "commonnetworking": {
     "revision": "c6ff2b5fb081bb2e8a7f559c1f34b7aff03764cd",
@@ -20,8 +20,8 @@
     "version": "0.1.1"
   },
   "localizationkit": {
-    "revision": "fdb91f3512131496c62a3468781a3ebcdd455841",
-    "version": "0.1.1"
+    "revision": "44f1644d5b08564f0147d9ec6519c3000476f7ec",
+    "version": "0.2.0"
   },
   "snapshottestkit": {
     "revision": "121e979186c23a34001effd812bd01fdf1d66ff7",

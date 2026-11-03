@@ -6,7 +6,7 @@ import LocalizationKit
 final class AppContainer {
     static let live = AppContainer()
 
-    let localization: LocalizationProviding
+    let localization: LocalizationController
     let configuration: AppConfiguration
     let logger: AppLogger
 
