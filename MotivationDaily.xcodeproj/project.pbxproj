@@ -889,7 +889,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/DesignTokensKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.14.0;
+				version = 1.17.0;
 			};
 		};
 		M00500000000000000000001 /* XCRemoteSwiftPackageReference "UIComponentsKit" */ = {
