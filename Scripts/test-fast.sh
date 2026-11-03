@@ -5,12 +5,19 @@ cd "$(dirname "$0")/.."
 echo "=== [Motivation Daily] Fast Lane: Static Checks & Fast Unit Tests ==="
 START_TIME=$(date +%s)
 
-# 1. Submodules, pins, and design tokens
-echo "--> Verifying submodules, pins, and design tokens..."
+# Prevent CI from recording snapshot baselines
+if [[ "${CI:-}" != "" && ( "${RECORD_SNAPSHOTS:-0}" == 1 || "${SNAPSHOT_RECORD:-0}" == 1 ) ]]; then
+    echo "CI cannot record snapshots" >&2; exit 1
+fi
+
+# 1. Submodules, pins, tokens, and flake quarantine
+echo "--> Verifying submodules, pins, tokens, and quarantine..."
 python3 Scripts/verify-submodules.py
 python3 Scripts/verify_pins.py
 python3 Scripts/check_design_tokens.py
 python3 Scripts/test_dependencies.py
+python3 Scripts/verify_flake_quarantine.py
+python3 Scripts/verify-snapshot-baselines.py
 
 # 2. Fast stub fixtures test
 echo "--> Testing stub fixtures..."

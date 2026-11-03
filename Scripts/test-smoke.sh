@@ -5,6 +5,11 @@ cd "$(dirname "$0")/.."
 echo "=== [Motivation Daily] UI Smoke Lane: Core Flows & Interactions ==="
 START_TIME=$(date +%s)
 
+# Prevent CI from recording snapshot baselines
+if [[ "${CI:-}" != "" && ( "${RECORD_SNAPSHOTS:-0}" == 1 || "${SNAPSHOT_RECORD:-0}" == 1 ) ]]; then
+    echo "CI cannot record snapshots" >&2; exit 1
+fi
+
 destination="${TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 11}"
 if [[ "$destination" =~ id=([A-Fa-f0-9-]+) ]]; then
     xcrun simctl bootstatus "${BASH_REMATCH[1]}" -b || true
