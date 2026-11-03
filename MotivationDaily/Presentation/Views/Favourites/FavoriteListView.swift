@@ -1,4 +1,5 @@
 import SwiftUI
+import DesignTokensKit
 
 struct FavoriteListView: View {
     @ObservedObject var quoteVM: QuoteViewModel
@@ -6,7 +7,7 @@ struct FavoriteListView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 14) {
+            LazyVStack(spacing: Spacing.fourteen) {
                 ForEach(quoteVM.favorites) { favorite in
                     let imageURL = favorite.imageURL
 
@@ -19,12 +20,12 @@ struct FavoriteListView: View {
                             quoteVM.cacheFavoriteImageIfNeeded(quoteID: favorite.id, imageData: imageData)
                         }
                     )
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, Spacing.twelve)
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, Spacing.twelve)
         }
-        .background(Color.clear)
+        .background(DesignColor.clear)
         .accessibilityIdentifier("favorites.list")
     }
 }

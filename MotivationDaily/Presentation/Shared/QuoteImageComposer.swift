@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import DesignTokensKit
 
 enum QuoteImageComposer {
     struct RenderContext: Equatable {
@@ -84,9 +85,9 @@ enum QuoteImageComposer {
         let quoteOnlyView = ZStack {
             LinearGradient(
                 colors: [
-                    Color.black,
-                    Color(red: 0.08, green: 0.08, blue: 0.1),
-                    Color.black
+                    DesignColor.black,
+                    DesignColor.ink,
+                    DesignColor.black
                 ],
                 startPoint: .top,
                 endPoint: .bottom

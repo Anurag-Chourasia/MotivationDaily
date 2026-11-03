@@ -8,7 +8,7 @@ struct EmptyFavoritesView: View {
         StateMessage(
             spacing: Spacing.twelve,
             typography: MessageTypography(
-                icon: .system(size: 56),
+                icon: Typography.largeTitle,
                 title: Typography.headline,
                 detail: Typography.subheadline
             ),

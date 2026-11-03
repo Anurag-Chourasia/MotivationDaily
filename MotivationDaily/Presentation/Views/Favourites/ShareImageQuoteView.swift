@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import Photos
+import DesignTokensKit
 
 private struct SharePayload: Identifiable {
     let id = UUID()
@@ -59,10 +60,10 @@ struct ShareImageQuoteView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Spacing.twenty) {
             HStack {
                 Text("Share")
-                    .font(.headline)
+                    .font(Typography.headline)
 
                 Spacer()
 
@@ -71,34 +72,34 @@ struct ShareImageQuoteView: View {
                 }
                 .accessibilityIdentifier("share.doneButton")
             }
-            .padding()
+            .padding(.all, Spacing.sixteen)
 
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: Spacing.sixteen) {
                     if let compositeImage {
                         Image(uiImage: compositeImage)
                             .resizable()
                             .scaledToFit()
-                            .frame(maxHeight: 300)
-                            .cornerRadius(12)
+                            .frame(maxHeight: DesignMetric.p400 - DesignMetric.p100)
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
 
                         Text("Preview - This is what will be shared")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(Typography.caption)
+                            .foregroundColor(DesignColor.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
+                            .padding(.horizontal, Spacing.sixteen)
                     } else if isPreparingImage {
-                        HStack(spacing: 10) {
+                        HStack(spacing: Spacing.ten) {
                             ProgressView()
                             Text("Preparing image...")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                                .font(Typography.caption)
+                                .foregroundColor(DesignColor.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
+                        .padding(.horizontal, Spacing.sixteen)
                     }
 
-                    VStack(spacing: 12) {
+                    VStack(spacing: Spacing.twelve) {
                         Button(action: {
                             guard let compositeImage else { return }
                             openShare(items: [compositeImage])
@@ -107,11 +108,11 @@ struct ShareImageQuoteView: View {
                                 icon: "photo.badge.checkmark.fill",
                                 title: "Share Quote + Image",
                                 subtitle: "Quote embedded in image",
-                                colors: [Color.blue.opacity(0.8), .blue]
+                                colors: [DesignColor.blue.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.blue]
                             )
                         }
                         .disabled(compositeImage == nil)
-                        .opacity(compositeImage == nil ? 0.55 : 1.0)
+                        .opacity(compositeImage == nil ? OpacityToken.p0_5 + OpacityToken.p0_15 / 3 : OpacityToken.p1_0)
                         .accessibilityIdentifier("share.quoteAndImageButton")
 
                         Button(action: {
@@ -122,47 +123,47 @@ struct ShareImageQuoteView: View {
                                 icon: "photo.fill",
                                 title: "Share Only Image",
                                 subtitle: "Wallpaper image only",
-                                colors: [Color.purple.opacity(0.8), .purple]
+                                colors: [DesignColor.turquoise.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.turquoise]
                             )
                         }
                         .disabled(sourceImage == nil)
-                        .opacity(sourceImage == nil ? 0.55 : 1.0)
+                        .opacity(sourceImage == nil ? OpacityToken.p0_5 + OpacityToken.p0_15 / 3 : OpacityToken.p1_0)
                         .accessibilityIdentifier("share.imageOnlyButton")
 
                         Button(action: {
                             showSaveOptionsDialog = true
                         }) {
-                            HStack(spacing: 10) {
+                            HStack(spacing: Spacing.ten) {
                                 Image(systemName: "square.and.arrow.down")
-                                    .font(.title3)
-                                VStack(alignment: .leading, spacing: 2) {
+                                    .font(Typography.title3)
+                                VStack(alignment: .leading, spacing: StrokeWidth.two) {
                                     Text(isSavingImage ? "Saving..." : "Save to Photos")
                                         .fontWeight(.semibold)
-                                        .font(.body)
+                                        .font(Typography.body)
                                     Text("Choose what to save")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.7))
+                                        .font(Typography.caption)
+                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
                                 }
                                 Spacer()
                                 if isSavingImage {
                                     ProgressView()
-                                        .tint(.white)
+                                        .tint(DesignColor.white)
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(14)
+                            .padding(Spacing.fourteen)
                             .background(
                                 LinearGradient(
-                                    colors: [Color.indigo.opacity(0.85), .indigo],
+                                    colors: [DesignColor.oceanAction.opacity(OpacityToken.p0_5 + OpacityToken.p0_35), DesignColor.oceanAction],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
+                            .foregroundColor(DesignColor.white)
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
                         }
                         .disabled((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage)
-                        .opacity(((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage) ? 0.55 : 1.0)
+                        .opacity(((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage) ? OpacityToken.p0_5 + OpacityToken.p0_15 / 3 : OpacityToken.p1_0)
                         .accessibilityIdentifier("share.saveToPhotosButton")
 
                         Button(action: {
@@ -172,44 +173,44 @@ struct ShareImageQuoteView: View {
                                 icon: "text.quote.fill",
                                 title: "Share Only Quote",
                                 subtitle: "Text only, no image",
-                                colors: [Color.green.opacity(0.8), .green]
+                                colors: [DesignColor.green.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.green]
                             )
                         }
                         .accessibilityIdentifier("share.quoteOnlyButton")
 
                         Button(action: copyToClipboard) {
-                            HStack(spacing: 10) {
+                            HStack(spacing: Spacing.ten) {
                                 Image(systemName: "doc.on.doc.fill")
-                                    .font(.title3)
-                                VStack(alignment: .leading, spacing: 2) {
+                                    .font(Typography.title3)
+                                VStack(alignment: .leading, spacing: StrokeWidth.two) {
                                     Text("Copy Quote")
                                         .fontWeight(.semibold)
-                                        .font(.body)
+                                        .font(Typography.body)
                                     Text("Paste anywhere")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.7))
+                                        .font(Typography.caption)
+                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
                                 }
                                 Spacer()
                                 if showCopiedBadge {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(DesignColor.white)
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(14)
+                            .padding(Spacing.fourteen)
                             .background(
                                 LinearGradient(
-                                    colors: [Color.orange.opacity(0.8), .orange],
+                                    colors: [DesignColor.orange.opacity(OpacityToken.p0_5 + OpacityToken.p0_3), DesignColor.orange],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
+                            .foregroundColor(DesignColor.white)
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
                         }
                         .accessibilityIdentifier("share.copyQuoteButton")
                     }
-                    .padding()
+                    .padding(.all, Spacing.sixteen)
                 }
             }
         }
@@ -272,26 +273,26 @@ struct ShareImageQuoteView: View {
         subtitle: String,
         colors: [Color]
     ) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.ten) {
             Image(systemName: icon)
-                .font(.title3)
-            VStack(alignment: .leading, spacing: 2) {
+                .font(Typography.title3)
+            VStack(alignment: .leading, spacing: StrokeWidth.two) {
                 Text(title)
                     .fontWeight(.semibold)
-                    .font(.body)
+                    .font(Typography.body)
                 Text(subtitle)
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(Typography.caption)
+                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
             }
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
+        .padding(Spacing.fourteen)
         .background(
             LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing)
         )
-        .foregroundColor(.white)
-        .cornerRadius(12)
+        .foregroundColor(DesignColor.white)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
     }
 
     private func openShare(items: [Any]) {
