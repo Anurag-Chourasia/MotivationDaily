@@ -45,7 +45,8 @@ xcrun xcodebuild test -project MotivationDaily.xcodeproj -scheme MotivationDaily
     -only-testing:MotivationDailyTests/ViewModelTests \
     -only-testing:MotivationDailyTests/FeedIdentityTests \
     -only-testing:MotivationDailyTests/RiskBasedIsolationAndConcurrencyTests \
-    -only-testing:MotivationDailyTests/AccessibilityJourneyTests
+    -only-testing:MotivationDailyTests/AccessibilityJourneyTests \
+    -only-testing:MotivationDailyTests/LocalizationAndRTLJourneyTests
 
 END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))

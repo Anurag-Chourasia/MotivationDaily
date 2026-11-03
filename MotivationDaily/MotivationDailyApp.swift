@@ -1,5 +1,8 @@
 import SwiftUI
 import AuthKitUI
+import LocalizationKit
+
+extension LocalizationController: AuthLocalizing {}
 
 @main
 struct MotivationDailyApp: App {
@@ -10,6 +13,7 @@ struct MotivationDailyApp: App {
         WindowGroup {
             appContent
             .tint(AccentTheme.resolve(from: accentThemeRawValue).color)
+            .environment(\.layoutDirection, container.localization.isRightToLeft ? .rightToLeft : .leftToRight)
         }
     }
 
@@ -35,7 +39,7 @@ struct MotivationDailyApp: App {
     }
 
     private var authenticatedContent: some View {
-        AppAuthGate(brand: .motivationDaily) { _, _ in
+        AppAuthGate(brand: .motivationDaily, localizer: container.localization) { _, _ in
             HomeView(quoteVM: container.makeQuoteViewModel(), pageVM: container.makeFeedPageViewModel())
         }
     }

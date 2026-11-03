@@ -6,8 +6,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/AuthKit.git",
       "state": {
-        "revision": "35c503599aa35d31e6f054c40a7b07627f1fd0c3",
-        "version": "0.2.3"
+        "revision": "79d935a88843268e542f91ba8f8d27ab4de8538a",
+        "version": "0.2.6"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/LocalizationKit.git",
       "state": {
-        "revision": "fdb91f3512131496c62a3468781a3ebcdd455841",
-        "version": "0.1.1"
+        "revision": "44f1644d5b08564f0147d9ec6519c3000476f7ec",
+        "version": "0.2.0"
       }
     },
     {
