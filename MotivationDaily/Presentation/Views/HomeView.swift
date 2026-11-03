@@ -101,18 +101,21 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            ColorTheme.default.black
+            Rectangle()
+                .fill(\.black)
                 .ignoresSafeArea()
 
             if bootPhase == .cold {
-                ColorTheme.default.black.ignoresSafeArea()
+                Rectangle()
+                    .fill(\.black)
+                    .ignoresSafeArea()
             } else {
                 pageContent
                     .contentShape(Rectangle())
                     .gesture(feedSwipeGesture)
             }
         }
-        .background(ColorTheme.default.black.ignoresSafeArea())
+        .background(\.black, ignoresSafeAreaEdges: .all)
         .task {
             await performInitialBootIfNeeded()
         }
@@ -136,7 +139,7 @@ struct HomeView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(Text(\CommonStrings.ok))
+                dismissButton: .default(\.ok)
             )
         }
         .onChange(of: pageVM.refreshError) { message in
@@ -209,7 +212,8 @@ struct HomeView: View {
                     .foregroundColor(selectedAccentTheme.color)
 
                 HStack {
-                    ColorTheme.default.clear
+                    Rectangle()
+                        .fill(\.clear)
                         .frame(width: \.p30, height: \.p30)
                     Spacer()
                     menuButton
@@ -352,7 +356,9 @@ struct HomeView: View {
         let quoteCardHeight = resolvedQuoteCardHeight(for: imageRect)
 
         return ZStack {
-            ColorTheme.default.black.ignoresSafeArea()
+            Rectangle()
+                .fill(\.black)
+                .ignoresSafeArea()
 
             Image(uiImage: content.image)
                 .resizable()
@@ -374,8 +380,8 @@ struct HomeView: View {
 
             sideActionRail(for: content)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                .padding(.trailing, Spacing.sixteen)
-                .padding(.bottom, max(safeAreaInsets.bottom + DesignMetric.p24, Spacing.thirtyTwo))
+                .padding(.trailing, \.sixteen)
+                .padding(.bottom, max(safeAreaInsets.bottom + SpacingTheme.default.twentyFour, SpacingTheme.default.thirtyTwo))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

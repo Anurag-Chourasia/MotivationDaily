@@ -20,7 +20,8 @@ struct FullScreenImageView: View {
         GeometryReader { proxy in
             let canvasSize = fullScreenCanvasSize(for: proxy)
             ZStack {
-                ColorTheme.default.black
+                Rectangle()
+                    .fill(\.black)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
 

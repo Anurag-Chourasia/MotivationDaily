@@ -7,7 +7,7 @@ struct FavoriteListView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: SpacingTheme.default.fourteen) {
+            LazyVStack(spacing: \.fourteen) {
                 ForEach(quoteVM.favorites) { favorite in
                     let imageURL = favorite.imageURL
 

@@ -9,14 +9,14 @@ struct QuoteCardView: View {
     var showsDepthEffects = true
     var cardHeight: CGFloat? = nil
 
-    private var contentSpacing: CGFloat { compactStyle ? SpacingTheme.default.twelve : DesignMetric.p18 }
-    private var iconSize: CGFloat { compactStyle ? DesignMetric.p21 : DesignMetric.p26_5 }
-    private var quoteFontSize: CGFloat { compactStyle ? DesignMetric.p19 : DesignMetric.p22_58 }
+    private var contentSpacing: CGFloat { compactStyle ? SpacingTheme.default.twelve : SpacingTheme.default.eighteen }
+    private var iconSize: CGFloat { compactStyle ? DesignMetricTheme.default.p21 : DesignMetricTheme.default.p26_5 }
+    private var quoteFontSize: CGFloat { compactStyle ? DesignMetricTheme.default.p19 : DesignMetricTheme.default.p22_58 }
     private var lineSpacing: CGFloat { compactStyle ? SpacingTheme.default.four : SpacingTheme.default.five }
     private var authorFontSize: CGFloat { compactStyle ? SpacingTheme.default.twelve : SpacingTheme.default.fourteen }
-    private var cardPadding: CGFloat { compactStyle ? DesignMetric.p18 : DesignMetric.p24 }
+    private var cardPadding: CGFloat { compactStyle ? SpacingTheme.default.eighteen : SpacingTheme.default.twentyFour }
     private var cornerRadius: CGFloat { compactStyle ? CornerRadiusTheme.default.fourteen : CornerRadiusTheme.default.twenty }
-    private var fixedCardHeight: CGFloat { cardHeight ?? (compactStyle ? DesignMetric.p248 : DesignMetric.p320) }
+    private var fixedCardHeight: CGFloat { cardHeight ?? (compactStyle ? DesignMetricTheme.default.p248 : DesignMetricTheme.default.p320) }
 
     var body: some View {
         VStack(spacing: contentSpacing) {
@@ -51,8 +51,13 @@ struct QuoteCardView: View {
         .padding(cardPadding)
         .background(
             ZStack {
-                (dominantColor ?? ColorTheme.default.black)
-                    .opacity(overlayOpacity)
+                if let dominantColor {
+                    dominantColor.opacity(overlayOpacity)
+                } else {
+                    Rectangle()
+                        .fill(\.black)
+                        .opacity(overlayOpacity)
+                }
                 LinearGradient(
                     stops: [ThemeColorStop(\.white, opacity: \.p0_15), ThemeColorStop(\.clear)],
                     startPoint: .topLeading,
@@ -72,10 +77,10 @@ struct QuoteCardView: View {
         )
         .frame(maxWidth: .infinity, minHeight: fixedCardHeight, maxHeight: fixedCardHeight)
         .shadow(
-            color: showsDepthEffects ? ColorTheme.default.black.opacity(OpacityTheme.default.p0_3) : ColorTheme.default.clear,
-            radius: showsDepthEffects ? 16 : 0,
-            x: 0,
-            y: showsDepthEffects ? 8 : 0
+            color: showsDepthEffects ? \.black : \.clear,
+            opacity: showsDepthEffects ? \.p0_3 : nil,
+            radius: showsDepthEffects ? \.sixteen : \.zero,
+            y: showsDepthEffects ? \.eight : \.zero
         )
     }
 }
@@ -86,7 +91,7 @@ struct QuoteCardView: View {
 
         QuoteCardView(
             quote: Quote(id: "1", text: "Life is beautiful", author: "Unknown", source: .zenQuotes, categoryKey: nil),
-            dominantColor: ColorTheme.default.blue,
+            dominantColor: nil,
             overlayOpacity: 0.5,
             compactStyle: false,
             showsDepthEffects: true

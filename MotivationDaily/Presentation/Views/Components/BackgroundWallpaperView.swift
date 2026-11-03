@@ -32,7 +32,8 @@ struct BackgroundWallpaperView: View {
             let imageFrame = fittedImageFrame(in: proxy.size)
 
             ZStack {
-                ColorTheme.default.black
+                Rectangle()
+                    .fill(\.black)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 ZStack {

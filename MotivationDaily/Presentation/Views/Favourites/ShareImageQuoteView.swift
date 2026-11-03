@@ -150,7 +150,7 @@ struct ShareImageQuoteView: View {
             ActivityShareSheet(activityItems: payload.items)
         }
         .alert(\.copied, isPresented: $showCopiedAlert) {
-            Button(\CommonStrings.ok) {}
+            Button(\.ok) {}
         } message: {
             Text(\.quoteCopiedToast)
         }
@@ -158,14 +158,14 @@ struct ShareImageQuoteView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(Text(\CommonStrings.ok))
+                dismissButton: .default(\.ok)
             )
         }
         .confirmationDialog(\.photosAccessAlertTitle, isPresented: $showPermissionSettingsDialog, titleVisibility: .visible) {
             Button(\.openSettings) {
                 openAppSettings()
             }
-            Button(\CommonStrings.cancel, role: .cancel) {}
+            Button(\.cancel, role: .cancel) {}
         } message: {
             Text(\.photosAccessAlertMessage)
         }
@@ -191,7 +191,7 @@ struct ShareImageQuoteView: View {
                     }
                 }
             }
-            Button(\CommonStrings.cancel, role: .cancel) {}
+            Button(\.cancel, role: .cancel) {}
         }
     }
 
