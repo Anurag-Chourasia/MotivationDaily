@@ -9,12 +9,11 @@ struct ConnectivityBannerView: View {
 
     var body: some View {
         IconMessageBanner(
-            spacing: Spacing.eight,
-            padding: Spacing.eight,
-            font: Typography.caption,
-            foreground: DesignColor.white,
+            padding: SpacingTheme.default.eight,
+            font: .caption,
+            foreground: ColorTheme.default.white,
             icon: {
-                Image(systemName: isWarning ? "wifi.slash" : "wifi")
+                Image(isWarning ? \.wifiSlash : \.wifi)
             },
             message: {
                 Text(message)
@@ -28,6 +27,6 @@ struct ConnectivityBannerView: View {
     }
 
     private var backgroundColor: Color {
-        isWarning ? DesignColor.red : accent
+        isWarning ? ColorTheme.default.red : accent
     }
 }

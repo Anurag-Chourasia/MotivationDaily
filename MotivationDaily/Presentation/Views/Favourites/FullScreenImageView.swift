@@ -20,7 +20,7 @@ struct FullScreenImageView: View {
         GeometryReader { proxy in
             let canvasSize = fullScreenCanvasSize(for: proxy)
             ZStack {
-                DesignColor.black
+                ColorTheme.default.black
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
 
@@ -31,7 +31,7 @@ struct FullScreenImageView: View {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .scaleEffect(ScaleToken.p1_15)
-                        .tint(DesignColor.white)
+                        .tint(\.white)
                 } else {
                     emptyImage
                 }
@@ -42,8 +42,8 @@ struct FullScreenImageView: View {
                 }
 
                 sideActionRail()
-                    .padding(.trailing, Spacing.sixteen)
-                    .padding(.bottom, max(proxy.safeAreaInsets.bottom + DesignMetric.p24, Spacing.thirtyTwo))
+                    .padding(.trailing, \.sixteen)
+                    .padding(.bottom, max(proxy.safeAreaInsets.bottom + 24, 32))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
             .edgesIgnoringSafeArea(.all)
@@ -82,12 +82,12 @@ struct FullScreenImageView: View {
     }
 
     private func sideActionRail() -> some View {
-        VStack(spacing: Spacing.fourteen) {
+        VStack(spacing: \.fourteen) {
             Menu {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectedRatio = ratio }) {
                         if ratio == selectedRatio {
-                            Label(ratio.rawValue, symbol: .checkmark)
+                            Label(ratio.rawValue, \.checkmark)
                         } else {
                             Text(ratio.rawValue)
                         }
@@ -95,9 +95,8 @@ struct FullScreenImageView: View {
                 }
             } label: {
                 SideActionIconView(
-                    systemName: AppSymbol.crop.rawValue,
-                    label: selectedRatio.rawValue,
-                    tint: DesignColor.white
+                    \.crop,
+                    label: selectedRatio.rawValue
                 )
             }
             .buttonStyle(.plain)
@@ -105,9 +104,8 @@ struct FullScreenImageView: View {
 
             Button(action: { showShareSheet = true }) {
                 SideActionIconView(
-                    systemName: AppSymbol.paperplaneFill.rawValue,
-                    label: l10n.common.share,
-                    tint: DesignColor.white
+                    \.share,
+                    \.share
                 )
             }
             .buttonStyle(.plain)
@@ -115,9 +113,8 @@ struct FullScreenImageView: View {
 
             Button(action: { isPresented = false }) {
                 SideActionIconView(
-                    systemName: AppSymbol.xmark.rawValue,
-                    label: l10n.common.close,
-                    tint: DesignColor.white
+                    \.close,
+                    \.close
                 )
             }
             .buttonStyle(.plain)
@@ -149,13 +146,13 @@ struct FullScreenImageView: View {
     }
 
     private var emptyImage: some View {
-        VStack(spacing: Spacing.sixteen) {
+        VStack(spacing: \.sixteen) {
             Spacer()
-            Image(symbol: .photoFill)
-                .font(.system(size: DesignMetric.p60))
-                .foregroundColor(DesignColor.gray)
-            Text(l10n.domain.imageNotAvailable)
-                .foregroundColor(DesignColor.white)
+            Image(\.photoFill)
+                .font(size: \.p60)
+                .foregroundColor(\.gray)
+            Text(\.imageNotAvailable)
+                .foregroundColor(\.white)
             Spacer()
         }
     }

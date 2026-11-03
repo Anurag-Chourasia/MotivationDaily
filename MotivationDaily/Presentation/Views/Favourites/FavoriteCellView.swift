@@ -17,75 +17,66 @@ struct FavoriteCellView: View {
     @State private var loadTask: Task<Void, Never>?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.zero) {
+        VStack(alignment: .leading, spacing: \.zero) {
             ZStack(alignment: .topTrailing) {
                 if let renderedImage {
                     Image(uiImage: renderedImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(height: DesignMetric.p160 + DesignMetric.p50)
+                        .frame(height: \.p210)
                         .clipped()
                 } else {
                     imagePlaceholder
-                        .frame(height: DesignMetric.p160 + DesignMetric.p50)
+                        .frame(height: \.p210)
                         .clipped()
                 }
 
                 if isLoading {
                     CenteredProgressOverlay(
                         width: nil,
-                        label: { EmptyView() },
-                        background: { DesignColor.black.opacity(OpacityToken.p0_35) }
+                        background: \.black,
+                        opacity: \.p0_35
                     )
                     .clipShape(Circle())
-                    .frame(width: DesignMetric.p40, height: DesignMetric.p40)
+                    .frame(width: \.p40, height: \.p40)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
 
                 Button(action: onToggleFavorite) {
-                    Image(symbol: .heartFill)
-                        .font(.system(size: Spacing.fourteen, weight: .bold))
-                        .foregroundColor(DesignColor.red)
-                        .frame(width: DesignMetric.p34, height: DesignMetric.p34)
-                        .background(DesignColor.white.opacity(OpacityToken.p0_9))
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(DesignColor.black.opacity(OpacityToken.p0_15), lineWidth: StrokeWidth.one)
-                        )
+                    favoriteHeartButton
                 }
-                .padding(Spacing.twelve)
+                .padding(\.twelve)
                 .buttonStyle(.plain)
-                .accessibilityLabel(l10n.domain.removeFavorite)
+                .accessibilityLabel(\.removeFavorite)
                 .accessibilityIdentifier("favorites.removeButton")
             }
 
-            VStack(alignment: .leading, spacing: Spacing.ten) {
+            VStack(alignment: .leading, spacing: \.ten) {
                 Text("\"\(favorite.text)\"")
-                    .font(Typography.headline)
-                    .foregroundColor(DesignColor.primary)
-                    .lineSpacing(DesignMetric.p3)
+                    .font(\.headline)
+                    .foregroundColor(\.primary)
+                    .lineSpacing(\.p3)
 
-                HStack(spacing: Spacing.eight) {
-                    tagPill(text: categoryTag)
-                    tagPill(text: sourceTag)
+                HStack(spacing: \.eight) {
+                    categoryTagView
+                    tagPill(favorite.source.titleKeyPath)
                 }
 
                 Text("— \(favorite.author ?? "Unknown")")
-                    .font(.system(size: Spacing.fourteen, weight: .medium, design: .serif))
+                    .font(\.subheadline)
                     .italic()
-                    .foregroundColor(DesignColor.secondary)
+                    .foregroundColor(\.secondary)
             }
-            .padding(Spacing.fourteen)
+            .padding(\.fourteen)
         }
-        .background(DesignColor.groupedSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
+        .background(\.groupedSecondary)
+        .cornerRadius(\.sixteen)
         .overlay(
-            RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous)
-                .stroke(DesignColor.black.opacity(OpacityToken.p0_1), lineWidth: StrokeWidth.one)
+            RoundedRectangle(cornerRadius: \.sixteen)
+                .stroke(\.black, opacity: \.p0_1, lineWidth: \.one)
         )
-        .shadow(color: DesignColor.black.opacity(OpacityToken.p0_1), radius: Spacing.ten, x: 0, y: Spacing.five)
-        .contentShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
+        .shadow(color: \.black, opacity: \.p0_1, radius: \.ten, y: \.five)
+        .contentShape(RoundedRectangle(cornerRadius: \.sixteen))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("favorites.cell")
         .onTapGesture {
@@ -110,46 +101,58 @@ struct FavoriteCellView: View {
     private var imagePlaceholder: some View {
         ZStack {
             LinearGradient(
-                colors: [DesignColor.black.opacity(OpacityToken.p0_5), DesignColor.black.opacity(OpacityToken.p0_7)],
+                stops: [
+                    ThemeColorStop(\.black, opacity: \.p0_5),
+                    ThemeColorStop(\.black, opacity: \.p0_7)
+                ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            Image(symbol: .photo)
-                .font(Typography.title)
-                .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
+            Image(\.photo)
+                .font(\.title)
+                .foregroundColor(\.white, opacity: \.p0_7)
         }
     }
 
-    private var categoryTag: String {
-        guard let raw = favorite.categoryKey?.rawValue, !raw.isEmpty else {
-            return l10n.domain.randomCategory
-        }
-        return raw
-            .replacingOccurrences(of: "-", with: " ")
-            .replacingOccurrences(of: "_", with: " ")
-            .capitalized
-    }
-
-    private var sourceTag: String {
-        switch favorite.source {
-        case .zenQuotes:
-            return "ZenQuotes"
-        case .quotable:
-            return "Quotable"
-        case .quoteGarden:
-            return "QuoteGarden"
-        case .adviceSlip:
-            return "AdviceSlip"
+    @ViewBuilder
+    private var categoryTagView: some View {
+        if let raw = favorite.categoryKey?.rawValue, !raw.isEmpty {
+            tagPill(verbatim: raw.replacingOccurrences(of: "-", with: " ").replacingOccurrences(of: "_", with: " ").capitalized)
+        } else {
+            tagPill(\.randomCategory)
         }
     }
 
-    private func tagPill(text: String) -> some View {
-        Text(text.uppercased())
-            .font(Typography.caption2)
-            .foregroundColor(DesignColor.secondary)
-            .padding(.horizontal, Spacing.eight)
-            .padding(.vertical, Spacing.four)
-            .background(DesignColor.grouped)
+    private var favoriteHeartButton: some View {
+        Image(\.heartFill)
+            .font(size: \.p14, weight: .bold)
+            .foregroundColor(\.red)
+            .frame(width: \.p34, height: \.p34)
+            .background(\.white, opacity: \.p0_9)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(\.black, opacity: \.p0_15, lineWidth: \.one)
+            )
+    }
+
+    private func tagPill(_ keyPath: KeyPath<MotivationStrings, String>) -> some View {
+        Text(keyPath)
+            .font(\.caption2)
+            .foregroundColor(\.secondary)
+            .padding(.horizontal, \.eight)
+            .padding(.vertical, \.four)
+            .background(\.grouped)
+            .clipShape(Capsule())
+    }
+
+    private func tagPill(verbatim: String) -> some View {
+        Text(verbatim.uppercased())
+            .font(\.caption2)
+            .foregroundColor(\.secondary)
+            .padding(.horizontal, \.eight)
+            .padding(.vertical, \.four)
+            .background(\.grouped)
             .clipShape(Capsule())
     }
 

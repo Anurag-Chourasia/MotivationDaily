@@ -84,10 +84,10 @@ enum QuoteImageComposer {
 
         let quoteOnlyView = ZStack {
             LinearGradient(
-                colors: [
-                    DesignColor.black,
-                    DesignColor.ink,
-                    DesignColor.black
+                themeColors: [
+                    \.black,
+                    \.ink,
+                    \.black
                 ],
                 startPoint: .top,
                 endPoint: .bottom

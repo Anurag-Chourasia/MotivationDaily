@@ -61,23 +61,23 @@ struct ShowcaseBadgeView: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: DesignMetric.p4) {
-                Image(systemName: "sparkles")
-                    .font(Typography.caption2)
+                Image(\.sparkles)
+                    .font(\.caption2)
                 Text("SHOWCASE DEMO")
-                    .font(Typography.caption)
+                    .font(\.caption)
                     .fontWeight(.bold)
                 Text("• Tap for Controls")
-                    .font(Typography.caption2)
-                    .opacity(OpacityToken.p0_5)
+                    .font(\.caption2)
+                    .opacity(\.p0_5)
             }
             .padding(.horizontal, DesignMetric.p10)
             .padding(.vertical, DesignMetric.p4)
             .background(.ultraThinMaterial)
-            .foregroundColor(DesignColor.primary)
+            .foregroundColor(\.primary)
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .stroke(DesignColor.primary.opacity(OpacityToken.p0_35), lineWidth: DesignMetric.p1)
+                    .stroke(\.primary, opacity: \.p0_35, lineWidth: \.one)
             )
         }
         .padding(.top, DesignMetric.p4)
@@ -265,8 +265,8 @@ struct DeveloperSettingsView: View {
                 .accessibilityIdentifier("developer-support")
 
                 Text("Motivation Daily stores favorited quotes and lightweight settings locally on your device. Quote and wallpaper fetching is unauthenticated. No personal data is tracked or sold to third parties.")
-                    .font(Typography.caption)
-                    .foregroundColor(DesignColor.secondary)
+                    .font(\.caption)
+                    .foregroundColor(\.secondary)
             }
             Section {
                 Button("Reset developer settings", role: .destructive) {

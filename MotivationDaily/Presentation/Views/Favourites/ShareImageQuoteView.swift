@@ -26,9 +26,34 @@ struct ShareImageQuoteView: View {
     @State private var isPreparingImage = false
     @State private var imageLoadTask: Task<Void, Never>?
     @State private var isSavingImage = false
-    @State private var showSaveAlert = false
-    @State private var saveAlertTitle = ""
-    @State private var saveAlertMessage = ""
+    enum SaveAlert: Identifiable {
+        case snapshotFailure
+        case permissionRequired
+        case saved
+        case saveFailed
+
+        var id: Self { self }
+
+        var title: KeyPath<MotivationStrings, String> {
+            switch self {
+            case .snapshotFailure: return \.shareImageFailed
+            case .permissionRequired: return \.permissionRequired
+            case .saved: return \.saved
+            case .saveFailed: return \.saveFailed
+            }
+        }
+
+        var message: KeyPath<MotivationStrings, String> {
+            switch self {
+            case .snapshotFailure: return \.shareImageFailedMessage
+            case .permissionRequired: return \.permissionRequiredPhotosMessage
+            case .saved: return \.imageSavedToPhotos
+            case .saveFailed: return \.couldNotSaveImage
+            }
+        }
+    }
+
+    @State private var activeSaveAlert: SaveAlert?
     @State private var showPermissionSettingsDialog = false
     @State private var showSaveOptionsDialog = false
     @State private var quoteOnlyImage: UIImage?
@@ -61,158 +86,57 @@ struct ShareImageQuoteView: View {
         favorite?.author ?? quote?.author ?? "Unknown"
     }
 
-    var body: some View {
-        VStack(spacing: Spacing.twenty) {
-            HStack {
-                Text(l10n.common.share)
-                    .tokenFont(\.headline)
+    @ViewBuilder
+    private var headerBar: some View {
+        HStack {
+            Text(\.share)
+                .font(\.headline)
 
-                Spacer()
+            Spacer()
 
-                Button(l10n.common.done) {
-                    dismiss()
-                }
-                .accessibilityIdentifier("share.doneButton")
+            Button(\.done) {
+                dismiss()
             }
-            .padding(.all, Spacing.sixteen)
+            .accessibilityIdentifier("share.doneButton")
+        }
+        .padding(\.sixteen)
+    }
+
+    @ViewBuilder
+    private var previewContent: some View {
+        if let compositeImage {
+            Image(uiImage: compositeImage)
+                .resizable()
+                .scaledToFit()
+                .frame(maxHeight: \.p300)
+                .cornerRadius(\.twelve)
+
+            Text(\.previewShareTitle)
+                .font(\.caption)
+                .foregroundColor(\.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, \.sixteen)
+        } else if isPreparingImage {
+            HStack(spacing: \.ten) {
+                ProgressView()
+                Text(\.preparingImage)
+                    .font(\.caption)
+                    .foregroundColor(\.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, \.sixteen)
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: \.twenty) {
+            headerBar
 
             ScrollView {
-                VStack(spacing: Spacing.sixteen) {
-                    if let compositeImage {
-                        Image(uiImage: compositeImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: DesignMetric.p400 - DesignMetric.p100)
-                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
-
-                        Text(l10n.domain.previewShareTitle)
-                            .tokenFont(\.caption)
-                            .foregroundColor(DesignColor.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, Spacing.sixteen)
-                    } else if isPreparingImage {
-                        HStack(spacing: Spacing.ten) {
-                            ProgressView()
-                            Text(l10n.domain.preparingImage)
-                                .tokenFont(\.caption)
-                                .foregroundColor(DesignColor.secondary)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Spacing.sixteen)
-                    }
-
-                    VStack(spacing: Spacing.twelve) {
-                        Button(action: {
-                            guard let compositeImage else { return }
-                            openShare(items: [compositeImage])
-                        }) {
-                            shareButtonContent(
-                                symbol: .photoBadgeCheckmarkFill,
-                                title: l10n.domain.shareQuoteAndImage,
-                                subtitle: l10n.domain.quoteEmbeddedInImage,
-                                colors: [DesignColor.blue.opacity(OpacityToken.p0_8), DesignColor.blue]
-                            )
-                        }
-                        .disabled(compositeImage == nil)
-                        .opacity(compositeImage == nil ? OpacityToken.p0_55 : OpacityToken.p1_0)
-                        .accessibilityIdentifier("share.quoteAndImageButton")
-
-                        Button(action: {
-                            guard let sourceImage else { return }
-                            openShare(items: [sourceImage])
-                        }) {
-                            shareButtonContent(
-                                symbol: .photoFill,
-                                title: l10n.domain.shareImageOnly,
-                                subtitle: l10n.domain.wallpaperBackgroundOnly,
-                                colors: [DesignColor.turquoise.opacity(OpacityToken.p0_8), DesignColor.turquoise]
-                            )
-                        }
-                        .disabled(sourceImage == nil)
-                        .opacity(sourceImage == nil ? OpacityToken.p0_55 : OpacityToken.p1_0)
-                        .accessibilityIdentifier("share.imageOnlyButton")
-
-                        Button(action: {
-                            showSaveOptionsDialog = true
-                        }) {
-                            HStack(spacingKeyPath: \.ten) {
-                                Image(symbol: .squareAndArrowDown)
-                                    .tokenFont(\.title3)
-                                VStack(alignment: .leading, strokeWidthKeyPath: \.two) {
-                                    Text(isSavingImage ? l10n.domain.preparingImage : l10n.domain.saveToPhotos)
-                                        .fontWeight(.semibold)
-                                        .tokenFont(\.body)
-                                    Text(l10n.domain.chooseWhatToSave)
-                                        .tokenFont(\.caption)
-                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
-                                }
-                                Spacer()
-                                if isSavingImage {
-                                    ProgressView()
-                                        .tint(DesignColor.white)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(Spacing.fourteen)
-                            .background(
-                                LinearGradient(
-                                    colors: [DesignColor.oceanAction.opacity(OpacityToken.p0_85), DesignColor.oceanAction],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .foregroundColor(DesignColor.white)
-                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
-                        }
-                        .disabled((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage)
-                        .opacity(((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage) ? OpacityToken.p0_55 : OpacityToken.p1_0)
-                        .accessibilityIdentifier("share.saveToPhotosButton")
-
-                        Button(action: {
-                            openShare(items: [shareContent])
-                        }) {
-                            shareButtonContent(
-                                symbol: .quoteOpening,
-                                title: l10n.domain.shareQuoteOnly,
-                                subtitle: l10n.domain.blackGradientBackground,
-                                colors: [DesignColor.green.opacity(OpacityToken.p0_8), DesignColor.green]
-                            )
-                        }
-                        .accessibilityIdentifier("share.quoteOnlyButton")
-
-                        Button(action: copyToClipboard) {
-                            HStack(spacingKeyPath: \.ten) {
-                                Image(symbol: .docOnDocFill)
-                                    .tokenFont(\.title3)
-                                VStack(alignment: .leading, strokeWidthKeyPath: \.two) {
-                                    Text(l10n.domain.copyQuote)
-                                        .fontWeight(.semibold)
-                                        .tokenFont(\.body)
-                                    Text(l10n.domain.pasteAnywhere)
-                                        .tokenFont(\.caption)
-                                        .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
-                                }
-                                Spacer()
-                                if showCopiedBadge {
-                                    Image(symbol: .checkmarkCircleFill)
-                                        .foregroundColor(DesignColor.white)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(Spacing.fourteen)
-                            .background(
-                                LinearGradient(
-                                    colors: [DesignColor.orange.opacity(OpacityToken.p0_8), DesignColor.orange],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .foregroundColor(DesignColor.white)
-                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
-                        }
-                        .accessibilityIdentifier("share.copyQuoteButton")
-                    }
-                    .padding(.all, Spacing.sixteen)
+                VStack(spacing: \.sixteen) {
+                    previewContent
+                    actionButtonsList
+                        .padding(\.sixteen)
                 }
             }
         }
@@ -225,76 +149,214 @@ struct ShareImageQuoteView: View {
         .sheet(item: $activeSharePayload) { payload in
             ActivityShareSheet(activityItems: payload.items)
         }
-        .alert("Copied!", isPresented: $showCopiedAlert) {
-            Button(l10n.common.ok) {}
+        .alert(\.copied, isPresented: $showCopiedAlert) {
+            Button(\CommonStrings.ok) {}
         } message: {
-            Text(l10n.domain.quoteCopiedToast)
+            Text(\.quoteCopiedToast)
         }
-        .alert(saveAlertTitle, isPresented: $showSaveAlert) {
-            Button(l10n.common.ok) {}
-        } message: {
-            Text(saveAlertMessage)
+        .alert(item: $activeSaveAlert) { alert in
+            Alert(
+                title: Text(alert.title),
+                message: Text(alert.message),
+                dismissButton: .default(Text(\CommonStrings.ok))
+            )
         }
-        .confirmationDialog("Photo Access Needed", isPresented: $showPermissionSettingsDialog, titleVisibility: .visible) {
-            Button(l10n.domain.openSettings) {
+        .confirmationDialog(\.photosAccessAlertTitle, isPresented: $showPermissionSettingsDialog, titleVisibility: .visible) {
+            Button(\.openSettings) {
                 openAppSettings()
             }
-            Button(l10n.common.cancel, role: .cancel) {}
+            Button(\CommonStrings.cancel, role: .cancel) {}
         } message: {
-            Text(l10n.domain.photosAccessAlertMessage)
+            Text(\.photosAccessAlertMessage)
         }
-        .confirmationDialog(l10n.domain.saveToPhotos, isPresented: $showSaveOptionsDialog, titleVisibility: .visible) {
+        .confirmationDialog(\.saveToPhotos, isPresented: $showSaveOptionsDialog, titleVisibility: .visible) {
             if let quoteOnlyImage {
-                Button(l10n.domain.saveQuoteGradient) {
+                Button(\.saveQuoteGradient) {
                     Task {
                         await saveImageToPhotos(quoteOnlyImage)
                     }
                 }
             }
             if let sourceImage {
-                Button(l10n.domain.saveOnlyImage) {
+                Button(\.saveOnlyImage) {
                     Task {
                         await saveImageToPhotos(sourceImage)
                     }
                 }
             }
             if let compositeImage {
-                Button(l10n.domain.saveImagePlusQuote) {
+                Button(\.saveImagePlusQuote) {
                     Task {
                         await saveImageToPhotos(compositeImage)
                     }
                 }
             }
-            Button(l10n.common.cancel, role: .cancel) {}
+            Button(\CommonStrings.cancel, role: .cancel) {}
         }
     }
 
+    @ViewBuilder
+    private var actionButtonsList: some View {
+        VStack(spacing: \.twelve) {
+            Button(action: {
+                guard let compositeImage else { return }
+                openShare(items: [compositeImage])
+            }) {
+                shareButtonContent(
+                    \.photoBadgeCheckmarkFill,
+                    title: \.shareQuoteAndImage,
+                    subtitle: \.quoteEmbeddedInImage,
+                    themeColor: \.blue
+                )
+            }
+            .disabled(compositeImage == nil)
+            .opacity(compositeImage == nil ? \.p0_55 : \.p1_0)
+            .accessibilityIdentifier("share.quoteAndImageButton")
+
+            Button(action: {
+                guard let sourceImage else { return }
+                openShare(items: [sourceImage])
+            }) {
+                shareButtonContent(
+                    \.photoFill,
+                    title: \.shareImageOnly,
+                    subtitle: \.wallpaperBackgroundOnly,
+                    themeColor: \.turquoise
+                )
+            }
+            .disabled(sourceImage == nil)
+            .opacity(sourceImage == nil ? \.p0_55 : \.p1_0)
+            .accessibilityIdentifier("share.imageOnlyButton")
+
+            Button(action: {
+                showSaveOptionsDialog = true
+            }) {
+                saveToPhotosButtonContent
+            }
+            .disabled((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage)
+            .opacity(((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage) ? \.p0_55 : \.p1_0)
+            .accessibilityIdentifier("share.saveToPhotosButton")
+
+            Button(action: {
+                openShare(items: [shareContent])
+            }) {
+                shareButtonContent(
+                    \.quoteOpening,
+                    title: \.shareQuoteOnly,
+                    subtitle: \.blackGradientBackground,
+                    themeColor: \.green
+                )
+            }
+            .accessibilityIdentifier("share.quoteOnlyButton")
+
+            Button(action: copyToClipboard) {
+                copyQuoteButtonContent
+            }
+            .accessibilityIdentifier("share.copyQuoteButton")
+        }
+    }
+
+    private var saveToPhotosButtonContent: some View {
+        HStack(spacing: \.ten) {
+            Image(\.squareAndArrowDown)
+                .font(\.title3)
+            VStack(alignment: .leading, spacing: \.two) {
+                Text(isSavingImage ? \.preparingImage : \.saveToPhotos)
+                    .fontWeight(.semibold)
+                    .font(\.body)
+                Text(\.chooseWhatToSave)
+                    .font(\.caption)
+                    .foregroundColor(\.white, opacity: \.p0_7)
+            }
+            Spacer()
+            if isSavingImage {
+                ProgressView()
+                    .tint(\.white)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(\.fourteen)
+        .background(
+            LinearGradient(
+                stops: [
+                    ThemeColorStop(\.oceanAction, opacity: \.p0_85),
+                    ThemeColorStop(\.oceanAction)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
+        .foregroundColor(\.white)
+        .cornerRadius(\.twelve)
+    }
+
+    private var copyQuoteButtonContent: some View {
+        HStack(spacing: \.ten) {
+            Image(\.docOnDocFill)
+                .font(\.title3)
+            VStack(alignment: .leading, spacing: \.two) {
+                Text(\.copyQuote)
+                    .fontWeight(.semibold)
+                    .font(\.body)
+                Text(\.pasteAnywhere)
+                    .font(\.caption)
+                    .foregroundColor(\.white, opacity: \.p0_7)
+            }
+            Spacer()
+            if showCopiedBadge {
+                Image(\.checkmarkCircleFill)
+                    .foregroundColor(\.white)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(\.fourteen)
+        .background(
+            LinearGradient(
+                stops: [
+                    ThemeColorStop(\.orange, opacity: \.p0_8),
+                    ThemeColorStop(\.orange)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
+        .foregroundColor(\.white)
+        .cornerRadius(\.twelve)
+    }
+
     private func shareButtonContent(
-        symbol: AppSymbol,
-        title: String,
-        subtitle: String,
-        colors: [Color]
+        _ symbol: KeyPath<SymbolTheme, AppSymbol>,
+        title: KeyPath<MotivationStrings, String>,
+        subtitle: KeyPath<MotivationStrings, String>,
+        themeColor: KeyPath<ColorTheme, Color>
     ) -> some View {
-        HStack(spacingKeyPath: \.ten) {
-            Image(symbol: symbol)
-                .tokenFont(\.title3)
-            VStack(alignment: .leading, strokeWidthKeyPath: \.two) {
+        HStack(spacing: \.ten) {
+            Image(symbol)
+                .font(\.title3)
+            VStack(alignment: .leading, spacing: \.two) {
                 Text(title)
                     .fontWeight(.semibold)
-                    .tokenFont(\.body)
+                    .font(\.body)
                 Text(subtitle)
-                    .tokenFont(\.caption)
-                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_7))
+                    .font(\.caption)
+                    .foregroundColor(\.white, opacity: \.p0_7)
             }
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Spacing.fourteen)
+        .padding(\.fourteen)
         .background(
-            LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing)
+            LinearGradient(
+                stops: [
+                    ThemeColorStop(themeColor, opacity: \.p0_8),
+                    ThemeColorStop(themeColor)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
         )
-        .foregroundColor(DesignColor.white)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.twelve, style: .continuous))
+        .foregroundColor(\.white)
+        .cornerRadius(\.twelve)
     }
 
     private func openShare(items: [Any]) {
@@ -486,9 +548,7 @@ struct ShareImageQuoteView: View {
     }
 
     func presentSnapshotFailureAlert() {
-        saveAlertTitle = "Share Image Failed"
-        saveAlertMessage = "We couldn't prepare the share image. Please try again."
-        showSaveAlert = true
+        activeSaveAlert = .snapshotFailure
     }
 
     func isLikelyBlank(_ image: UIImage) -> Bool {
@@ -555,9 +615,7 @@ struct ShareImageQuoteView: View {
                 if status == .denied || status == .restricted {
                     showPermissionSettingsDialog = true
                 } else {
-                    saveAlertTitle = "Permission Required"
-                    saveAlertMessage = "Allow photo access to save images."
-                    showSaveAlert = true
+                    activeSaveAlert = .permissionRequired
                 }
             }
             return
@@ -567,16 +625,12 @@ struct ShareImageQuoteView: View {
             try await writeImageToPhotoLibrary(image)
             await MainActor.run {
                 isSavingImage = false
-                saveAlertTitle = "Saved"
-                saveAlertMessage = "Image saved to Photos."
-                showSaveAlert = true
+                activeSaveAlert = .saved
             }
         } catch {
             await MainActor.run {
                 isSavingImage = false
-                saveAlertTitle = "Save Failed"
-                saveAlertMessage = "Could not save image. Please try again."
-                showSaveAlert = true
+                activeSaveAlert = .saveFailed
             }
         }
     }

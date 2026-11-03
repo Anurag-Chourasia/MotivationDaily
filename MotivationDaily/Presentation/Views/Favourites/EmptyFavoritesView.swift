@@ -9,25 +9,23 @@ struct EmptyFavoritesView: View {
 
     var body: some View {
         StateMessage(
-            spacing: Spacing.twelve,
-            typography: MessageTypography(
-                icon: Typography.largeTitle,
-                title: Typography.headline,
-                detail: Typography.subheadline
-            ),
-            detailColor: DesignColor.secondary,
+            spacing: \.twelve,
+            detailColor: \.secondary,
             icon: {
-                Image(symbol: .heartSlash)
-                    .foregroundColor(DesignColor.gray)
+                Image(\.heartSlash)
+                    .font(\.largeTitle)
+                    .foregroundColor(\.gray)
             },
             title: {
-                Text(l10n.domain.emptyFavoritesTitle)
-                    .foregroundColor(DesignColor.gray)
+                Text(\.emptyFavoritesTitle)
+                    .font(\.headline)
+                    .foregroundColor(\.gray)
             },
             detail: {
-                Text(l10n.domain.emptyFavoritesMessage)
+                Text(\.emptyFavoritesMessage)
+                    .font(\.subheadline)
             }
         )
-        .padding(.all, Spacing.twenty)
+        .padding(\.twenty)
     }
 }

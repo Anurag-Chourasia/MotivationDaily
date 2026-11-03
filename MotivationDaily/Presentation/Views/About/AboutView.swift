@@ -2,6 +2,7 @@ import SwiftUI
 import DeveloperProfileKit
 import DesignTokensKit
 import UIComponentsKit
+import LocalizationKit
 
 struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
@@ -23,14 +24,14 @@ struct AboutView: View {
                 layout: .list,
                 labels: viewModel.profileLabels
             )
-            .background(DesignColor.grouped)
-            .tint(DesignColor.primary)
+            .background(\.grouped)
+            .tint(\.primary)
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button { dismiss() } label: {
-                        Label("Back", systemImage: "chevron.left")
+                        Label(\.back, \.chevronLeft)
                     }
                     .accessibilityIdentifier("about.backButton")
                 }

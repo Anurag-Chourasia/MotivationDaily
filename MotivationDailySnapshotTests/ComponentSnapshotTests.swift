@@ -151,9 +151,9 @@ final class ComponentSnapshotTests: XCTestCase {
         }
 
         let view = SideActionIconView(
-            systemName: "heart.fill",
+            \.heartFill,
             label: "Saved",
-            tint: .red
+            tint: \.red
         )
         .padding()
 

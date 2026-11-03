@@ -8,20 +8,26 @@ struct GradientOverlayView: View {
     var body: some View {
         VStack {
             LinearGradient(
-                colors: [DesignColor.black.opacity(isReducedForScroll ? OpacityToken.p0_18 : OpacityToken.p0_4), DesignColor.clear],
+                stops: [
+                    ThemeColorStop(\.black, opacity: isReducedForScroll ? \.p0_18 : \.p0_4),
+                    ThemeColorStop(\.clear)
+                ],
                 startPoint: .top,
                 endPoint: .center
             )
-            .frame(height: DesignMetric.p100)
+            .frame(height: \.p100)
 
             Spacer()
 
             LinearGradient(
-                colors: [DesignColor.clear, DesignColor.black.opacity(isReducedForScroll ? OpacityToken.p0_35 : OpacityToken.p0_7)],
+                stops: [
+                    ThemeColorStop(\.clear),
+                    ThemeColorStop(\.black, opacity: isReducedForScroll ? \.p0_35 : \.p0_7)
+                ],
                 startPoint: .center,
                 endPoint: .bottom
             )
-            .frame(height: DesignMetric.p400 - DesignMetric.p100)
+            .frame(height: \.p300)
         }
         .ignoresSafeArea()
     }

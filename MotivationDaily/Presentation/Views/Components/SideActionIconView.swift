@@ -1,49 +1,108 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 import DesignTokensKit
+import LocalizationKit
 
 struct SideActionIconView: View {
-    let systemName: String
-    let label: String
-    let tint: Color
+    enum LabelType {
+        case motivation(KeyPath<MotivationStrings, String>)
+        case common(KeyPath<CommonStrings, String>)
+        case text(String)
+    }
+
+    let symbol: KeyPath<SymbolTheme, AppSymbol>
+    let labelType: LabelType
+    let tintKeyPath: KeyPath<ColorTheme, Color>
+
+    @Environment(\.designTokens) private var theme
+
+    init(
+        _ symbol: KeyPath<SymbolTheme, AppSymbol>,
+        _ label: KeyPath<MotivationStrings, String>,
+        tint: KeyPath<ColorTheme, Color> = \.white
+    ) {
+        self.symbol = symbol
+        self.labelType = .motivation(label)
+        self.tintKeyPath = tint
+    }
+
+    init(
+        _ symbol: KeyPath<SymbolTheme, AppSymbol>,
+        _ label: KeyPath<CommonStrings, String>,
+        tint: KeyPath<ColorTheme, Color> = \.white
+    ) {
+        self.symbol = symbol
+        self.labelType = .common(label)
+        self.tintKeyPath = tint
+    }
+
+    init(
+        _ symbol: KeyPath<SymbolTheme, AppSymbol>,
+        label: String,
+        tint: KeyPath<ColorTheme, Color> = \.white
+    ) {
+        self.symbol = symbol
+        self.labelType = .text(label)
+        self.tintKeyPath = tint
+    }
 
     var body: some View {
-        VStack(spacing: CornerRadius.six) {
-            Image(systemName: resolvedSystemName)
+        VStack(spacing: \.six) {
+            Image(symbol)
                 .symbolVariant(.none)
-                .font(.system(size: DesignMetric.p20, weight: .bold))
-                .foregroundColor(tint)
-                .frame(width: DesignMetric.p50, height: DesignMetric.p50)
-                .background(DesignColor.black.opacity(OpacityToken.p0_4))
+                .font(size: \.p20, weight: .bold)
+                .foregroundColor(tintKeyPath)
+                .frame(width: \.p50, height: \.p50)
+                .background(\.black, opacity: \.p0_4)
                 .clipShape(Circle())
                 .overlay(
                     Circle()
-                        .stroke(DesignColor.white.opacity(OpacityToken.p0_3), lineWidth: StrokeWidth.one)
+                        .stroke(\.white, opacity: \.p0_3, lineWidth: \.one)
                 )
-                .shadow(color: DesignColor.black.opacity(OpacityToken.p0_3), radius: Spacing.eight, x: 0, y: Spacing.four)
+                .shadow(color: \.black, opacity: \.p0_3, radius: \.eight, y: \.four)
 
-            Text(label)
-                .font(Typography.caption2)
-                .foregroundColor(DesignColor.white)
-                .padding(.horizontal, Spacing.eight)
-                .padding(.vertical, Spacing.four)
-                .background(DesignColor.black.opacity(OpacityToken.p0_4))
+            labelView
+                .font(\.caption2)
+                .foregroundColor(\.white)
+                .padding(.horizontal, \.eight)
+                .padding(.vertical, \.four)
+                .background(\.black, opacity: \.p0_4)
                 .clipShape(Capsule())
-                .shadow(color: DesignColor.black.opacity(OpacityToken.p0_25), radius: Spacing.four, x: 0, y: StrokeWidth.two)
+                .shadow(color: \.black, opacity: \.p0_25, radius: \.four, y: \.two)
         }
     }
 
-    private var resolvedSystemName: String {
-        if UIImage(systemName: systemName) != nil {
-            return systemName
+    @ViewBuilder
+    private var labelView: some View {
+        switch labelType {
+        case .motivation(let keyPath):
+            Text(keyPath)
+        case .common(let keyPath):
+            Text(keyPath)
+        case .text(let string):
+            Text(string)
         }
-        // Prefer the crop glyph family if available, otherwise fall back to a safe slider icon.
-        if UIImage(systemName: "crop") != nil {
-            return "crop"
+    }
+}
+
+// MARK: - KeyPath Label Convenience Extensions
+
+extension Label where Title == Text, Icon == Image {
+    init(_ titleKeyPath: KeyPath<MotivationStrings, String>, _ symbolKeyPath: KeyPath<SymbolTheme, AppSymbol>) {
+        self.init {
+            Text(titleKeyPath)
+        } icon: {
+            Image(symbolKeyPath)
         }
-        if UIImage(systemName: "crop.square") != nil {
-            return "crop.square"
+    }
+
+    init(_ titleKeyPath: KeyPath<CommonStrings, String>, _ symbolKeyPath: KeyPath<SymbolTheme, AppSymbol>) {
+        self.init {
+            Text(titleKeyPath)
+        } icon: {
+            Image(symbolKeyPath)
         }
-        return "slider.horizontal.3"
     }
 }

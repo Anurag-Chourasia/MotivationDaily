@@ -32,7 +32,7 @@ struct BackgroundWallpaperView: View {
             let imageFrame = fittedImageFrame(in: proxy.size)
 
             ZStack {
-                DesignColor.black
+                ColorTheme.default.black
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 ZStack {
@@ -48,12 +48,12 @@ struct BackgroundWallpaperView: View {
                 if isLoading, currentImage == nil {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .tint(DesignColor.white.opacity(OpacityToken.p0_8))
+                        .tint(\.white, opacity: \.p0_8)
                         .scaleEffect(ScaleToken.p1_15)
-                        .padding(Spacing.twelve)
-                        .background(DesignColor.black.opacity(OpacityToken.p0_25))
+                        .padding(\.twelve)
+                        .background(\.black, opacity: \.p0_25)
                         .clipShape(Circle())
-                        .opacity(OpacityToken.p0_6)
+                        .opacity(\.p0_6)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -79,10 +79,10 @@ struct BackgroundWallpaperView: View {
                     .clipped()
             } else {
                 LinearGradient(
-                    colors: [
-                        DesignColor.black.opacity(OpacityToken.p0_85),
-                        DesignColor.ink,
-                        DesignColor.black.opacity(OpacityToken.p0_9)
+                    stops: [
+                        ThemeColorStop(\.black, opacity: \.p0_85),
+                        ThemeColorStop(\.ink),
+                        ThemeColorStop(\.black, opacity: \.p0_9)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing

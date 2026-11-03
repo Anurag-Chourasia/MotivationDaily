@@ -26,7 +26,7 @@ struct QuoteCardContainerView: View {
 
 #Preview {
     ZStack {
-        LinearGradient(colors: [DesignColor.blue, DesignColor.turquoise], startPoint: .topLeading, endPoint: .bottomTrailing)
+        LinearGradient(themeColors: [\.blue, \.turquoise], startPoint: .topLeading, endPoint: .bottomTrailing)
 
         QuoteCardContainerView(
             quote: Quote(id: "1", text: "Life is beautiful", author: "Unknown", source: .zenQuotes, categoryKey: nil),

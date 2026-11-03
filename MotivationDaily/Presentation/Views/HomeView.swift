@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import DesignTokensKit
 import UIComponentsKit
+import LocalizationKit
 
 private enum FeedBootPhase {
     case cold
@@ -100,18 +101,18 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            DesignColor.black
+            ColorTheme.default.black
                 .ignoresSafeArea()
 
             if bootPhase == .cold {
-                DesignColor.black.ignoresSafeArea()
+                ColorTheme.default.black.ignoresSafeArea()
             } else {
                 pageContent
                     .contentShape(Rectangle())
                     .gesture(feedSwipeGesture)
             }
         }
-        .background(DesignColor.black.ignoresSafeArea())
+        .background(ColorTheme.default.black.ignoresSafeArea())
         .task {
             await performInitialBootIfNeeded()
         }
@@ -135,7 +136,7 @@ struct HomeView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text(\CommonStrings.ok))
             )
         }
         .onChange(of: pageVM.refreshError) { message in
@@ -181,15 +182,15 @@ struct HomeView: View {
             Divider()
 
             Button(action: { showFavorites = true }) {
-                Label("Favourites", systemImage: "heart.fill")
+                Label(\.favourites, \.heartFill)
             }
 
             Button(action: { showAboutDeveloper = true }) {
-                Label("About Developer", systemImage: "person.crop.circle")
+                Label(\.aboutDeveloper, \.personCropCircle)
             }
         } label: {
-            Image(systemName: "line.3.horizontal.circle.fill")
-                .font(Typography.title3)
+            Image(\.menu)
+                .font(\.title3)
                 .foregroundColor(selectedAccentTheme.color)
                 .accessibilityIdentifier("content.menuButton")
         }
@@ -200,25 +201,25 @@ struct HomeView: View {
     }
 
     private var topChrome: some View {
-        VStack(spacing: Spacing.eight) {
+        VStack(spacing: \.eight) {
             ZStack {
-                Text("MotivationDaily")
-                    .font(Typography.headline)
-                    .minimumScaleFactor(OpacityToken.p0_8)
+                Text(\.motivationAppName)
+                    .font(\.headline)
+                    .minimumScaleFactor(\.p0_8)
                     .foregroundColor(selectedAccentTheme.color)
 
                 HStack {
-                    DesignColor.clear
-                        .frame(width: DesignMetric.p30, height: DesignMetric.p30)
+                    ColorTheme.default.clear
+                        .frame(width: \.p30, height: \.p30)
                     Spacer()
                     menuButton
                 }
             }
-            .padding(.horizontal, Spacing.sixteen)
-            .padding(.top, Spacing.five)
+            .padding(.horizontal, \.sixteen)
+            .padding(.top, \.five)
 
-            headerOverlay.frame(height: DesignMetric.p55)
-                .padding(.horizontal, Spacing.twelve)
+            headerOverlay.frame(height: \.p55)
+                .padding(.horizontal, \.twelve)
 
             if showConnectivityBanner {
                 ConnectivityBannerView(
@@ -226,17 +227,17 @@ struct HomeView: View {
                     isWarning: connectivityBannerIsWarning,
                     accent: selectedAccentTheme.color
                 )
-                .padding(.horizontal, Spacing.twelve)
+                .padding(.horizontal, \.twelve)
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .padding(.bottom, Spacing.eight)
+        .padding(.bottom, \.eight)
         .background(
             LinearGradient(
-                colors: [
-                    DesignColor.black.opacity(OpacityToken.p0_9),
-                    DesignColor.ink.opacity(OpacityToken.p0_85),
-                    DesignColor.clear
+                stops: [
+                    ThemeColorStop(\.black, opacity: \.p0_9),
+                    ThemeColorStop(\.ink, opacity: \.p0_85),
+                    ThemeColorStop(\.clear)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -247,29 +248,29 @@ struct HomeView: View {
     private var categorySegmentedBar: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.eight) {
+                HStack(spacing: \.eight) {
                     ForEach(categoryTabs) { tab in
                         let isSelected = tab.key == selectedCategory
                         Button(action: { selectCategory(tab.key) }) {
                             ZStack {
                                 if isSelected {
-                                    RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous)
-                                        .fill(selectedAccentTheme.color.opacity(OpacityToken.p0_25))
+                                    RoundedRectangle(cornerRadius: \.sixteen)
+                                        .fill(selectedAccentTheme.color.opacity(OpacityTheme.default.p0_25))
                                         .matchedGeometryEffect(id: "category-tab", in: categoryTabNamespace)
                                 }
 
                                 Text(tab.title)
-                                    .font(Typography.footnote)
-                                    .foregroundColor(isSelected ? selectedAccentTheme.color : DesignColor.white.opacity(OpacityToken.p0_7))
-                                    .padding(.horizontal, Spacing.twelve)
-                                    .padding(.vertical, Spacing.five)
+                                    .font(\.footnote)
+                                    .foregroundColor(isSelected ? selectedAccentTheme.color : ColorTheme.default.white.opacity(OpacityTheme.default.p0_7))
+                                    .padding(.horizontal, \.twelve)
+                                    .padding(.vertical, \.five)
                             }
                         }
                         .buttonStyle(.plain)
                         .id(tab.id)
                     }
                 }
-                .padding(.horizontal, Spacing.four)
+                .padding(.horizontal, \.four)
             }
             .accessibilityIdentifier("content.categoryTabs")
             .onAppear {
@@ -351,7 +352,7 @@ struct HomeView: View {
         let quoteCardHeight = resolvedQuoteCardHeight(for: imageRect)
 
         return ZStack {
-            DesignColor.black.ignoresSafeArea()
+            ColorTheme.default.black.ignoresSafeArea()
 
             Image(uiImage: content.image)
                 .resizable()
@@ -387,27 +388,26 @@ struct HomeView: View {
 
             ZStack {
                 LinearGradient(
-                    colors: [DesignColor.black, DesignColor.ink, DesignColor.black],
+                    themeColors: [\.black, \.ink, \.black],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
 
-                RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
-                    .fill(DesignColor.white.opacity(OpacityToken.p0_1))
+                RoundedRectangle(cornerRadius: quoteLayout.isCompact ? \.fourteen : \.twenty)
+                    .fill(\.white, opacity: \.p0_1)
                     .overlay(
-                        RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
-                            .stroke(DesignColor.white.opacity(OpacityToken.p0_18), lineWidth: StrokeWidth.one)
+                        RoundedRectangle(cornerRadius: quoteLayout.isCompact ? \.fourteen : \.twenty)
+                            .stroke(\.white, opacity: \.p0_18, lineWidth: \.one)
                     )
                     .frame(width: quoteLayout.width, height: quoteCardHeight)
                     .position(x: imageRect.midX, y: imageRect.midY)
 
                 CenteredProgressOverlay(
                     width: nil,
-                    label: { EmptyView() },
-                    background: { DesignColor.clear }
+                    background: \.clear
                 )
-                .tint(DesignColor.white.opacity(OpacityToken.p0_9))
+                .tint(\.white, opacity: \.p0_9)
                 .scaleEffect(ScaleToken.p1_0)
             }
         }
@@ -532,12 +532,12 @@ struct HomeView: View {
         let quote = content.quote
         let isSaved = quoteVM.isFavorited(quote: quote)
 
-        return VStack(spacing: Spacing.fourteen) {
+        return VStack(spacing: \.fourteen) {
             Menu {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectRatio(ratio) }) {
                         if ratio == selectedRatio {
-                            Label(ratio.rawValue, systemImage: "checkmark")
+                            Label(ratio.rawValue, \.checkmark)
                         } else {
                             Text(ratio.rawValue)
                         }
@@ -545,9 +545,8 @@ struct HomeView: View {
                 }
             } label: {
                 SideActionIconView(
-                    systemName: "crop",
-                    label: selectedRatio.rawValue,
-                    tint: DesignColor.white
+                    \.crop,
+                    label: selectedRatio.rawValue
                 )
             }
             .buttonStyle(.plain)
@@ -557,9 +556,9 @@ struct HomeView: View {
                 toggleFavorite(for: content)
             }) {
                 SideActionIconView(
-                    systemName: isSaved ? "heart.fill" : "heart",
-                    label: isSaved ? "Saved" : "Save",
-                    tint: isSaved ? DesignColor.red : DesignColor.white
+                    isSaved ? \.heartFill : \.heart,
+                    isSaved ? \.saved : \.saveToPhotos,
+                    tint: isSaved ? \.red : \.white
                 )
             }
             .buttonStyle(.plain)
@@ -570,9 +569,8 @@ struct HomeView: View {
                 showShareSheet = true
             }) {
                 SideActionIconView(
-                    systemName: "paperplane.fill",
-                    label: "Share",
-                    tint: DesignColor.white
+                    \.share,
+                    \.share
                 )
             }
             .buttonStyle(.plain)

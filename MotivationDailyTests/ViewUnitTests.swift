@@ -1,6 +1,7 @@
 import XCTest
 import SwiftUI
 import UIKit
+import DesignTokensKit
 @testable import MotivationDaily
 
 @MainActor
@@ -83,13 +84,13 @@ final class ViewUnitTests: XCTestCase {
     }
 
     func testSideActionIconView() async {
-        let icon1 = SideActionIconView(systemName: "heart.fill", label: "Saved", tint: .red)
+        let icon1 = SideActionIconView(\.heartFill, label: "Saved", tint: \.red)
         await evaluate(icon1)
 
-        let icon2 = SideActionIconView(systemName: "paperplane", label: "Share", tint: .white)
+        let icon2 = SideActionIconView(\.share, label: "Share", tint: \.white)
         await evaluate(icon2)
 
-        let iconFallback = SideActionIconView(systemName: "nonexistent.icon.name.xyz", label: "Aspect", tint: .yellow)
+        let iconFallback = SideActionIconView(\.sparkles, label: "Aspect", tint: \.yellow)
         await evaluate(iconFallback)
     }
 

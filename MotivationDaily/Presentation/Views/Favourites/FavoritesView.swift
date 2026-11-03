@@ -12,8 +12,7 @@ struct FavoritesView: View {
 
     var body: some View {
         NavigationView {
-            ZStack {
-                DesignColor.grouped.ignoresSafeArea()
+            Group {
                 if quoteVM.favorites.isEmpty {
                     EmptyFavoritesView()
                 } else {
@@ -26,11 +25,13 @@ struct FavoritesView: View {
                     )
                 }
             }
-            .navigationTitle(l10n.domain.favourites)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(\.grouped)
+            .navigationTitle(Text(\.favourites))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(l10n.common.done) {
+                    Button(\.done) {
                         dismiss()
                     }
                     .accessibilityIdentifier("favorites.doneButton")
@@ -42,10 +43,10 @@ struct FavoritesView: View {
                             Button(role: .destructive) {
                                 quoteVM.clearAllFavorites()
                             } label: {
-                                Label(l10n.domain.clearAll, systemImage: "trash.fill")
+                                Label(\.clearAll, \.trashFill)
                             }
                         } label: {
-                            Image(symbol: .ellipsisCircle)
+                            Image(\.ellipsisCircle)
                         }
                     }
                 }
