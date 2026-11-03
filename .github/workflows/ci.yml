@@ -88,12 +88,22 @@ jobs:
 
       - name: Create baseline simulator
         run: |
-          device_id=$(xcrun simctl create "Motivation CI iPhone 11" com.apple.CoreSimulator.SimDeviceType.iPhone-11 com.apple.CoreSimulator.SimRuntime.iOS-27-0)
-          xcrun simctl bootstatus "$device_id" -b
+          device_id=$(xcrun simctl create "Motivation CI iPhone 11" com.apple.CoreSimulator.SimDeviceType.iPhone-11 com.apple.CoreSimulator.SimRuntime.iOS-27-0 || xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"]))')
+          xcrun simctl boot "$device_id" || true
+          xcrun simctl bootstatus "$device_id" -b || true
           echo "TEST_DESTINATION=platform=iOS Simulator,id=$device_id" >> "$GITHUB_ENV"
 
-      - name: Run unit, UI and snapshot tests
-        run: bash Scripts/test-integration.sh
+      - name: Run Fast test lane (PR and Push)
+        run: bash Scripts/test-fast.sh
+
+      - name: Run UI Smoke test lane (PR and Push)
+        run: bash Scripts/test-smoke.sh
+
+      - name: Run Integration & Performance test lanes (Merge to main & Scheduled)
+        if: github.event_name != 'pull_request'
+        run: |
+          bash Scripts/test-integration.sh
+          bash Scripts/test-performance.sh
 
       - name: Build app Release for iOS Simulator
         run: >-
@@ -109,7 +119,8 @@ jobs:
         with:
           name: motivation-integration-results
           path: |
-            ${{ runner.temp }}/MotivationIntegration.xcresult
+            ${{ runner.temp }}/*.xcresult
+            /tmp/*.xcresult
             MotivationDailySnapshotTests/__Snapshots__/**/*.diff.png
 
       - name: Remove dependency credentials
