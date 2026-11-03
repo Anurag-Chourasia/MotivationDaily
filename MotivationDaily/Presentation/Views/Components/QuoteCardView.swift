@@ -16,14 +16,14 @@ struct QuoteCardView: View {
     private var authorFontSize: CGFloat { compactStyle ? Spacing.twelve : Spacing.fourteen }
     private var cardPadding: CGFloat { compactStyle ? DesignMetric.p18 : DesignMetric.p24 }
     private var cornerRadius: CGFloat { compactStyle ? CornerRadius.fourteen : CornerRadius.twenty }
-    private var fixedCardHeight: CGFloat { cardHeight ?? (compactStyle ? 248 : 320) }
+    private var fixedCardHeight: CGFloat { cardHeight ?? (compactStyle ? DesignMetric.p400 - DesignMetric.p140 - DesignMetric.p12 : DesignMetric.p400 - DesignMetric.p80) }
 
     var body: some View {
         VStack(spacing: contentSpacing) {
             HStack {
                 Image(systemName: "quote.opening")
                     .font(.system(size: iconSize, weight: .semibold))
-                    .foregroundColor(DesignColor.white.opacity(0.8))
+                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_3))
                 Spacer()
             }
 
@@ -31,7 +31,7 @@ struct QuoteCardView: View {
                 .font(.system(size: quoteFontSize, weight: .semibold, design: .rounded))
                 .multilineTextAlignment(.center)
                 .lineSpacing(lineSpacing)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(OpacityToken.p0_5 + OpacityToken.p0_15 / 1.5)
                 .allowsTightening(true)
                 .foregroundColor(DesignColor.white)
                 .padding(.horizontal, CornerRadius.six)
@@ -42,7 +42,7 @@ struct QuoteCardView: View {
                     .frame(width: DesignMetric.p22_58, height: StrokeWidth.two)
                 Text(quote.author ?? "Unknown")
                     .font(.system(size: authorFontSize, weight: .semibold))
-                    .foregroundColor(DesignColor.white.opacity(0.9))
+                    .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_35 + OpacityToken.p0_15 / 3))
                 Capsule()
                     .fill(DesignColor.white.opacity(OpacityToken.p0_5))
                     .frame(width: DesignMetric.p22_58, height: StrokeWidth.two)
@@ -68,11 +68,11 @@ struct QuoteCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .stroke(DesignColor.white.opacity(0.18), lineWidth: StrokeWidth.one)
+                .stroke(DesignColor.white.opacity(OpacityToken.p0_15 + OpacityToken.p0_3 / 10), lineWidth: StrokeWidth.one)
         )
         .frame(maxWidth: .infinity, minHeight: fixedCardHeight, maxHeight: fixedCardHeight)
         .shadow(
-            color: showsDepthEffects ? DesignColor.black.opacity(0.28) : DesignColor.clear,
+            color: showsDepthEffects ? DesignColor.black.opacity(OpacityToken.p0_2 + OpacityToken.p0_3 / 3.75) : DesignColor.clear,
             radius: showsDepthEffects ? Spacing.sixteen : 0,
             x: 0,
             y: showsDepthEffects ? Spacing.eight : 0
@@ -82,12 +82,12 @@ struct QuoteCardView: View {
 
 #Preview {
     ZStack {
-        LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+        LinearGradient(colors: [DesignColor.blue, DesignColor.turquoise], startPoint: .topLeading, endPoint: .bottomTrailing)
 
         QuoteCardView(
             quote: Quote(id: "1", text: "Life is beautiful", author: "Unknown", source: .zenQuotes, categoryKey: nil),
-            dominantColor: Color.blue,
-            overlayOpacity: 0.5,
+            dominantColor: DesignColor.blue,
+            overlayOpacity: OpacityToken.p0_5,
             compactStyle: false,
             showsDepthEffects: true
         )

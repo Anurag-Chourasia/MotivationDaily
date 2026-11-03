@@ -21,11 +21,11 @@ struct FavoriteCellView: View {
                     Image(uiImage: renderedImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 210)
+                        .frame(height: DesignMetric.p160 + DesignMetric.p50)
                         .clipped()
                 } else {
                     imagePlaceholder
-                        .frame(height: 210)
+                        .frame(height: DesignMetric.p160 + DesignMetric.p50)
                         .clipped()
                 }
 
@@ -45,11 +45,11 @@ struct FavoriteCellView: View {
                         .font(.system(size: Spacing.fourteen, weight: .bold))
                         .foregroundColor(DesignColor.red)
                         .frame(width: DesignMetric.p34, height: DesignMetric.p34)
-                        .background(DesignColor.white.opacity(0.92))
+                        .background(DesignColor.white.opacity(OpacityToken.p1_0 - OpacityToken.p0_15 / 2))
                         .clipShape(Circle())
                         .overlay(
                             Circle()
-                                .stroke(DesignColor.black.opacity(0.12), lineWidth: StrokeWidth.one)
+                                .stroke(DesignColor.black.opacity(OpacityToken.p0_15), lineWidth: StrokeWidth.one)
                         )
                 }
                 .padding(Spacing.twelve)
@@ -60,7 +60,7 @@ struct FavoriteCellView: View {
 
             VStack(alignment: .leading, spacing: Spacing.ten) {
                 Text("\"\(favorite.text)\"")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .font(Typography.headline)
                     .foregroundColor(DesignColor.primary)
                     .lineSpacing(DesignMetric.p3)
 
@@ -80,9 +80,9 @@ struct FavoriteCellView: View {
         .clipShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous)
-                .stroke(DesignColor.black.opacity(0.08), lineWidth: StrokeWidth.one)
+                .stroke(DesignColor.black.opacity(OpacityToken.p0_15 / 2), lineWidth: StrokeWidth.one)
         )
-        .shadow(color: DesignColor.black.opacity(0.07), radius: Spacing.ten, x: 0, y: Spacing.five)
+        .shadow(color: DesignColor.black.opacity(OpacityToken.p0_15 / 2), radius: Spacing.ten, x: 0, y: Spacing.five)
         .contentShape(RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("favorites.cell")
@@ -108,13 +108,13 @@ struct FavoriteCellView: View {
     private var imagePlaceholder: some View {
         ZStack {
             LinearGradient(
-                colors: [Color.black.opacity(0.5), Color.black.opacity(0.7)],
+                colors: [DesignColor.black.opacity(OpacityToken.p0_5), DesignColor.black.opacity(OpacityToken.p0_5 + OpacityToken.p0_2)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             Image(systemName: "photo")
-                .font(.system(size: 28, weight: .medium))
-                .foregroundColor(.white.opacity(0.7))
+                .font(Typography.title)
+                .foregroundColor(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
         }
     }
 
@@ -143,11 +143,11 @@ struct FavoriteCellView: View {
 
     private func tagPill(text: String) -> some View {
         Text(text.uppercased())
-            .font(.system(size: 10, weight: .semibold))
-            .foregroundColor(.secondary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(Color(.systemGray6))
+            .font(Typography.caption2)
+            .foregroundColor(DesignColor.secondary)
+            .padding(.horizontal, Spacing.eight)
+            .padding(.vertical, Spacing.four)
+            .background(DesignColor.grouped)
             .clipShape(Capsule())
     }
 

@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import DesignTokensKit
 
 struct BackgroundWallpaperView: View {
     let url: URL?
@@ -31,7 +32,7 @@ struct BackgroundWallpaperView: View {
             let imageFrame = fittedImageFrame(in: proxy.size)
 
             ZStack {
-                Color.black
+                DesignColor.black
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 ZStack {
@@ -47,12 +48,12 @@ struct BackgroundWallpaperView: View {
                 if isLoading, currentImage == nil {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .tint(.white.opacity(0.8))
-                        .scaleEffect(1.1)
-                        .padding(12)
-                        .background(Color.black.opacity(0.25))
+                        .tint(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_3))
+                        .scaleEffect(ScaleToken.p1_15)
+                        .padding(Spacing.twelve)
+                        .background(DesignColor.black.opacity(OpacityToken.p0_2 + OpacityToken.p0_15 / 3))
                         .clipShape(Circle())
-                        .opacity(0.6)
+                        .opacity(OpacityToken.p0_5 + OpacityToken.p0_15 / 1.5)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -79,9 +80,9 @@ struct BackgroundWallpaperView: View {
             } else {
                 LinearGradient(
                     colors: [
-                        Color.black.opacity(0.88),
-                        Color(red: 0.08, green: 0.08, blue: 0.1),
-                        Color.black.opacity(0.94)
+                        DesignColor.black.opacity(OpacityToken.p0_5 + OpacityToken.p0_35 + OpacityToken.p0_15 / 5),
+                        DesignColor.ink,
+                        DesignColor.black.opacity(OpacityToken.p1_0 - OpacityToken.p0_15 / 2.5)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing

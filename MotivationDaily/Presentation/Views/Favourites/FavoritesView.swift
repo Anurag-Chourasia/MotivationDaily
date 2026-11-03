@@ -1,4 +1,5 @@
 import SwiftUI
+import DesignTokensKit
 
 struct FavoritesView: View {
     @ObservedObject var quoteVM: QuoteViewModel
@@ -10,7 +11,7 @@ struct FavoritesView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.opacity(0.03).ignoresSafeArea()
+                DesignColor.grouped.ignoresSafeArea()
                 if quoteVM.favorites.isEmpty {
                     EmptyFavoritesView()
                 } else {

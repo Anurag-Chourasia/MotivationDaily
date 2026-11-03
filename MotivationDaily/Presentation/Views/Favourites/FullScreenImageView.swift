@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import DesignTokensKit
 
 struct FullScreenImageView: View {
     let favorite: FavoriteQuote?
@@ -17,7 +18,7 @@ struct FullScreenImageView: View {
         GeometryReader { proxy in
             let canvasSize = fullScreenCanvasSize(for: proxy)
             ZStack {
-                Color.black
+                DesignColor.black
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
 
@@ -27,8 +28,8 @@ struct FullScreenImageView: View {
                 } else if isLoadingImage {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .scaleEffect(1.2)
-                        .tint(.white)
+                        .scaleEffect(ScaleToken.p1_15)
+                        .tint(DesignColor.white)
                 } else {
                     emptyImage
                 }
@@ -39,8 +40,8 @@ struct FullScreenImageView: View {
                 }
 
                 sideActionRail()
-                    .padding(.trailing, 16)
-                    .padding(.bottom, max(proxy.safeAreaInsets.bottom + 24, 32))
+                    .padding(.trailing, Spacing.sixteen)
+                    .padding(.bottom, max(proxy.safeAreaInsets.bottom + DesignMetric.p24, Spacing.thirtyTwo))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
             .edgesIgnoringSafeArea(.all)
@@ -79,7 +80,7 @@ struct FullScreenImageView: View {
     }
 
     private func sideActionRail() -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: Spacing.fourteen) {
             Menu {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectedRatio = ratio }) {
@@ -94,7 +95,7 @@ struct FullScreenImageView: View {
                 SideActionIconView(
                     systemName: "crop",
                     label: selectedRatio.rawValue,
-                    tint: .white
+                    tint: DesignColor.white
                 )
             }
             .buttonStyle(.plain)
@@ -104,7 +105,7 @@ struct FullScreenImageView: View {
                 SideActionIconView(
                     systemName: "paperplane.fill",
                     label: "Share",
-                    tint: .white
+                    tint: DesignColor.white
                 )
             }
             .buttonStyle(.plain)
@@ -114,7 +115,7 @@ struct FullScreenImageView: View {
                 SideActionIconView(
                     systemName: "xmark",
                     label: "Close",
-                    tint: .white
+                    tint: DesignColor.white
                 )
             }
             .buttonStyle(.plain)
@@ -146,13 +147,13 @@ struct FullScreenImageView: View {
     }
 
     private var emptyImage: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Spacing.sixteen) {
             Spacer()
             Image(systemName: "photo.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.gray)
+                .font(.system(size: DesignMetric.p60))
+                .foregroundColor(DesignColor.gray)
             Text("Image not available")
-                .foregroundColor(.white)
+                .foregroundColor(DesignColor.white)
             Spacer()
         }
     }

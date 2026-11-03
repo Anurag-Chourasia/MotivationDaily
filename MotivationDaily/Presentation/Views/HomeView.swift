@@ -100,18 +100,18 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            Color.black
+            DesignColor.black
                 .ignoresSafeArea()
 
             if bootPhase == .cold {
-                Color.black.ignoresSafeArea()
+                DesignColor.black.ignoresSafeArea()
             } else {
                 pageContent
                     .contentShape(Rectangle())
                     .gesture(feedSwipeGesture)
             }
         }
-        .background(Color.black.ignoresSafeArea())
+        .background(DesignColor.black.ignoresSafeArea())
         .task {
             await performInitialBootIfNeeded()
         }
@@ -189,7 +189,7 @@ struct HomeView: View {
             }
         } label: {
             Image(systemName: "line.3.horizontal.circle.fill")
-                .font(.system(size: 20, weight: .semibold))
+                .font(Typography.title3)
                 .foregroundColor(selectedAccentTheme.color)
                 .accessibilityIdentifier("content.menuButton")
         }
@@ -200,25 +200,25 @@ struct HomeView: View {
     }
 
     private var topChrome: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Spacing.eight) {
             ZStack {
                 Text("MotivationDaily")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
-                    .minimumScaleFactor(0.8)
+                    .font(Typography.headline)
+                    .minimumScaleFactor(OpacityToken.p0_5 + OpacityToken.p0_3)
                     .foregroundColor(selectedAccentTheme.color)
 
                 HStack {
-                    Color.clear
-                        .frame(width: 28, height: 28)
+                    DesignColor.clear
+                        .frame(width: DesignMetric.p30, height: DesignMetric.p30)
                     Spacer()
                     menuButton
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 6)
+            .padding(.horizontal, Spacing.sixteen)
+            .padding(.top, Spacing.five)
 
-            headerOverlay.frame(height: 56)
-                .padding(.horizontal, 12)
+            headerOverlay.frame(height: DesignMetric.p55)
+                .padding(.horizontal, Spacing.twelve)
 
             if showConnectivityBanner {
                 ConnectivityBannerView(
@@ -226,17 +226,17 @@ struct HomeView: View {
                     isWarning: connectivityBannerIsWarning,
                     accent: selectedAccentTheme.color
                 )
-                .padding(.horizontal, 12)
+                .padding(.horizontal, Spacing.twelve)
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .padding(.bottom, 8)
+        .padding(.bottom, Spacing.eight)
         .background(
             LinearGradient(
                 colors: [
-                    Color.black.opacity(0.96),
-                    Color(red: 0.05, green: 0.08, blue: 0.14).opacity(0.85),
-                    Color.clear
+                    DesignColor.black.opacity(OpacityToken.p1_0 - OpacityToken.p0_15 / 3.75),
+                    DesignColor.ink.opacity(OpacityToken.p0_5 + OpacityToken.p0_35),
+                    DesignColor.clear
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -247,29 +247,29 @@ struct HomeView: View {
     private var categorySegmentedBar: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                HStack(spacing: Spacing.eight) {
                     ForEach(categoryTabs) { tab in
                         let isSelected = tab.key == selectedCategory
                         Button(action: { selectCategory(tab.key) }) {
                             ZStack {
                                 if isSelected {
-                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .fill(selectedAccentTheme.color.opacity(0.25))
+                                    RoundedRectangle(cornerRadius: DesignMetric.p16, style: .continuous)
+                                        .fill(selectedAccentTheme.color.opacity(OpacityToken.p0_2 + OpacityToken.p0_15 / 3))
                                         .matchedGeometryEffect(id: "category-tab", in: categoryTabNamespace)
                                 }
 
                                 Text(tab.title)
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(isSelected ? selectedAccentTheme.color : .white.opacity(0.75))
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
+                                    .font(Typography.footnote)
+                                    .foregroundColor(isSelected ? selectedAccentTheme.color : DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_2))
+                                    .padding(.horizontal, Spacing.twelve)
+                                    .padding(.vertical, Spacing.five)
                             }
                         }
                         .buttonStyle(.plain)
                         .id(tab.id)
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, Spacing.four)
             }
             .accessibilityIdentifier("content.categoryTabs")
             .onAppear {
@@ -351,7 +351,7 @@ struct HomeView: View {
         let quoteCardHeight = resolvedQuoteCardHeight(for: imageRect)
 
         return ZStack {
-            Color.black.ignoresSafeArea()
+            DesignColor.black.ignoresSafeArea()
 
             Image(uiImage: content.image)
                 .resizable()
@@ -373,8 +373,8 @@ struct HomeView: View {
 
             sideActionRail(for: content)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                .padding(.trailing, 16)
-                .padding(.bottom, max(safeAreaInsets.bottom + 24, 32))
+                .padding(.trailing, Spacing.sixteen)
+                .padding(.bottom, max(safeAreaInsets.bottom + DesignMetric.p24, Spacing.thirtyTwo))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -387,17 +387,17 @@ struct HomeView: View {
 
             ZStack {
                 LinearGradient(
-                    colors: [Color.black, Color(red: 0.04, green: 0.06, blue: 0.1), Color.black],
+                    colors: [DesignColor.black, DesignColor.ink, DesignColor.black],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
 
                 RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
-                    .fill(DesignColor.white.opacity(0.08))
+                    .fill(DesignColor.white.opacity(OpacityToken.p0_15 / 2))
                     .overlay(
                         RoundedRectangle(cornerRadius: quoteLayout.isCompact ? CornerRadius.fourteen : CornerRadius.twenty, style: .continuous)
-                            .stroke(DesignColor.white.opacity(0.18), lineWidth: StrokeWidth.one)
+                            .stroke(DesignColor.white.opacity(OpacityToken.p0_15 + OpacityToken.p0_3 / 10), lineWidth: StrokeWidth.one)
                     )
                     .frame(width: quoteLayout.width, height: quoteCardHeight)
                     .position(x: imageRect.midX, y: imageRect.midY)
@@ -407,7 +407,7 @@ struct HomeView: View {
                     label: { EmptyView() },
                     background: { DesignColor.clear }
                 )
-                .tint(DesignColor.white.opacity(0.9))
+                .tint(DesignColor.white.opacity(OpacityToken.p0_5 + OpacityToken.p0_35 + OpacityToken.p0_15 / 3))
                 .scaleEffect(ScaleToken.p1_0)
             }
         }
@@ -532,7 +532,7 @@ struct HomeView: View {
         let quote = content.quote
         let isSaved = quoteVM.isFavorited(quote: quote)
 
-        return VStack(spacing: 14) {
+        return VStack(spacing: Spacing.fourteen) {
             Menu {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectRatio(ratio) }) {
@@ -547,7 +547,7 @@ struct HomeView: View {
                 SideActionIconView(
                     systemName: "crop",
                     label: selectedRatio.rawValue,
-                    tint: .white
+                    tint: DesignColor.white
                 )
             }
             .buttonStyle(.plain)
@@ -559,7 +559,7 @@ struct HomeView: View {
                 SideActionIconView(
                     systemName: isSaved ? "heart.fill" : "heart",
                     label: isSaved ? "Saved" : "Save",
-                    tint: isSaved ? .red : .white
+                    tint: isSaved ? DesignColor.red : DesignColor.white
                 )
             }
             .buttonStyle(.plain)
@@ -572,7 +572,7 @@ struct HomeView: View {
                 SideActionIconView(
                     systemName: "paperplane.fill",
                     label: "Share",
-                    tint: .white
+                    tint: DesignColor.white
                 )
             }
             .buttonStyle(.plain)
