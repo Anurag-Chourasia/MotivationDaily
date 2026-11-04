@@ -1,5 +1,6 @@
 import SwiftUI
 import DesignTokensKit
+import LocalizationKit
 
 struct MotivationLaunchView<Content: View>: View {
     let content: (Bool) -> Content
@@ -63,10 +64,10 @@ struct ShowcaseBadgeView: View {
             HStack(spacing: \.four) {
                 Image(\.sparkles)
                     .font(\.caption2)
-                Text("SHOWCASE DEMO")
+                Text(\.showcaseDemoTitle)
                     .font(\.caption)
                     .fontWeight(.bold)
-                Text("• Tap for Controls")
+                Text(\.showcaseDemoTapForControls)
                     .font(\.caption2)
                     .opacity(\.p0_5)
             }
@@ -82,7 +83,7 @@ struct ShowcaseBadgeView: View {
         }
         .padding(.top, \.four)
         .accessibilityIdentifier("showcase-demo-indicator")
-        .accessibilityLabel("Showcase demo mode. Tap to open developer settings.")
+        .accessibilityLabel(\.showcaseDemoA11y)
     }
 }
 #endif

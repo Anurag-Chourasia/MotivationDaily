@@ -8,8 +8,8 @@
     "version": "1.1.0"
   },
   "designtokenskit": {
-    "revision": "a68e76f896d18d11f8aaf4204a04271e5eb9d155",
-    "version": "1.18.1"
+    "revision": "fe52af9782d46bfbe6ab30996771356e27ccddf2",
+    "version": "1.18.2"
   },
   "developerprofilekit": {
     "revision": "2cdda61662032fedbdc0f93ad14b086586e33a65",
@@ -20,8 +20,8 @@
     "version": "0.1.1"
   },
   "localizationkit": {
-    "revision": "9aa812439ee8e1f6156c266530ccf99e7b1f3430",
-    "version": "0.5.5"
+    "revision": "01d62982e526296b760dff2a657362e921b08a90",
+    "version": "0.5.6"
   },
   "snapshottestkit": {
     "revision": "121e979186c23a34001effd812bd01fdf1d66ff7",

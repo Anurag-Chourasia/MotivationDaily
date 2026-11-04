@@ -9,6 +9,41 @@ struct QuoteCardView: View {
     var showsDepthEffects = true
     var cardHeight: CGFloat? = nil
 
+    init(
+        quote: Quote,
+        dominantColor: Color? = nil,
+        overlayOpacity: Double = 0.5,
+        compactStyle: Bool = false,
+        showsDepthEffects: Bool = true,
+        cardHeight: CGFloat? = nil
+    ) {
+        self.quote = quote
+        self.dominantColor = dominantColor
+        self.overlayOpacity = overlayOpacity
+        self.compactStyle = compactStyle
+        self.showsDepthEffects = showsDepthEffects
+        self.cardHeight = cardHeight
+    }
+
+    init(
+        quote: Quote,
+        dominantColor: KeyPath<ColorTheme, Color>?,
+        overlayOpacity: Double = 0.5,
+        compactStyle: Bool = false,
+        showsDepthEffects: Bool = true,
+        cardHeight: CGFloat? = nil,
+        colorTheme: ColorTheme = .default
+    ) {
+        self.init(
+            quote: quote,
+            dominantColor: dominantColor != nil ? colorTheme[keyPath: dominantColor!] : nil,
+            overlayOpacity: overlayOpacity,
+            compactStyle: compactStyle,
+            showsDepthEffects: showsDepthEffects,
+            cardHeight: cardHeight
+        )
+    }
+
     private var contentSpacing: CGFloat { compactStyle ? SpacingTheme.default.twelve : SpacingTheme.default.eighteen }
     private var iconSize: CGFloat { compactStyle ? DesignMetricTheme.default.p21 : DesignMetricTheme.default.p26_5 }
     private var quoteFontSize: CGFloat { compactStyle ? DesignMetricTheme.default.p19 : DesignMetricTheme.default.p22_58 }
@@ -91,7 +126,7 @@ struct QuoteCardView: View {
 
         QuoteCardView(
             quote: Quote(id: "1", text: "Life is beautiful", author: "Unknown", source: .zenQuotes, categoryKey: nil),
-            dominantColor: nil,
+            dominantColor: \.blue,
             overlayOpacity: 0.5,
             compactStyle: false,
             showsDepthEffects: true
