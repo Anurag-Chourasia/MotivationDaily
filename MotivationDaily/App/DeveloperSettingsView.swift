@@ -1,6 +1,7 @@
 import SwiftUI
 import DesignTokensKit
 import LocalizationKit
+import UIComponentsKit
 
 struct MotivationLaunchView<Content: View>: View {
     let content: (Bool) -> Content
@@ -82,7 +83,7 @@ struct ShowcaseBadgeView: View {
             )
         }
         .padding(.top, \.four)
-        .accessibilityIdentifier("showcase-demo-indicator")
+        .accessibilityIdentifier(.showcaseDemoIndicator)
         .accessibilityLabel(\.showcaseDemoA11y)
     }
 }
@@ -175,108 +176,116 @@ struct DeveloperSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Text("Configure Motivation Daily runtime, cache, and feature flags. Shake device from any screen to reopen.")
+                Text(\.developerSettingsSubtitleMotivation)
                 Button(buttonTitle, action: onContinue)
-                    .accessibilityIdentifier("developer-open-app")
+                    .accessibilityIdentifier(.developerOpenApp)
             }
-            Section("Quick presets") {
+            Section(header: Text(\.developerQuickPresets)) {
                 Button {
                     source = "stub"
                     scenario = "showcase"
                     onContinue()
                 } label: {
-                    Label("Showcase (Populated)", systemImage: "sparkles")
+                    Label(Text(\.developerPresetShowcase), \.sparkles)
                 }
-                .accessibilityIdentifier("developer-preset-showcase")
+                .accessibilityIdentifier(.developerPresetShowcase)
 
                 Button {
                     source = "stub"
                     scenario = "empty"
                     onContinue()
                 } label: {
-                    Label("Empty State (Zero Results)", systemImage: "tray")
+                    Label(Text(\.developerPresetEmpty), \.tray)
                 }
-                .accessibilityIdentifier("developer-preset-empty")
+                .accessibilityIdentifier(.developerPresetEmpty)
 
                 Button {
                     source = "stub"
                     scenario = "offline"
                     onContinue()
                 } label: {
-                    Label("Offline Resilience", systemImage: "wifi.slash")
+                    Label(Text(\.developerPresetOffline), \.wifiSlash)
                 }
-                .accessibilityIdentifier("developer-preset-offline")
+                .accessibilityIdentifier(.developerPresetOffline)
 
                 Button {
                     source = "live"
                     onContinue()
                 } label: {
-                    Label("Live Feed", systemImage: "globe")
+                    Label(Text(\.developerPresetLiveFeed), \.globe)
                 }
-                .accessibilityIdentifier("developer-preset-live")
+                .accessibilityIdentifier(.developerPresetLive)
             }
-            Section("Cache & offline storage") {
-                LabeledContent("Disk cache", value: cacheSummary.isEmpty ? "Checking..." : cacheSummary)
-                Button("Purge quote cache", role: .destructive) {
+            Section(header: Text(\.developerCacheAndOffline)) {
+                LabeledContent(String(\.developerDiskCache), value: cacheSummary.isEmpty ? String(\.developerChecking) : cacheSummary)
+                Button(role: .destructive) {
                     diskCache.clear()
                     refreshCacheSummary()
+                } label: {
+                    Text(\.developerPurgeQuoteCache)
                 }
-                .accessibilityIdentifier("developer-purge-cache")
+                .accessibilityIdentifier(.developerPurgeCache)
             }
-            Section("Environment") {
-                Picker("Data source", selection: $source) {
+            Section(header: Text(\.developerEnvironment)) {
+                Picker(String(\.developerDataSource), selection: $source) {
                     Text("Live · Quotable & ZenQuotes").tag("live")
                     Text("Stub · local fixtures").tag("stub")
                 }
                 if source == "stub" {
-                    Picker("Scenario", selection: $scenario) {
-                        Text("Success").tag("success")
-                        Text("Empty results").tag("empty")
-                        Text("Offline error").tag("offline")
+                    Picker(String(\.developerScenario), selection: $scenario) {
+                        Text(\.developerScenarioSuccess).tag("success")
+                        Text(\.developerScenarioEmpty).tag("empty")
+                        Text(\.developerScenarioOffline).tag("offline")
                     }
                 }
                 Text("Stub mode uses local quotes and wallpapers without making remote network requests.")
             }
-            Section("Feature flags") {
-                Toggle("Authentication · AuthKit", isOn: $authentication)
-                    .accessibilityIdentifier("developer-authentication")
+            Section(header: Text(\.developerFeatureFlags)) {
+                Toggle(isOn: $authentication) {
+                    Text(\.developerAuthentication)
+                }
+                .accessibilityIdentifier(.developerAuthentication)
                 Text("New feature, off by default. Enable to require sign-in before the feed. Apply settings to activate changes; disabling it preserves the saved session.")
             }
-            Section("Debug logs") {
-                Toggle("HTTP logs in Xcode console", isOn: $logs)
+            Section(header: Text(\.developerDebugLogs)) {
+                Toggle(isOn: $logs) {
+                    Text(\.developerHttpLogs)
+                }
                 Text("Release builds ignore this setting.")
             }
-            Section("Version simulation") {
-                LabeledContent("Installed version", value: AppRuntime.actualVersion)
-                LabeledContent("Installed build", value: AppRuntime.actualBuild)
-                TextField("Simulated version", text: $version)
+            Section(header: Text(\.developerVersionSimulation)) {
+                LabeledContent(String(\.developerInstalledVersion), value: AppRuntime.actualVersion)
+                LabeledContent(String(\.developerInstalledBuild), value: AppRuntime.actualBuild)
+                TextField(String(\.developerSimulatedVersion), text: $version)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
-                TextField("Simulated build", text: $build)
+                TextField(String(\.developerSimulatedBuild), text: $build)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
             }
-            Section("Privacy & Support") {
+            Section(header: Text(\.developerPrivacySupport)) {
                 Link(destination: URL(string: "https://github.com/Anurag-Chourasia/Motivation-Daily/blob/main/Docs/PrivacyInventory.md")!) {
-                    Label("Privacy Policy", systemImage: "hand.raised")
+                    Label(Text(\.developerPrivacyPolicy), \.handRaised)
                 }
-                .accessibilityIdentifier("developer-privacy-policy")
+                .accessibilityIdentifier(.developerPrivacyPolicy)
 
                 Link(destination: URL(string: "mailto:anuragchourasiaios@gmail.com")!) {
-                    Label("Developer Support", systemImage: "envelope")
+                    Label(Text(\.developerSupport), \.envelope)
                 }
-                .accessibilityIdentifier("developer-support")
+                .accessibilityIdentifier(.developerSupport)
 
                 Text("Motivation Daily stores favorited quotes and lightweight settings locally on your device. Quote and wallpaper fetching is unauthenticated. No personal data is tracked or sold to third parties.")
                     .font(\.caption)
                     .foregroundColor(\.secondary)
             }
             Section {
-                Button("Reset developer settings", role: .destructive) {
+                Button(role: .destructive) {
                     source = "live"; scenario = "success"
                     authentication = false; logs = false; version = ""; build = ""
+                } label: {
+                    Text(\.developerResetSettings)
                 }
             }
         }
-        .navigationTitle("Developer settings")
+        .navigationTitle(Text(\.developerSettingsTitle))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             refreshCacheSummary()

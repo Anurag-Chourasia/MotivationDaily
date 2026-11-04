@@ -8,8 +8,8 @@
     "version": "1.1.0"
   },
   "designtokenskit": {
-    "revision": "fe52af9782d46bfbe6ab30996771356e27ccddf2",
-    "version": "1.18.2"
+    "revision": "d05ae29a933d9bad25ffa1b6e8b2181f9bb46da8",
+    "version": "1.18.3"
   },
   "developerprofilekit": {
     "revision": "2cdda61662032fedbdc0f93ad14b086586e33a65",
@@ -20,8 +20,8 @@
     "version": "0.1.1"
   },
   "localizationkit": {
-    "revision": "01d62982e526296b760dff2a657362e921b08a90",
-    "version": "0.5.6"
+    "revision": "30feb58ecb4dd16e35846da617fa8a0c2e8c14fe",
+    "version": "0.5.7"
   },
   "snapshottestkit": {
     "revision": "121e979186c23a34001effd812bd01fdf1d66ff7",
@@ -56,8 +56,8 @@
     "version": "2.1.2"
   },
   "uicomponentskit": {
-    "revision": "b22c2f4b4eb5869b9c714bc356a0ccd05a4bd527",
-    "version": "1.5.0"
+    "revision": "b4776b1cca6da09128c4ce3940814567bc328a87",
+    "version": "1.5.1"
   },
   "xctest-dynamic-overlay": {
     "revision": "d9308ad679143c26a30dec52daefe82f54af2b82",

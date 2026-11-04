@@ -24,8 +24,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/DesignTokensKit.git",
       "state": {
-        "revision": "fe52af9782d46bfbe6ab30996771356e27ccddf2",
-        "version": "1.18.2"
+        "revision": "d05ae29a933d9bad25ffa1b6e8b2181f9bb46da8",
+        "version": "1.18.3"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/LocalizationKit.git",
       "state": {
-        "revision": "01d62982e526296b760dff2a657362e921b08a90",
-        "version": "0.5.6"
+        "revision": "30feb58ecb4dd16e35846da617fa8a0c2e8c14fe",
+        "version": "0.5.7"
       }
     },
     {
@@ -132,8 +132,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/UIComponentsKit.git",
       "state": {
-        "revision": "b22c2f4b4eb5869b9c714bc356a0ccd05a4bd527",
-        "version": "1.5.0"
+        "revision": "b4776b1cca6da09128c4ce3940814567bc328a87",
+        "version": "1.5.1"
       }
     },
     {

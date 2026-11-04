@@ -299,7 +299,7 @@ struct HomeView: View {
     @ViewBuilder
     private func menuItemLabel(title: String, isSelected: Bool) -> some View {
         if isSelected {
-            Label(title, systemImage: "checkmark")
+            Label(title, \.checkmark)
         } else {
             Text(title)
         }
