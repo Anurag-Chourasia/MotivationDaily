@@ -33,7 +33,7 @@ struct AboutView: View {
                     Button { dismiss() } label: {
                         Label(\.back, \.chevronLeft)
                     }
-                    .accessibilityIdentifier("about.backButton")
+                    .accessibilityIdentifier(.aboutBackButton)
                 }
             }
         }

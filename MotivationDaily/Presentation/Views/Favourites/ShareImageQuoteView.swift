@@ -1,4 +1,5 @@
 import SwiftUI
+import UIComponentsKit
 import UIKit
 import Photos
 import DesignTokensKit
@@ -83,7 +84,7 @@ struct ShareImageQuoteView: View {
     }
 
     private var quoteAuthor: String {
-        favorite?.author ?? quote?.author ?? "Unknown"
+        favorite?.author ?? quote?.author ?? String(\MotivationStrings.authorUnknown)
     }
 
     @ViewBuilder
@@ -97,7 +98,7 @@ struct ShareImageQuoteView: View {
             Button(\.done) {
                 dismiss()
             }
-            .accessibilityIdentifier("share.doneButton")
+            .accessibilityIdentifier(.shareDoneButton)
         }
         .padding(\.sixteen)
     }
@@ -141,7 +142,7 @@ struct ShareImageQuoteView: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("share.sheet")
+        .accessibilityIdentifier(.shareSheet)
         .onAppear(perform: createShareableImage)
         .onDisappear {
             imageLoadTask?.cancel()
@@ -158,7 +159,7 @@ struct ShareImageQuoteView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(\.ok)
+                dismissButton: .default(\.ok) { activeSaveAlert = nil }
             )
         }
         .confirmationDialog(\.photosAccessAlertTitle, isPresented: $showPermissionSettingsDialog, titleVisibility: .visible) {
@@ -211,7 +212,7 @@ struct ShareImageQuoteView: View {
             }
             .disabled(compositeImage == nil)
             .opacity(compositeImage == nil ? \.p0_55 : \.p1_0)
-            .accessibilityIdentifier("share.quoteAndImageButton")
+            .accessibilityIdentifier(.shareQuoteAndImageButton)
 
             Button(action: {
                 guard let sourceImage else { return }
@@ -226,7 +227,7 @@ struct ShareImageQuoteView: View {
             }
             .disabled(sourceImage == nil)
             .opacity(sourceImage == nil ? \.p0_55 : \.p1_0)
-            .accessibilityIdentifier("share.imageOnlyButton")
+            .accessibilityIdentifier(.shareImageOnlyButton)
 
             Button(action: {
                 showSaveOptionsDialog = true
@@ -235,7 +236,7 @@ struct ShareImageQuoteView: View {
             }
             .disabled((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage)
             .opacity(((sourceImage == nil && compositeImage == nil && quoteOnlyImage == nil) || isSavingImage) ? \.p0_55 : \.p1_0)
-            .accessibilityIdentifier("share.saveToPhotosButton")
+            .accessibilityIdentifier(.shareSaveToPhotosButton)
 
             Button(action: {
                 openShare(items: [shareContent])
@@ -247,12 +248,12 @@ struct ShareImageQuoteView: View {
                     themeColor: \.green
                 )
             }
-            .accessibilityIdentifier("share.quoteOnlyButton")
+            .accessibilityIdentifier(.shareQuoteOnlyButton)
 
             Button(action: copyToClipboard) {
                 copyQuoteButtonContent
             }
-            .accessibilityIdentifier("share.copyQuoteButton")
+            .accessibilityIdentifier(.shareCopyQuoteButton)
         }
     }
 
@@ -660,7 +661,7 @@ struct ShareImageQuoteView: View {
                         throwing: NSError(
                             domain: "ShareImageQuoteView",
                             code: -1,
-                            userInfo: [NSLocalizedDescriptionKey: "Unknown save error."]
+                            userInfo: [NSLocalizedDescriptionKey: String(\MotivationStrings.couldNotSaveImage)]
                         )
                     )
                 }

@@ -94,10 +94,10 @@ enum AppRuntime {
         ])
     )
 
-    static let logger: AppLogger = ConsoleLogger(
+    static let logger: AppLogger = UnifiedLogger(
         subsystem: "com.anurag.MotivationDaily",
         category: "App"
     )
 
-    static let clock: AppClock = SystemClock()
+    static let clock: AppClock = NativeClockAdapter(clock: ContinuousClock())
 }

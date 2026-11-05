@@ -1,4 +1,5 @@
 import SwiftUI
+import UIComponentsKit
 import DesignTokensKit
 
 struct FavoriteListView: View {
@@ -26,6 +27,6 @@ struct FavoriteListView: View {
             .padding(.vertical, \.twelve)
         }
         .background(\.clear)
-        .accessibilityIdentifier("favorites.list")
+        .accessibilityIdentifier(.favoritesList)
     }
 }

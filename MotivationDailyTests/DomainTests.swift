@@ -1,3 +1,5 @@
+import LocalizationKit
+import DesignTokensKit
 import XCTest
 import SwiftUI
 @testable import MotivationDaily
@@ -8,6 +10,32 @@ typealias Category = MotivationDaily.Category
 final class DomainTests: XCTestCase {
 
     // MARK: - Category & CategoryKey Tests
+
+    func testPhotoPermissionResourcesCoverEverySupportedLanguage() throws {
+        for language in ["en", "fr", "ar"] {
+            let url = try XCTUnwrap(Bundle.main.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: language))
+            let values = try XCTUnwrap(PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil) as? [String: String])
+            XCTAssertFalse(try XCTUnwrap(values["NSPhotoLibraryAddUsageDescription"]).isEmpty)
+            XCTAssertFalse(try XCTUnwrap(values["NSPhotoLibraryUsageDescription"]).isEmpty)
+        }
+    }
+
+    @MainActor
+    func testLocalizedLabelsPreserveStoredThemeAndRatioIdentifiers() {
+        let controller = LocalizationController.shared
+        let previous = controller.locale
+        defer { controller.setLocale(previous) }
+        controller.setLocale(Locale(identifier: "fr"))
+        XCTAssertEqual(AccentTheme.default.localizedDisplayName, "Par défaut")
+        XCTAssertEqual(Category(key: CategoryKey(rawValue: "focus"), displayName: "Focus").localizedDisplayName, "Concentration")
+        XCTAssertEqual(WallpaperAspectRatio.fullScreen.localizedTitle, "Plein écran")
+        XCTAssertEqual(AccentTheme.default.rawValue, "default")
+        XCTAssertEqual(WallpaperAspectRatio.fullScreen.rawValue, "Fullscreen")
+        controller.setLocale(Locale(identifier: "ar"))
+        XCTAssertEqual(Category(key: CategoryKey(rawValue: "wisdom"), displayName: "Wisdom").localizedDisplayName, "حكمة")
+        XCTAssertTrue(controller.isRightToLeft)
+        XCTAssertEqual(Category(key: CategoryKey(rawValue: "custom"), displayName: "API-owned name").localizedDisplayName, "API-owned name")
+    }
 
     func testCategoryAndCategoryKey() {
         let key1 = CategoryKey(rawValue: "wisdom")
@@ -188,22 +216,22 @@ final class DomainTests: XCTestCase {
         XCTAssertEqual(AccentTheme.storageKey, "accent_theme_selection")
         XCTAssertEqual(AccentTheme.default.rawValue, "default")
         XCTAssertEqual(AccentTheme.default.displayName, "Default")
-        XCTAssertEqual(AccentTheme.default.assetName, "AccentColor")
+        XCTAssertEqual(AccentTheme.default.colorKeyPath, \ColorTheme.accentColor)
         XCTAssertEqual(AccentTheme.default.id, "default")
 
         XCTAssertEqual(AccentTheme.mint.rawValue, "mint")
         XCTAssertEqual(AccentTheme.mint.displayName, "Mint")
-        XCTAssertEqual(AccentTheme.mint.assetName, "AccentMint")
+        XCTAssertEqual(AccentTheme.mint.colorKeyPath, \ColorTheme.accentMint)
         XCTAssertEqual(AccentTheme.mint.id, "mint")
 
         XCTAssertEqual(AccentTheme.ocean.rawValue, "ocean")
         XCTAssertEqual(AccentTheme.ocean.displayName, "Ocean")
-        XCTAssertEqual(AccentTheme.ocean.assetName, "AccentOcean")
+        XCTAssertEqual(AccentTheme.ocean.colorKeyPath, \ColorTheme.accentOcean)
         XCTAssertEqual(AccentTheme.ocean.id, "ocean")
 
         XCTAssertEqual(AccentTheme.sunset.rawValue, "sunset")
         XCTAssertEqual(AccentTheme.sunset.displayName, "Sunset")
-        XCTAssertEqual(AccentTheme.sunset.assetName, "AccentSunset")
+        XCTAssertEqual(AccentTheme.sunset.colorKeyPath, \ColorTheme.accentSunset)
         XCTAssertEqual(AccentTheme.sunset.id, "sunset")
 
         _ = AccentTheme.default.color

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIComponentsKit
 import UIKit
 import DesignTokensKit
 import LocalizationKit
@@ -88,20 +89,20 @@ struct FullScreenImageView: View {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectedRatio = ratio }) {
                         if ratio == selectedRatio {
-                            Label(ratio.rawValue, \.checkmark)
+                            Label(ratio.localizedTitle, \.checkmark)
                         } else {
-                            Text(ratio.rawValue)
+                            Text(ratio.localizedTitle)
                         }
                     }
                 }
             } label: {
                 SideActionIconView(
                     \.crop,
-                    label: selectedRatio.rawValue
+                    label: selectedRatio.localizedTitle
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("favorites.fullScreen.ratioButton")
+            .accessibilityIdentifier(.favoritesFullScreenRatioButton)
 
             Button(action: { showShareSheet = true }) {
                 SideActionIconView(
@@ -110,7 +111,7 @@ struct FullScreenImageView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("favorites.fullScreen.shareButton")
+            .accessibilityIdentifier(.favoritesFullScreenShareButton)
 
             Button(action: { isPresented = false }) {
                 SideActionIconView(
@@ -119,7 +120,7 @@ struct FullScreenImageView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("favorites.fullScreen.closeButton")
+            .accessibilityIdentifier(.favoritesFullScreenCloseButton)
         }
     }
 

@@ -62,6 +62,7 @@ struct HomeView: View {
     @State private var activeDepth: Int = 0
     @State private var targetDepth: Int = 0
     @State private var isDragging: Bool = false
+    @State private var isHorizontallyDragging: Bool = false
     @State private var bootPhase: FeedBootPhase = .cold
 
     @State private var pageCache: [FeedCoordinate: FeedPageViewModel.FeedPageContent] = [:]
@@ -111,8 +112,8 @@ struct HomeView: View {
                     .ignoresSafeArea()
             } else {
                 pageContent
-                    .contentShape(Rectangle())
                     .gesture(feedSwipeGesture)
+                    .simultaneousGesture(horizontalSwipeGesture)
             }
         }
         .background(\.black, ignoresSafeAreaEdges: .all)
@@ -139,12 +140,17 @@ struct HomeView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(\.ok)
+                dismissButton: .default(
+                    \.ok,
+                     action: {
+                         activeAlert = nil
+                     }
+                )
             )
         }
         .onChange(of: pageVM.refreshError) { message in
             guard let message else { return }
-            presentAlert(title: "Refresh Failed", message: message)
+            presentAlert(title: String(\MotivationStrings.refreshFailed), message: message)
             pageVM.refreshError = nil
         }
         .onChange(of: networkMonitor.isConnected) { isConnected in
@@ -174,10 +180,10 @@ struct HomeView: View {
 
     private var menuButton: some View {
         Menu {
-            Menu("Accent: \(selectedAccentTheme.displayName)") {
+            Menu(String(format: String(\MotivationStrings.themeMenu), locale: LocalizationController.shared.locale, selectedAccentTheme.localizedDisplayName)) {
                 ForEach(AccentTheme.allCases) { theme in
                     Button(action: { selectAccentTheme(theme) }) {
-                        menuItemLabel(title: theme.displayName, isSelected: selectedAccentTheme == theme)
+                        menuItemLabel(title: theme.localizedDisplayName, isSelected: selectedAccentTheme == theme)
                     }
                 }
             }
@@ -195,7 +201,7 @@ struct HomeView: View {
             Image(\.menu)
                 .font(\.title3)
                 .foregroundColor(selectedAccentTheme.color)
-                .accessibilityIdentifier("content.menuButton")
+                .accessibilityIdentifier(.contentMenuButton)
         }
     }
 
@@ -276,7 +282,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, \.four)
             }
-            .accessibilityIdentifier("content.categoryTabs")
+            .accessibilityIdentifier(.contentCategoryTabs)
             .onAppear {
                 proxy.scrollTo(selectedCategory?.rawValue ?? "random", anchor: .center)
             }
@@ -420,8 +426,8 @@ struct HomeView: View {
     }
 
     private var selectedCategoryTitle: String {
-        guard let selectedCategory else { return "Random" }
-        return categories.first(where: { $0.key == selectedCategory })?.displayName
+        guard let selectedCategory else { return String(\MotivationStrings.randomCategory) }
+        return categories.first(where: { $0.key == selectedCategory })?.localizedDisplayName
             ?? selectedCategory.rawValue.capitalized
     }
 
@@ -435,6 +441,9 @@ struct HomeView: View {
                 guard !isActionRailInteraction(at: value.startLocation) else {
                     return
                 }
+                if isHorizontallyDragging {
+                    return
+                }
 
                 if !isDragging {
                     isDragging = true
@@ -445,6 +454,11 @@ struct HomeView: View {
                 scrollOffset = gestureStartOffset + value.translation.height
             }
             .onEnded { value in
+                if isHorizontallyDragging {
+                    isHorizontallyDragging = false
+                    return
+                }
+
                 isDragging = false
                 guard !isActionRailInteraction(at: value.startLocation) else {
                     return
@@ -464,31 +478,59 @@ struct HomeView: View {
                 if proposedDepth != clamped {
                     if proposedDepth < 0 {
                         presentAlert(
-                            title: "Top of the feed",
-                            message: "You are already at the top of the feed. Try scrolling down."
+                            title: String(\MotivationStrings.feedTopTitle),
+                            message: String(\MotivationStrings.feedTopMessage)
                         )
                     } else if let maxDepth, proposedDepth > maxDepth {
                         presentAlert(
-                            title: "End of this section",
-                            message: "Sorry, there is nothing more to show. You reached the bottom of this section. Try changing the tabs/section."
+                            title: String(\MotivationStrings.feedEndTitle),
+                            message: String(\MotivationStrings.feedEndMessage)
                         )
                     }
                 } else if indexShift == 0 {
                     if activeDepth == 0, value.translation.height > 24 {
                         presentAlert(
-                            title: "Top of the feed",
-                            message: "You are already at the top of the feed. Try scrolling down."
+                            title: String(\MotivationStrings.feedTopTitle),
+                            message: String(\MotivationStrings.feedTopMessage)
                         )
                     } else if let maxDepth, activeDepth == maxDepth, value.translation.height < -24 {
                         presentAlert(
-                            title: "End of this section",
-                            message: "Sorry, there is nothing more to show. You reached the bottom of this section. Try changing the tabs/section."
+                            title: String(\MotivationStrings.feedEndTitle),
+                            message: String(\MotivationStrings.feedEndMessage)
                         )
                     }
                 }
 
                 targetDepth = clamped
                 snapToDepth(targetDepth)
+            }
+    }
+
+    private var horizontalSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 8)
+            .onChanged { value in
+                guard !isActionRailInteraction(at: value.startLocation) else {
+                    return
+                }
+                if !isHorizontallyDragging && abs(value.translation.width) > abs(value.translation.height) {
+                    isHorizontallyDragging = true
+                }
+            }
+            .onEnded { value in
+                guard !isActionRailInteraction(at: value.startLocation) else {
+                    return
+                }
+                if isHorizontallyDragging {
+                    let vx = value.velocity.width
+                    let projected = value.translation.width + project(vx)
+
+                    if projected <= -40 {
+                        goToNextCategory()
+                    } else if projected >= 40 {
+                        goToPreviousCategory()
+                    }
+                    isHorizontallyDragging = false
+                }
             }
     }
 
@@ -543,20 +585,20 @@ struct HomeView: View {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectRatio(ratio) }) {
                         if ratio == selectedRatio {
-                            Label(ratio.rawValue, \.checkmark)
+                            Label(ratio.localizedTitle, \.checkmark)
                         } else {
-                            Text(ratio.rawValue)
+                            Text(ratio.localizedTitle)
                         }
                     }
                 }
             } label: {
                 SideActionIconView(
                     \.crop,
-                    label: selectedRatio.rawValue
+                    label: selectedRatio.localizedTitle
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("content.ratioButton")
+            .accessibilityIdentifier(.contentRatioButton)
 
             Button(action: {
                 toggleFavorite(for: content)
@@ -568,7 +610,7 @@ struct HomeView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("content.saveButton")
+            .accessibilityIdentifier(.contentSaveButton)
 
             Button(action: {
                 sharingContent = content
@@ -580,7 +622,7 @@ struct HomeView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("content.shareButton")
+            .accessibilityIdentifier(.contentShareButton)
         }
     }
 
@@ -598,7 +640,7 @@ struct HomeView: View {
             await MainActor.run {
                 let resolvedData = localImageData ?? (isUITestMode ? fallbackImageDataForUITest() : nil)
                 guard let resolvedData, !resolvedData.isEmpty else {
-                    pageVM.refreshError = "Image is still preparing. Please tap Save again."
+                    pageVM.refreshError = String(\MotivationStrings.shareImagePreparing)
                     return
                 }
                 quoteVM.addToFavorites(
@@ -675,11 +717,11 @@ struct HomeView: View {
         let applyState = {
             if isConnected {
                 connectivityBannerIsWarning = false
-                connectivityMessage = "Connected"
+                connectivityMessage = String(\MotivationStrings.connectivityConnected)
                 showConnectivityBanner = true
             } else {
                 connectivityBannerIsWarning = true
-                connectivityMessage = "No internet"
+                connectivityMessage = String(\MotivationStrings.connectivityOffline)
                 showConnectivityBanner = true
             }
         }
@@ -823,7 +865,7 @@ struct HomeView: View {
         minimumLoaderDuration: TimeInterval?
     ) {
         guard networkMonitor.isConnected else {
-            pageVM.refreshError = "No internet connection. Please reconnect to load new inspiration."
+            pageVM.refreshError = String(\CommonStrings.errorsNetworkUnreachable)
             scheduleVisualEffectsRestore()
             return
         }
@@ -1086,16 +1128,16 @@ struct HomeView: View {
 
     func categoryTitle(for category: Category) -> String {
         guard let quoteCount = category.quoteCount else {
-            return category.displayName
+            return category.localizedDisplayName
         }
-        return "\(category.displayName) (\(quoteCount))"
+        return "\(category.localizedDisplayName) (\(quoteCount))"
     }
 
     var randomTabTitle: String {
         if let randomQuoteCount {
-            return "Random (\(randomQuoteCount))"
+            return "\(String(\MotivationStrings.randomCategory)) (\(randomQuoteCount))"
         }
-        return "Random"
+        return String(\MotivationStrings.randomCategory)
     }
 
     func maxDepth(for category: CategoryKey?) -> Int? {
@@ -1195,6 +1237,37 @@ struct HomeView: View {
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: image.size))
         }
+    }
+
+
+    // MARK: - New helper methods for horizontal swipe gesture
+
+    private func allCategoryKeys() -> [CategoryKey?] {
+        return [nil] + categories.map { $0.key }
+    }
+
+    private func selectAdjacentCategory(direction: Int) {
+        let keys = allCategoryKeys()
+        guard !keys.isEmpty else { return }
+
+        let currentIndex = keys.firstIndex { $0 == selectedCategory } ?? 0
+        var next = currentIndex + direction
+        while next < 0 {
+            next += keys.count
+        }
+        while next >= keys.count {
+            next -= keys.count
+        }
+
+        selectCategory(keys[next])
+    }
+
+    private func goToNextCategory() {
+        selectAdjacentCategory(direction: 1)
+    }
+
+    private func goToPreviousCategory() {
+        selectAdjacentCategory(direction: -1)
     }
 }
 

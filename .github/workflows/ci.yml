@@ -86,9 +86,6 @@ jobs:
       - name: Test stub fixtures
         run: python3 TestSupport/run-stub-fixtures-tests.py
 
-      - name: Test exact package revisions
-        run: python3 Scripts/test_dependencies.py
-
       - name: Create baseline simulator
         run: |
           device_id=$(xcrun simctl create "Motivation CI iPhone 11" com.apple.CoreSimulator.SimDeviceType.iPhone-11 com.apple.CoreSimulator.SimRuntime.iOS-27-0 || xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"]))')

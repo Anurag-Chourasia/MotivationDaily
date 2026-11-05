@@ -1,4 +1,5 @@
 import SwiftUI
+import LocalizationKit
 import DesignTokensKit
 
 struct QuoteCardView: View {
@@ -75,7 +76,7 @@ struct QuoteCardView: View {
                 Capsule()
                     .fill(\.white, opacity: \.p0_5)
                     .frame(width: \.p22_58, height: \.p2)
-                Text(quote.author ?? "Unknown")
+                Text(quote.author ?? String(\MotivationStrings.authorUnknown))
                     .font(.system(size: authorFontSize, weight: .semibold))
                     .foregroundColor(\.white, opacity: \.p0_9)
                 Capsule()

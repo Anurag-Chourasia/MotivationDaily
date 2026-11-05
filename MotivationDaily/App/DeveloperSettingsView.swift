@@ -20,24 +20,21 @@ struct MotivationLaunchView<Content: View>: View {
         Group {
             if showingLaunchSettings {
                 NavigationStack {
-                    DeveloperSettingsView(buttonTitle: "Open Motivation Daily") {
+                    DeveloperSettingsView(buttonTitle: String(\CommonStrings.developerOpenApp)) {
                         authenticationEnabled = AppRuntime.authenticationEnabled
                         showingLaunchSettings = false
                     }
                 }
             } else {
-                content(authenticationEnabled)
-                    .id(configurationID)
-                    .safeAreaInset(edge: .top) {
-                        if AppRuntime.isShowcaseMode {
-                            ShowcaseBadgeView {
-                                showingSettingsSheet = true
-                            }
-                        }
+                VStack(spacing: \.zero) {
+                    if AppRuntime.isShowcaseMode {
+                        ShowcaseBadgeView { showingSettingsSheet = true }
                     }
+                    content(authenticationEnabled).id(configurationID)
+                }
                     .sheet(isPresented: $showingSettingsSheet) {
                         NavigationStack {
-                            DeveloperSettingsView(buttonTitle: "Close") {
+                            DeveloperSettingsView(buttonTitle: String(\CommonStrings.close)) {
                                 showingSettingsSheet = false
                                 authenticationEnabled = AppRuntime.authenticationEnabled
                                 configurationID = UUID()
@@ -83,6 +80,7 @@ struct ShowcaseBadgeView: View {
             )
         }
         .padding(.top, \.four)
+        .padding(.horizontal, \.sixteen)
         .accessibilityIdentifier(.showcaseDemoIndicator)
         .accessibilityLabel(\.showcaseDemoA11y)
     }
@@ -228,8 +226,8 @@ struct DeveloperSettingsView: View {
             }
             Section(header: Text(\.developerEnvironment)) {
                 Picker(String(\.developerDataSource), selection: $source) {
-                    Text("Live · Quotable & ZenQuotes").tag("live")
-                    Text("Stub · local fixtures").tag("stub")
+                    Text(String(\MotivationStrings.developerLive)).tag("live")
+                    Text(String(\CommonStrings.developerSourceStub)).tag("stub")
                 }
                 if source == "stub" {
                     Picker(String(\.developerScenario), selection: $scenario) {
@@ -238,20 +236,20 @@ struct DeveloperSettingsView: View {
                         Text(\.developerScenarioOffline).tag("offline")
                     }
                 }
-                Text("Stub mode uses local quotes and wallpapers without making remote network requests.")
+                Text(String(\MotivationStrings.developerStubNote))
             }
             Section(header: Text(\.developerFeatureFlags)) {
                 Toggle(isOn: $authentication) {
                     Text(\.developerAuthentication)
                 }
                 .accessibilityIdentifier(.developerAuthentication)
-                Text("New feature, off by default. Enable to require sign-in before the feed. Apply settings to activate changes; disabling it preserves the saved session.")
+                Text(String(\MotivationStrings.developerAuthNote))
             }
             Section(header: Text(\.developerDebugLogs)) {
                 Toggle(isOn: $logs) {
                     Text(\.developerHttpLogs)
                 }
-                Text("Release builds ignore this setting.")
+                Text(String(\CommonStrings.developerReleaseIgnores))
             }
             Section(header: Text(\.developerVersionSimulation)) {
                 LabeledContent(String(\.developerInstalledVersion), value: AppRuntime.actualVersion)
@@ -272,7 +270,7 @@ struct DeveloperSettingsView: View {
                 }
                 .accessibilityIdentifier(.developerSupport)
 
-                Text("Motivation Daily stores favorited quotes and lightweight settings locally on your device. Quote and wallpaper fetching is unauthenticated. No personal data is tracked or sold to third parties.")
+                Text(String(\MotivationStrings.developerPrivacy))
                     .font(\.caption)
                     .foregroundColor(\.secondary)
             }

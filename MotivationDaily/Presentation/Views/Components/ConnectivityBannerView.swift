@@ -8,25 +8,10 @@ struct ConnectivityBannerView: View {
     let accent: Color
 
     var body: some View {
-        IconMessageBanner(
-            padding: SpacingTheme.default.eight,
-            font: .caption,
-            foreground: ColorTheme.default.white,
-            icon: {
-                Image(isWarning ? \.wifiSlash : \.wifi)
-            },
-            message: {
-                Text(message)
-            },
-            background: {
-                backgroundColor
-            }
+        OfflineBannerView(
+            message: message,
+            isWarning: isWarning,
+            backgroundColor: isWarning ? ColorTheme.default.red : accent
         )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text(message))
-    }
-
-    private var backgroundColor: Color {
-        isWarning ? ColorTheme.default.red : accent
     }
 }

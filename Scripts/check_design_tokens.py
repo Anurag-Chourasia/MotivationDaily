@@ -8,6 +8,8 @@ files = list(source.rglob('*.swift'))
 if not files:
     sys.exit('No MotivationDaily Swift source files found; refusing an empty scan.')
 patterns = {
+    'raw SF Symbol': r'\b(?:systemName|systemImage)\s*:\s*"',
+    'raw accessibility identifier': r'\.accessibilityIdentifier\(\s*"',
     'shorthand color': r'(?<![\w.\\])\.(?:primary|secondary|accentColor|white|black|gray|red|green|blue|yellow|orange|clear)\b',
     'inline font role': r'\.font\(\.(?:largeTitle|title|title2|title3|headline|subheadline|body|callout|footnote|caption|caption2)\b',
     'raw color': r'\b(?:Color|UIColor)\s*\(|\bColor\.(?:primary|secondary|accentColor|white|black|gray|red|green|blue|yellow|orange|clear)\b',
