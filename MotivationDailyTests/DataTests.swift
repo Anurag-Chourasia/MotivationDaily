@@ -1,6 +1,5 @@
 import XCTest
 import UIKit
-import AppStubData
 @testable import MotivationDaily
 
 @MainActor
@@ -136,6 +135,14 @@ final class DataTests: XCTestCase {
 
         let wallpapers = try MotivationDailyStubProvider.loadWallpapers()
         XCTAssertFalse(wallpapers.isEmpty)
+    }
+
+    func testSubmoduleEmptyAndNegativeScenarios() throws {
+        XCTAssertTrue(try MotivationDailyStubProvider.loadQuotes(scenario: .empty).isEmpty)
+        XCTAssertTrue(try MotivationDailyStubProvider.loadAuthors(scenario: .empty).isEmpty)
+        XCTAssertTrue(try MotivationDailyStubProvider.loadWallpapers(scenario: .empty).isEmpty)
+        XCTAssertThrowsError(try MotivationDailyStubProvider.loadQuotes(scenario: .negative))
+        XCTAssertThrowsError(try MotivationDailyStubProvider.loadWallpapers(scenario: .negative))
     }
 
     // MARK: - DefaultImageRepository Tests
@@ -472,6 +479,7 @@ final class DataTests: XCTestCase {
 
     // MARK: - FeedCatalogueStore Tests
 
+    #if DEBUG
     func testFeedCatalogueStore() async throws {
         let apiService = APIService.shared
         let quotable = QuotableClient(apiService: apiService)
@@ -505,6 +513,7 @@ final class DataTests: XCTestCase {
         )
         XCTAssertEqual(pageWithOverride.quote.text, "Overridden")
     }
+    #endif
 
     func testFeedCatalogueStoreNetworkSync() async throws {
         let session = MockURLProtocol.makeMockSession()

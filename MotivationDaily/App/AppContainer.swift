@@ -30,8 +30,10 @@ final class AppContainer {
 
         logger.log("Initializing AppContainer in \(configuration.environment.rawValue) mode", level: .info)
 
+        #if DEBUG
         let isUITestMode = arguments.contains("-UITestMode")
         let isStubMode = isUITestMode || AppRuntime.stubScenario != nil
+        #endif
 
         let apiService = APIService()
         let mappingStore = CategoryMappingStore()
@@ -40,6 +42,7 @@ final class AppContainer {
         let quotableClient = QuotableClient(apiService: apiService)
         let adviceSlipClient = AdviceSlipClient(apiService: apiService)
         let picsumFactory = PicsumURLFactory()
+        #if DEBUG
         if isStubMode {
             self.feedCatalogueStore = FeedCatalogueStore.makeUITestStore(
                 apiService: apiService,
@@ -55,6 +58,14 @@ final class AppContainer {
                 adviceSlipClient: adviceSlipClient
             )
         }
+        #else
+        self.feedCatalogueStore = FeedCatalogueStore(
+            apiService: apiService,
+            quotableClient: quotableClient,
+            zenClient: zenClient,
+            adviceSlipClient: adviceSlipClient
+        )
+        #endif
 
         let quoteRepository = DefaultQuoteRepository(
             zenClient: zenClient,
@@ -68,6 +79,7 @@ final class AppContainer {
         )
 
         let wallpaperRepository: any WallpaperRepository
+        #if DEBUG
         if isStubMode {
             wallpaperRepository = UITestWallpaperRepository()
         } else {
@@ -76,8 +88,15 @@ final class AppContainer {
                 imageRepository: imageRepository
             )
         }
+        #else
+        wallpaperRepository = DefaultWallpaperRepository(
+            quoteRepository: quoteRepository,
+            imageRepository: imageRepository
+        )
+        #endif
 
         let favoritesRepository = DefaultFavoritesRepository(userDefaults: favoritesDefaults)
+        #if DEBUG
         if isUITestMode {
             if arguments.contains("-UITestClearFavorites") {
                 _ = try? ClearFavoritesUseCase(favoritesRepository: favoritesRepository).execute()
@@ -85,6 +104,8 @@ final class AppContainer {
                 Self.seedUITestFavoritesIfNeeded(using: favoritesRepository)
             }
         }
+
+        #endif
 
         self.fetchCategoriesUseCase = FetchCategoriesUseCase(repository: quoteRepository)
         self.fetchWallpaperUseCase = FetchWallpaperUseCase(repository: wallpaperRepository)
@@ -119,6 +140,7 @@ final class AppContainer {
         )
     }
 
+    #if DEBUG
     private static func seedUITestFavoritesIfNeeded(using favoritesRepository: any FavoritesRepository) {
         let seedFavorite = FavoriteQuote(
             id: "uitest-seed-favorite",
@@ -141,8 +163,10 @@ final class AppContainer {
             try? favoritesRepository.saveFavorites([seedFavorite])
         }
     }
+    #endif
 }
 
+#if DEBUG
 actor UITestWallpaperRepository: WallpaperRepository {
     private var counter = 0
     private let outputDirectory: URL
@@ -241,3 +265,5 @@ actor UITestWallpaperRepository: WallpaperRepository {
         try data.write(to: url, options: .atomic)
     }
 }
+
+#endif

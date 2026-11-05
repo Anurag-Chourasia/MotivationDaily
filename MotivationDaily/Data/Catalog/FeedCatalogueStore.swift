@@ -5,6 +5,7 @@ enum FeedCatalogueError: Error {
     case unavailable
 }
 
+#if DEBUG
 extension FeedCatalogueStore {
     static func makeUITestStore(
         apiService: APIService,
@@ -146,6 +147,8 @@ extension FeedCatalogueStore {
         try data.write(to: url, options: .atomic)
     }
 }
+
+#endif
 
 struct FeedCataloguePage {
     let quote: Quote

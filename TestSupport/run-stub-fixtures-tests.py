@@ -1,34 +1,31 @@
 #!/usr/bin/env python3
-"""Verify AppStubData submodule integration and fixtures decoding for Motivation Daily."""
+"""Verify pinned submodule resources without building/linking its Swift package."""
 import json
+import plistlib
 import subprocess
-import sys
-import tempfile
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-submodule_path = root / "Submodules" / "AppStubData"
-
-if not submodule_path.exists():
-    print(f"Error: Submodule directory not found at {submodule_path}")
-    sys.exit(1)
-
-# 1. Verify Submodule Git Status
-res = subprocess.run(["git", "submodule", "status"], cwd=root, capture_output=True, text=True, check=True)
-print("Git submodule status:", res.stdout.strip())
-
-# 2. Compile and run Fixture verification using swift test
-cmd = [
-    "xcrun", "swift", "test",
-    "--package-path", str(submodule_path),
-    "--scratch-path", "/tmp/MotivationDailySubmoduleBuild",
-    "--filter", "FixturesTests/testAllMotivationDailyEndpointsAndScenarios"
-]
-print("Running command:", " ".join(cmd))
-test_run = subprocess.run(cmd, capture_output=True, text=True)
-if test_run.returncode != 0:
-    print("Test run failed:\n", test_run.stderr)
-    sys.exit(test_run.returncode)
-
-print(test_run.stdout)
-print("All Motivation Daily stub fixtures verified successfully!")
+subprocess.run(["python3", "Scripts/verify-submodules.py"], cwd=root, check=True)
+project = plistlib.loads(subprocess.check_output([
+    "plutil", "-convert", "xml1", "-o", "-", str(root / "MotivationDaily.xcodeproj/project.pbxproj")
+]))["objects"]
+assert not any(obj.get("isa") == "XCLocalSwiftPackageReference" and "AppStubData" in obj.get("relativePath", "") for obj in project.values())
+assert not any(obj.get("productName") == "AppStubData" for obj in project.values())
+resource = "A06500000000000000000002"
+assert resource in project["346EE2353091AC06006198AF"]["files"], "Missing unit-test resources"
+assert resource not in project["344A416A2EC37AE100B74E80"]["files"], "Fixtures linked to app"
+for source in (root / "MotivationDaily").rglob("*.swift"):
+    assert "import AppStubData" not in source.read_text(), source
+resources = root / "Submodules/AppStubData/Sources/AppStubData/Resources"
+for endpoint in ("quotes", "authors", "wallpapers"):
+    for scenario in ("positive", "empty", "negative"):
+        path = resources / f"motivationdaily-{endpoint}-{scenario}.json"
+        value = json.loads(path.read_text())
+        if scenario == "positive":
+            assert isinstance(value, list) and value, path
+        elif scenario == "empty":
+            assert value == [], path
+        else:
+            assert isinstance(value, dict) and value, path
+print("Nine fixture payloads valid; submodule pinned; resources test-only; no local SPM linkage.")

@@ -93,6 +93,7 @@ final class AppTests: XCTestCase {
         XCTAssertNotNil(freshContainer.makeQuoteViewModel())
     }
 
+    #if DEBUG
     func testUITestWallpaperRepository() async throws {
         let repo = UITestWallpaperRepository()
         let catKeys: [CategoryKey?] = [
@@ -112,6 +113,8 @@ final class AppTests: XCTestCase {
         let clamped = try await repo.generate(category: nil, width: 0, height: -20)
         XCTAssertNotNil(clamped.imageURL)
     }
+
+    #endif
 
     // MARK: - MotivationDailyApp Tests
 
