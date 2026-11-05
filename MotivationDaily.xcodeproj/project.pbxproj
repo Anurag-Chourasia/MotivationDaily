@@ -323,6 +323,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				fr,
+				ar,
 				Base,
 			);
 			mainGroup = 344A41632EC37AE100B74E80;
@@ -881,7 +883,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/LocalizationKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.6.0;
+				version = 0.6.1;
 			};
 		};
 		M00400000000000000000001 /* XCRemoteSwiftPackageReference "DesignTokensKit" */ = {

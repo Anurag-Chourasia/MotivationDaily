@@ -180,10 +180,10 @@ struct HomeView: View {
 
     private var menuButton: some View {
         Menu {
-            Menu("Accent: \(selectedAccentTheme.displayName)") {
+            Menu(String(format: String(\MotivationStrings.themeMenu), locale: LocalizationController.shared.locale, selectedAccentTheme.localizedDisplayName)) {
                 ForEach(AccentTheme.allCases) { theme in
                     Button(action: { selectAccentTheme(theme) }) {
-                        menuItemLabel(title: theme.displayName, isSelected: selectedAccentTheme == theme)
+                        menuItemLabel(title: theme.localizedDisplayName, isSelected: selectedAccentTheme == theme)
                     }
                 }
             }
@@ -427,7 +427,7 @@ struct HomeView: View {
 
     private var selectedCategoryTitle: String {
         guard let selectedCategory else { return "Random" }
-        return categories.first(where: { $0.key == selectedCategory })?.displayName
+        return categories.first(where: { $0.key == selectedCategory })?.localizedDisplayName
             ?? selectedCategory.rawValue.capitalized
     }
 
@@ -585,9 +585,9 @@ struct HomeView: View {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectRatio(ratio) }) {
                         if ratio == selectedRatio {
-                            Label(ratio.rawValue, \.checkmark)
+                            Label(ratio.localizedTitle, \.checkmark)
                         } else {
-                            Text(ratio.rawValue)
+                            Text(ratio.localizedTitle)
                         }
                     }
                 }
@@ -1128,9 +1128,9 @@ struct HomeView: View {
 
     func categoryTitle(for category: Category) -> String {
         guard let quoteCount = category.quoteCount else {
-            return category.displayName
+            return category.localizedDisplayName
         }
-        return "\(category.displayName) (\(quoteCount))"
+        return "\(category.localizedDisplayName) (\(quoteCount))"
     }
 
     var randomTabTitle: String {

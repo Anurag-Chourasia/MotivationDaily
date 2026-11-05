@@ -1,3 +1,4 @@
+import LocalizationKit
 import DesignTokensKit
 import XCTest
 import SwiftUI
@@ -9,6 +10,31 @@ typealias Category = MotivationDaily.Category
 final class DomainTests: XCTestCase {
 
     // MARK: - Category & CategoryKey Tests
+
+    func testPhotoPermissionResourcesCoverEverySupportedLanguage() throws {
+        for language in ["en", "fr", "ar"] {
+            let url = try XCTUnwrap(Bundle.main.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: language))
+            let values = try XCTUnwrap(PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil) as? [String: String])
+            XCTAssertFalse(try XCTUnwrap(values["NSPhotoLibraryAddUsageDescription"]).isEmpty)
+            XCTAssertFalse(try XCTUnwrap(values["NSPhotoLibraryUsageDescription"]).isEmpty)
+        }
+    }
+
+    @MainActor
+    func testLocalizedLabelsPreserveStoredThemeAndRatioIdentifiers() {
+        let controller = LocalizationController.shared
+        let previous = controller.locale
+        defer { controller.setLocale(previous) }
+        controller.setLocale(Locale(identifier: "fr"))
+        XCTAssertEqual(AccentTheme.default.localizedDisplayName, "Par défaut")
+        XCTAssertEqual(WallpaperAspectRatio.fullScreen.localizedTitle, "Plein écran")
+        XCTAssertEqual(AccentTheme.default.rawValue, "default")
+        XCTAssertEqual(WallpaperAspectRatio.fullScreen.rawValue, "Fullscreen")
+        controller.setLocale(Locale(identifier: "ar"))
+        XCTAssertEqual(Category(key: CategoryKey(rawValue: "wisdom"), displayName: "Wisdom").localizedDisplayName, "حكمة")
+        XCTAssertTrue(controller.isRightToLeft)
+        XCTAssertEqual(Category(key: CategoryKey(rawValue: "custom"), displayName: "API-owned name").localizedDisplayName, "API-owned name")
+    }
 
     func testCategoryAndCategoryKey() {
         let key1 = CategoryKey(rawValue: "wisdom")

@@ -89,9 +89,9 @@ struct FullScreenImageView: View {
                 ForEach(WallpaperAspectRatio.allCases) { ratio in
                     Button(action: { selectedRatio = ratio }) {
                         if ratio == selectedRatio {
-                            Label(ratio.rawValue, \.checkmark)
+                            Label(ratio.localizedTitle, \.checkmark)
                         } else {
-                            Text(ratio.rawValue)
+                            Text(ratio.localizedTitle)
                         }
                     }
                 }
