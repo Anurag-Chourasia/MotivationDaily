@@ -10,5 +10,6 @@ Validation on Xcode 27.1:
 - All three Scripts/verify-submodules.py checks passed.
 - TestSupport/run-stub-fixtures-tests.py checks nine resource payloads, the gitlink, absence of module linkage and test-only resource membership; it no longer compiles AppStubData as a package.
 - Dependency pins, design-token checks and project plist validation passed.
+- Release Simulator build passed for both architectures; inspected the built app: no AppStubData bundle, no shared Motivation fixture JSON and no MotivationDailyStubProvider symbol. The Debug test bundle contains all nine Motivation fixture JSON files.
 
 This addresses the requested integration change. IOS-65 remains open for separate host inline fixture consolidation and AppContainer Release argument/seeding-policy acceptance criteria. No production authentication behavior changed.
