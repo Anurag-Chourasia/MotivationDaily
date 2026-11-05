@@ -159,7 +159,7 @@ struct ShareImageQuoteView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(\.ok)
+                dismissButton: .default(\.ok) { activeSaveAlert = nil }
             )
         }
         .confirmationDialog(\.photosAccessAlertTitle, isPresented: $showPermissionSettingsDialog, titleVisibility: .visible) {
