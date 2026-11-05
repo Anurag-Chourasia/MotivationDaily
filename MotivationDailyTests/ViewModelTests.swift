@@ -227,6 +227,7 @@ final class ViewModelTests: XCTestCase {
 
     // MARK: - FeedPageViewModel Tests
 
+    #if DEBUG
     func testFeedPageViewModel() async throws {
         let apiService = APIService.shared
         let quotable = QuotableClient(apiService: apiService)
@@ -314,6 +315,7 @@ final class ViewModelTests: XCTestCase {
         let s2 = pageVM.imageRequestSize(for: .nineToSixteen, screenSize: CGSize(width: 375, height: 812), scale: 2)
         XCTAssertGreaterThan(s2.width, 0)
     }
+    #endif
 }
 
 final class FailingFavoritesRepository: FavoritesRepository {

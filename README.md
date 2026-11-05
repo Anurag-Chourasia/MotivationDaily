@@ -256,6 +256,8 @@ SWIFTLINT_BIN="$PWD/.build/swiftlint/swiftlint" bash Scripts/lint.sh
 
 All three apps retain AppStubData as a Git submodule pinned to `903da26b9eb10519dd7f7748f62f4801b26579fe`. Motivation Daily does not link or import its Swift package. Its unit-test target copies the pinned submodule’s Resources folder into the test bundle; the test-only MotivationDailyStubProvider decodes positive, empty and negative JSON scenarios. Production app targets receive neither this provider nor these resources.
 
+UI-test arguments, generated fixture repositories and favorites seed/clear behavior are compiled only in Debug. Release ignores these arguments; CI verifies both behavior and artifact boundaries.
+
 ### Submodule Verification & Tests
 Verify pinned submodule commit and test fixtures decoding:
 ```bash

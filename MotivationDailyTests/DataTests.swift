@@ -479,6 +479,7 @@ final class DataTests: XCTestCase {
 
     // MARK: - FeedCatalogueStore Tests
 
+    #if DEBUG
     func testFeedCatalogueStore() async throws {
         let apiService = APIService.shared
         let quotable = QuotableClient(apiService: apiService)
@@ -512,6 +513,7 @@ final class DataTests: XCTestCase {
         )
         XCTAssertEqual(pageWithOverride.quote.text, "Overridden")
     }
+    #endif
 
     func testFeedCatalogueStoreNetworkSync() async throws {
         let session = MockURLProtocol.makeMockSession()

@@ -38,6 +38,7 @@ xcrun xcodebuild test -project MotivationDaily.xcodeproj -scheme MotivationDaily
     -disableAutomaticPackageResolution \
     -scmProvider system CODE_SIGNING_ALLOWED=NO \
     -only-testing:MotivationDailyTests/AppTests \
+    -only-testing:MotivationDailyTests/FixtureBoundaryTests \
     -only-testing:MotivationDailyTests/AuthenticationFlagTests \
     -only-testing:MotivationDailyTests/DataTests \
     -only-testing:MotivationDailyTests/DomainTests \
