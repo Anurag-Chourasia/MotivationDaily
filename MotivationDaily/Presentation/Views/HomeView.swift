@@ -62,6 +62,7 @@ struct HomeView: View {
     @State private var activeDepth: Int = 0
     @State private var targetDepth: Int = 0
     @State private var isDragging: Bool = false
+    @State private var isHorizontallyDragging: Bool = false
     @State private var bootPhase: FeedBootPhase = .cold
 
     @State private var pageCache: [FeedCoordinate: FeedPageViewModel.FeedPageContent] = [:]
@@ -111,8 +112,8 @@ struct HomeView: View {
                     .ignoresSafeArea()
             } else {
                 pageContent
-                    .contentShape(Rectangle())
                     .gesture(feedSwipeGesture)
+                    .simultaneousGesture(horizontalSwipeGesture)
             }
         }
         .background(\.black, ignoresSafeAreaEdges: .all)
@@ -139,7 +140,12 @@ struct HomeView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(\.ok)
+                dismissButton: .default(
+                    \.ok,
+                     action: {
+                         activeAlert = nil
+                     }
+                )
             )
         }
         .onChange(of: pageVM.refreshError) { message in
@@ -195,7 +201,7 @@ struct HomeView: View {
             Image(\.menu)
                 .font(\.title3)
                 .foregroundColor(selectedAccentTheme.color)
-                .accessibilityIdentifier("content.menuButton")
+                .accessibilityIdentifier(.contentMenuButton)
         }
     }
 
@@ -276,7 +282,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, \.four)
             }
-            .accessibilityIdentifier("content.categoryTabs")
+            .accessibilityIdentifier(.contentCategoryTabs)
             .onAppear {
                 proxy.scrollTo(selectedCategory?.rawValue ?? "random", anchor: .center)
             }
@@ -435,6 +441,9 @@ struct HomeView: View {
                 guard !isActionRailInteraction(at: value.startLocation) else {
                     return
                 }
+                if isHorizontallyDragging {
+                    return
+                }
 
                 if !isDragging {
                     isDragging = true
@@ -445,6 +454,11 @@ struct HomeView: View {
                 scrollOffset = gestureStartOffset + value.translation.height
             }
             .onEnded { value in
+                if isHorizontallyDragging {
+                    isHorizontallyDragging = false
+                    return
+                }
+
                 isDragging = false
                 guard !isActionRailInteraction(at: value.startLocation) else {
                     return
@@ -489,6 +503,34 @@ struct HomeView: View {
 
                 targetDepth = clamped
                 snapToDepth(targetDepth)
+            }
+    }
+
+    private var horizontalSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 8)
+            .onChanged { value in
+                guard !isActionRailInteraction(at: value.startLocation) else {
+                    return
+                }
+                if !isHorizontallyDragging && abs(value.translation.width) > abs(value.translation.height) {
+                    isHorizontallyDragging = true
+                }
+            }
+            .onEnded { value in
+                guard !isActionRailInteraction(at: value.startLocation) else {
+                    return
+                }
+                if isHorizontallyDragging {
+                    let vx = value.velocity.width
+                    let projected = value.translation.width + project(vx)
+
+                    if projected <= -40 {
+                        goToNextCategory()
+                    } else if projected >= 40 {
+                        goToPreviousCategory()
+                    }
+                    isHorizontallyDragging = false
+                }
             }
     }
 
@@ -556,7 +598,7 @@ struct HomeView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("content.ratioButton")
+            .accessibilityIdentifier(.contentRatioButton)
 
             Button(action: {
                 toggleFavorite(for: content)
@@ -568,7 +610,7 @@ struct HomeView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("content.saveButton")
+            .accessibilityIdentifier(.contentSaveButton)
 
             Button(action: {
                 sharingContent = content
@@ -580,7 +622,7 @@ struct HomeView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("content.shareButton")
+            .accessibilityIdentifier(.contentShareButton)
         }
     }
 
@@ -1195,6 +1237,37 @@ struct HomeView: View {
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: image.size))
         }
+    }
+
+
+    // MARK: - New helper methods for horizontal swipe gesture
+
+    private func allCategoryKeys() -> [CategoryKey?] {
+        return [nil] + categories.map { $0.key }
+    }
+
+    private func selectAdjacentCategory(direction: Int) {
+        let keys = allCategoryKeys()
+        guard !keys.isEmpty else { return }
+
+        let currentIndex = keys.firstIndex { $0 == selectedCategory } ?? 0
+        var next = currentIndex + direction
+        while next < 0 {
+            next += keys.count
+        }
+        while next >= keys.count {
+            next -= keys.count
+        }
+
+        selectCategory(keys[next])
+    }
+
+    private func goToNextCategory() {
+        selectAdjacentCategory(direction: 1)
+    }
+
+    private func goToPreviousCategory() {
+        selectAdjacentCategory(direction: -1)
     }
 }
 

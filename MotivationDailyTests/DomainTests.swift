@@ -1,3 +1,4 @@
+import DesignTokensKit
 import XCTest
 import SwiftUI
 @testable import MotivationDaily
@@ -188,22 +189,22 @@ final class DomainTests: XCTestCase {
         XCTAssertEqual(AccentTheme.storageKey, "accent_theme_selection")
         XCTAssertEqual(AccentTheme.default.rawValue, "default")
         XCTAssertEqual(AccentTheme.default.displayName, "Default")
-        XCTAssertEqual(AccentTheme.default.assetName, "AccentColor")
+        XCTAssertEqual(AccentTheme.default.colorKeyPath, \ColorTheme.accentColor)
         XCTAssertEqual(AccentTheme.default.id, "default")
 
         XCTAssertEqual(AccentTheme.mint.rawValue, "mint")
         XCTAssertEqual(AccentTheme.mint.displayName, "Mint")
-        XCTAssertEqual(AccentTheme.mint.assetName, "AccentMint")
+        XCTAssertEqual(AccentTheme.mint.colorKeyPath, \ColorTheme.accentMint)
         XCTAssertEqual(AccentTheme.mint.id, "mint")
 
         XCTAssertEqual(AccentTheme.ocean.rawValue, "ocean")
         XCTAssertEqual(AccentTheme.ocean.displayName, "Ocean")
-        XCTAssertEqual(AccentTheme.ocean.assetName, "AccentOcean")
+        XCTAssertEqual(AccentTheme.ocean.colorKeyPath, \ColorTheme.accentOcean)
         XCTAssertEqual(AccentTheme.ocean.id, "ocean")
 
         XCTAssertEqual(AccentTheme.sunset.rawValue, "sunset")
         XCTAssertEqual(AccentTheme.sunset.displayName, "Sunset")
-        XCTAssertEqual(AccentTheme.sunset.assetName, "AccentSunset")
+        XCTAssertEqual(AccentTheme.sunset.colorKeyPath, \ColorTheme.accentSunset)
         XCTAssertEqual(AccentTheme.sunset.id, "sunset")
 
         _ = AccentTheme.default.color

@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>AUTH_CALLBACK_URL</key>
-	<string>motivationdaily-auth://auth/callback</string>
 	<key>AUTHKIT_ENABLED</key>
 	<false/>
+	<key>AUTH_CALLBACK_URL</key>
+	<string>motivationdaily-auth://auth/callback</string>
 	<key>AUTH_PROVIDERS</key>
 	<string>google,github</string>
 	<key>CFBundleURLTypes</key>

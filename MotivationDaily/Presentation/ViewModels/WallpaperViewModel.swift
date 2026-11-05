@@ -58,11 +58,13 @@ final class WallpaperViewModel: ObservableObject {
     @Published var refreshError: String?
     @Published var currentUIImage: UIImage?
 
+    private let imageLoader: any ImageLoading
     private let fetchWallpaperUseCase: FetchWallpaperUseCase
     private var refreshTask: Task<Void, Never>?
     private var prefetchTasks: [String: Task<RefreshPayload, Error>] = [:]
 
-    init(fetchWallpaperUseCase: FetchWallpaperUseCase) {
+    init(fetchWallpaperUseCase: FetchWallpaperUseCase, imageLoader: any ImageLoading = ImageLoader.shared) {
+        self.imageLoader = imageLoader
         self.fetchWallpaperUseCase = fetchWallpaperUseCase
     }
 
@@ -182,7 +184,7 @@ final class WallpaperViewModel: ObservableObject {
             width: targetSize.width,
             height: targetSize.height
         )
-        let image = try await ImageLoader.shared.load(url: wallpaper.imageURL)
+        let image = try await imageLoader.load(url: wallpaper.imageURL)
 
         if let minimumLoaderDuration {
             let elapsed = Date().timeIntervalSince(refreshStart)

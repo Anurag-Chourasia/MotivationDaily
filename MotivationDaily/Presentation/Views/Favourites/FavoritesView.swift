@@ -1,4 +1,5 @@
 import SwiftUI
+import UIComponentsKit
 import DesignTokensKit
 import LocalizationKit
 
@@ -34,7 +35,7 @@ struct FavoritesView: View {
                     Button(\.done) {
                         dismiss()
                     }
-                    .accessibilityIdentifier("favorites.doneButton")
+                    .accessibilityIdentifier(.favoritesDoneButton)
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {

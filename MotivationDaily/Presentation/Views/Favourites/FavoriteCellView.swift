@@ -48,7 +48,7 @@ struct FavoriteCellView: View {
                 .padding(\.twelve)
                 .buttonStyle(.plain)
                 .accessibilityLabel(\.removeFavorite)
-                .accessibilityIdentifier("favorites.removeButton")
+                .accessibilityIdentifier(.favoritesRemoveButton)
             }
 
             VStack(alignment: .leading, spacing: \.ten) {
@@ -62,7 +62,7 @@ struct FavoriteCellView: View {
                     tagPill(favorite.source.titleKeyPath)
                 }
 
-                Text("— \(favorite.author ?? "Unknown")")
+                Text("— \(favorite.author ?? String(\MotivationStrings.authorUnknown))")
                     .font(\.subheadline)
                     .italic()
                     .foregroundColor(\.secondary)
@@ -78,7 +78,7 @@ struct FavoriteCellView: View {
         .shadow(color: \.black, opacity: \.p0_1, radius: \.ten, y: \.five)
         .contentShape(RoundedRectangle(cornerRadius: \.sixteen))
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("favorites.cell")
+        .accessibilityIdentifier(.favoritesCell)
         .onTapGesture {
             onImageTap()
         }

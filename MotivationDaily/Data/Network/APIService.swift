@@ -1,19 +1,19 @@
 import Foundation
-import CommonNetworking
+import CommonNetworkingKit
 
 final class APIService {
     static let shared = APIService()
 
-    private let client: CommonNetworking.HTTPClient
+    private let client: CommonNetworkingKit.HTTPClient
 
     init(session: URLSession? = nil) {
         let session = session ?? Self.makeSession()
         #if DEBUG
         let logging = UserDefaults.standard.object(forKey: "developer.httpLogs") as? Bool
             ?? (ProcessInfo.processInfo.environment["HTTP_LOGGING"] == "1")
-        self.client = CommonNetworking.HTTPClient(session: session, logger: logging ? .console : nil)
+        self.client = CommonNetworkingKit.HTTPClient(session: session, logger: logging ? .console : nil)
         #else
-        self.client = CommonNetworking.HTTPClient(session: session)
+        self.client = CommonNetworkingKit.HTTPClient(session: session)
         #endif
     }
 

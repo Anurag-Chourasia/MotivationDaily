@@ -857,7 +857,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/AuthKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.2.7;
+				version = 0.3.0;
 			};
 		};
 		M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */ = {
@@ -865,7 +865,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/CommonNetworking.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.1.0;
+				version = 2.0.0;
 			};
 		};
 		M00200000000000000000001 /* XCRemoteSwiftPackageReference "FoundationKit" */ = {
@@ -873,7 +873,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/FoundationKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.1.1;
+				version = 0.2.0;
 			};
 		};
 		M00300000000000000000001 /* XCRemoteSwiftPackageReference "LocalizationKit" */ = {
@@ -881,7 +881,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/LocalizationKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.5.7;
+				version = 0.6.0;
 			};
 		};
 		M00400000000000000000001 /* XCRemoteSwiftPackageReference "DesignTokensKit" */ = {
@@ -889,7 +889,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/DesignTokensKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.18.3;
+				version = 1.19.0;
 			};
 		};
 		M00500000000000000000001 /* XCRemoteSwiftPackageReference "UIComponentsKit" */ = {
@@ -897,7 +897,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/UIComponentsKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.5.1;
+				version = 1.6.0;
 			};
 		};
 		M00600000000000000000001 /* XCRemoteSwiftPackageReference "DeveloperProfileKit" */ = {
@@ -932,7 +932,7 @@
 		M00100000000000000000002 /* CommonNetworking */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */;
-			productName = CommonNetworking;
+			productName = CommonNetworkingKit;
 		};
 		M00200000000000000000002 /* FoundationKit */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIComponentsKit
 import UIKit
 import DesignTokensKit
 import LocalizationKit
@@ -101,7 +102,7 @@ struct FullScreenImageView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("favorites.fullScreen.ratioButton")
+            .accessibilityIdentifier(.favoritesFullScreenRatioButton)
 
             Button(action: { showShareSheet = true }) {
                 SideActionIconView(
@@ -110,7 +111,7 @@ struct FullScreenImageView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("favorites.fullScreen.shareButton")
+            .accessibilityIdentifier(.favoritesFullScreenShareButton)
 
             Button(action: { isPresented = false }) {
                 SideActionIconView(
@@ -119,7 +120,7 @@ struct FullScreenImageView: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("favorites.fullScreen.closeButton")
+            .accessibilityIdentifier(.favoritesFullScreenCloseButton)
         }
     }
 

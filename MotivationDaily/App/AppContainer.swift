@@ -9,6 +9,7 @@ final class AppContainer {
     let localization: LocalizationController
     let configuration: AppConfiguration
     let logger: AppLogger
+    let imageLoader: any ImageLoading
 
     private let fetchCategoriesUseCase: FetchCategoriesUseCase
     private let fetchWallpaperUseCase: FetchWallpaperUseCase
@@ -20,8 +21,10 @@ final class AppContainer {
     private let feedCatalogueStore: FeedCatalogueStore
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments,
-         favoritesDefaults: UserDefaults = .standard) {
-        self.localization = LocalizationController()
+         favoritesDefaults: UserDefaults = .standard,
+         imageLoader: any ImageLoading = ImageLoader.shared) {
+        self.imageLoader = imageLoader
+        self.localization = LocalizationController(initialLocale: .current)
         self.configuration = AppRuntime.configuration
         self.logger = AppRuntime.logger
 
@@ -106,7 +109,7 @@ final class AppContainer {
 
     @MainActor
     func makeWallpaperViewModel() -> WallpaperViewModel {
-        WallpaperViewModel(fetchWallpaperUseCase: fetchWallpaperUseCase)
+        WallpaperViewModel(fetchWallpaperUseCase: fetchWallpaperUseCase, imageLoader: imageLoader)
     }
 
     @MainActor

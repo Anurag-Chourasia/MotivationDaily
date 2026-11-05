@@ -1,3 +1,4 @@
+import DesignTokensKit
 import SwiftUI
 import AuthKitUI
 import LocalizationKit

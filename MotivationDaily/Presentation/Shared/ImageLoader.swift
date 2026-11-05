@@ -1,61 +1,105 @@
 import Foundation
 import UIKit
 
-actor ImageLoader {
+protocol ImageLoading: Sendable {
+    func load(url: URL) async throws -> UIImage
+    func cachedImage(for url: URL) async -> UIImage?
+}
+
+actor ImageLoader: ImageLoading {
     nonisolated static let shared = ImageLoader()
 
     private let session: URLSession
     private let cache: LightImageCache
     private let retryableStatusCodes: Set<Int> = [408, 429, 500, 502, 503, 504]
     private let maxRetryAttempts = 1
-    private var inFlightTasks: [URL: Task<UIImage, Error>] = [:]
+    private let retrySleep: @Sendable (UInt64) async throws -> Void
+    private struct PendingRequest {
+        let id: UUID
+        let task: Task<Void, Never>
+        var waiters: [UUID: CheckedContinuation<UIImage, Error>]
+    }
+    private var inFlightTasks: [URL: PendingRequest] = [:]
 
     init(
         session: URLSession = ImageLoader.makeDefaultSession(),
-        cache: LightImageCache = .shared
+        cache: LightImageCache = .shared,
+        retrySleep: @escaping @Sendable (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) }
     ) {
         self.session = session
         self.cache = cache
+        self.retrySleep = retrySleep
     }
 
     func load(url: URL) async throws -> UIImage {
-        if let cached = cache.image(for: url) {
-            return cached
-        }
-
-        if let existingTask = inFlightTasks[url] {
-            return try await existingTask.value
-        }
-
-        let retryableStatusCodes = self.retryableStatusCodes
-        let maxRetryAttempts = self.maxRetryAttempts
-        let task = Task<UIImage, Error> { [session, cache] in
-            var attempt = 0
-            var lastError: Error?
-
-            while attempt <= maxRetryAttempts {
-                do {
-                    let image = try await Self.loadOnce(url: url, session: session)
-                    cache.insert(image, for: url)
-                    return image
-                } catch {
-                    if Task.isCancelled { throw CancellationError() }
-                    lastError = error
-                    if attempt == maxRetryAttempts || !Self.shouldRetry(error, retryableStatusCodes: retryableStatusCodes) {
-                        break
-                    }
-                    let delay = UInt64((0.25 * pow(2.0, Double(attempt))) * 1_000_000_000)
-                    try await Task.sleep(nanoseconds: delay)
-                    attempt += 1
+        try Task.checkCancellation()
+        if let cached = cache.image(for: url) { return cached }
+        let waiterID = UUID()
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                guard !Task.isCancelled else {
+                    continuation.resume(throwing: CancellationError())
+                    return
                 }
+                if inFlightTasks[url] != nil {
+                    inFlightTasks[url]?.waiters[waiterID] = continuation
+                    return
+                }
+                let requestID = UUID()
+                let task = Task { [session, cache, retryableStatusCodes, maxRetryAttempts, retrySleep] in
+                    let result: Result<UIImage, Error>
+                    do {
+                        let image = try await Self.loadWithRetry(
+                            url: url, session: session,
+                            retryableStatusCodes: retryableStatusCodes,
+                            maxRetryAttempts: maxRetryAttempts, retrySleep: retrySleep)
+                        try Task.checkCancellation()
+                        result = .success(image)
+                    } catch { result = .failure(error) }
+                    complete(url: url, requestID: requestID, result: result, cache: cache)
+                }
+                inFlightTasks[url] = PendingRequest(id: requestID, task: task,
+                                                   waiters: [waiterID: continuation])
             }
-
-            throw lastError ?? AppError.networkMessage("Image load failed.")
+        } onCancel: {
+            Task { await self.cancelWaiter(waiterID, url: url) }
         }
+    }
 
-        inFlightTasks[url] = task
-        defer { inFlightTasks[url] = nil }
-        return try await task.value
+    // Internal diagnostics also provide a deterministic synchronization point for cancellation tests.
+    func pendingCallerCount(for url: URL) -> Int { inFlightTasks[url]?.waiters.count ?? 0 }
+
+    private func cancelWaiter(_ waiterID: UUID, url: URL) {
+        guard let waiter = inFlightTasks[url]?.waiters.removeValue(forKey: waiterID) else { return }
+        waiter.resume(throwing: CancellationError())
+        if inFlightTasks[url]?.waiters.isEmpty == true {
+            let task = inFlightTasks.removeValue(forKey: url)?.task
+            task?.cancel()
+        }
+    }
+
+    private func complete(url: URL, requestID: UUID, result: Result<UIImage, Error>, cache: LightImageCache) {
+        guard inFlightTasks[url]?.id == requestID,
+              let pending = inFlightTasks.removeValue(forKey: url) else { return }
+        if case let .success(image) = result { cache.insert(image, for: url) }
+        for waiter in pending.waiters.values { waiter.resume(with: result) }
+    }
+
+    private static func loadWithRetry(url: URL, session: URLSession,
+                                      retryableStatusCodes: Set<Int>, maxRetryAttempts: Int,
+                                      retrySleep: @Sendable (UInt64) async throws -> Void) async throws -> UIImage {
+        for attempt in 0...maxRetryAttempts {
+            try Task.checkCancellation()
+            do { return try await loadOnce(url: url, session: session) }
+            catch {
+                try Task.checkCancellation()
+                guard attempt < maxRetryAttempts,
+                      shouldRetry(error, retryableStatusCodes: retryableStatusCodes) else { throw error }
+                let delay = UInt64((0.25 * pow(2.0, Double(attempt))) * 1_000_000_000)
+                try await retrySleep(delay)
+            }
+        }
+        throw AppError.networkMessage("Image load failed.")
     }
 
     func cachedImage(for url: URL) -> UIImage? {

@@ -6,8 +6,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/AuthKit.git",
       "state": {
-        "revision": "bce4398dc6cb073e1124f5004c481450ed801a6b",
-        "version": "0.2.7"
+        "revision": "ae7f69147c55c52660172831c083c391d2221b54",
+        "version": "0.3.0"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/CommonNetworking.git",
       "state": {
-        "revision": "c6ff2b5fb081bb2e8a7f559c1f34b7aff03764cd",
-        "version": "1.1.0"
+        "revision": "699c989ab88f4620da388e99cb94c47a7dec69e6",
+        "version": "2.0.0"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/DesignTokensKit.git",
       "state": {
-        "revision": "d05ae29a933d9bad25ffa1b6e8b2181f9bb46da8",
-        "version": "1.18.3"
+        "revision": "dee8bf9d3a003a8489cc4c774952c77b176ccd7d",
+        "version": "1.19.0"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/FoundationKit.git",
       "state": {
-        "revision": "bb31bce9d4981684eacf11a560e7e32a2b0975a7",
-        "version": "0.1.1"
+        "revision": "f867ba235ca8bd168ff52f5088aa64c80f95786f",
+        "version": "0.2.0"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/LocalizationKit.git",
       "state": {
-        "revision": "30feb58ecb4dd16e35846da617fa8a0c2e8c14fe",
-        "version": "0.5.7"
+        "revision": "c450e742bd30c50083a075c48b5f63db3914f3e5",
+        "version": "0.6.0"
       }
     },
     {
@@ -132,8 +132,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/UIComponentsKit.git",
       "state": {
-        "revision": "b4776b1cca6da09128c4ce3940814567bc328a87",
-        "version": "1.5.1"
+        "revision": "6821ab92d761c56e527e7c36ab277536f87df449",
+        "version": "1.6.0"
       }
     },
     {
