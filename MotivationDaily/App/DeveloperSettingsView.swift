@@ -20,24 +20,21 @@ struct MotivationLaunchView<Content: View>: View {
         Group {
             if showingLaunchSettings {
                 NavigationStack {
-                    DeveloperSettingsView(buttonTitle: "Open Motivation Daily") {
+                    DeveloperSettingsView(buttonTitle: String(\CommonStrings.developerOpenApp)) {
                         authenticationEnabled = AppRuntime.authenticationEnabled
                         showingLaunchSettings = false
                     }
                 }
             } else {
-                content(authenticationEnabled)
-                    .id(configurationID)
-                    .safeAreaInset(edge: .top) {
-                        if AppRuntime.isShowcaseMode {
-                            ShowcaseBadgeView {
-                                showingSettingsSheet = true
-                            }
-                        }
+                VStack(spacing: \.zero) {
+                    if AppRuntime.isShowcaseMode {
+                        ShowcaseBadgeView { showingSettingsSheet = true }
                     }
+                    content(authenticationEnabled).id(configurationID)
+                }
                     .sheet(isPresented: $showingSettingsSheet) {
                         NavigationStack {
-                            DeveloperSettingsView(buttonTitle: "Close") {
+                            DeveloperSettingsView(buttonTitle: String(\CommonStrings.close)) {
                                 showingSettingsSheet = false
                                 authenticationEnabled = AppRuntime.authenticationEnabled
                                 configurationID = UUID()
@@ -83,6 +80,7 @@ struct ShowcaseBadgeView: View {
             )
         }
         .padding(.top, \.four)
+        .padding(.horizontal, \.sixteen)
         .accessibilityIdentifier(.showcaseDemoIndicator)
         .accessibilityLabel(\.showcaseDemoA11y)
     }
