@@ -661,7 +661,7 @@ struct ShareImageQuoteView: View {
                         throwing: NSError(
                             domain: "ShareImageQuoteView",
                             code: -1,
-                            userInfo: [NSLocalizedDescriptionKey: "Unknown save error."]
+                            userInfo: [NSLocalizedDescriptionKey: String(\MotivationStrings.couldNotSaveImage)]
                         )
                     )
                 }

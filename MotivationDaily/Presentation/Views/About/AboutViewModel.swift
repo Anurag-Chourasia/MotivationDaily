@@ -5,12 +5,12 @@ import LocalizationKit
 import FoundationKit
 
 final class AboutViewModel: ObservableObject {
-    let navigationTitle = "About Developer"
+    var navigationTitle: String { MotivationStrings(provider: localization).aboutDeveloper }
     let developerName = "Anurag Chourasia"
     let developerRole = "iOS Developer"
-    let appName = "Motivation Daily"
+    var appName: String { MotivationStrings(provider: localization).motivationAppName }
     let appDescription = "Inspirational quotes paired with aesthetic wallpapers. Built with SwiftUI, Clean Architecture and MVVM."
-    let disclaimer = "Quotes and wallpapers are provided by public APIs (Quotable, ZenQuotes, AdviceSlip, and Picsum). All content is owned by their respective authors and creators."
+    var disclaimer: String { MotivationStrings(provider: localization).aboutDisclaimer }
 
     let version: String
     let build: String
@@ -27,16 +27,17 @@ final class AboutViewModel: ObservableObject {
     }
 
     var profileLabels: DeveloperProfileLabels {
+        let strings = MotivationStrings(provider: localization)
         var labels = DeveloperProfileLabels()
-        labels.appInformation = "App Information"
-        labels.version = "Version"
-        labels.disclaimer = "Disclaimer"
-        labels.social = "Connect"
-        labels.readMore = "Read More"
-        labels.showLess = "Show Less"
-        labels.linkHint = "Double tap to open in browser"
-        labels.errorTitle = "Unable to Open Link"
-        labels.errorMessage = "Please try again later."
+        labels.appInformation = strings.profileAppInformation
+        labels.version = strings.profileVersion
+        labels.disclaimer = strings.profileDisclaimer
+        labels.social = strings.profileConnect
+        labels.readMore = strings.profileReadMore
+        labels.showLess = strings.profileShowLess
+        labels.linkHint = strings.profileLinkHint
+        labels.errorTitle = strings.profileLinkError
+        labels.errorMessage = strings.errorRetryLater
         labels.okay = L10n.Common.ok(using: localization)
         return labels
     }

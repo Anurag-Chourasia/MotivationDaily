@@ -22,6 +22,8 @@ extension WallpaperAspectRatio {
 extension Category {
     var localizedDisplayName: String {
         switch key.rawValue {
+        case "focus": String(\MotivationStrings.categoryFocus)
+        case "growth": String(\MotivationStrings.categoryGrowth)
         case "inspiration": String(\MotivationStrings.categoryInspiration)
         case "wisdom": String(\MotivationStrings.categoryWisdom)
         case "success": String(\MotivationStrings.categorySuccess)

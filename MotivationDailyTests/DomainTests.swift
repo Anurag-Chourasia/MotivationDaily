@@ -27,6 +27,7 @@ final class DomainTests: XCTestCase {
         defer { controller.setLocale(previous) }
         controller.setLocale(Locale(identifier: "fr"))
         XCTAssertEqual(AccentTheme.default.localizedDisplayName, "Par défaut")
+        XCTAssertEqual(Category(key: CategoryKey(rawValue: "focus"), displayName: "Focus").localizedDisplayName, "Concentration")
         XCTAssertEqual(WallpaperAspectRatio.fullScreen.localizedTitle, "Plein écran")
         XCTAssertEqual(AccentTheme.default.rawValue, "default")
         XCTAssertEqual(WallpaperAspectRatio.fullScreen.rawValue, "Fullscreen")

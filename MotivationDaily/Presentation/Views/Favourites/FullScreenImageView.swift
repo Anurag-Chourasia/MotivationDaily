@@ -98,7 +98,7 @@ struct FullScreenImageView: View {
             } label: {
                 SideActionIconView(
                     \.crop,
-                    label: selectedRatio.rawValue
+                    label: selectedRatio.localizedTitle
                 )
             }
             .buttonStyle(.plain)

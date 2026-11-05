@@ -1,3 +1,4 @@
+import LocalizationKit
 import SwiftUI
 import UIKit
 import Combine
@@ -223,7 +224,7 @@ final class WallpaperViewModel: ObservableObject {
 
     private func userFacingMessage(for error: Error) -> String {
         if let appError = error as? AppError {
-            return appError.errorDescription ?? "Could not refresh at the moment."
+            return appError.errorDescription ?? String(\MotivationStrings.errorRefresh)
         }
 
         if let local = error as? LocalizedError, let description = local.errorDescription {
@@ -233,14 +234,14 @@ final class WallpaperViewModel: ObservableObject {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .notConnectedToInternet:
-                return "You appear to be offline. Check your connection and try again."
+                return String(\CommonStrings.errorsNetworkUnreachable)
             case .timedOut:
-                return "Request timed out. Please try again."
+                return String(\MotivationStrings.errorTimeout)
             default:
                 break
             }
         }
 
-        return "Could not refresh at the moment."
+        return String(\MotivationStrings.errorRefresh)
     }
 }

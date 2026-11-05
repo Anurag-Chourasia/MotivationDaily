@@ -51,8 +51,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/LocalizationKit.git",
       "state": {
-        "revision": "c8863a9ae28bfe7732ef6c36c10b565f987d26da",
-        "version": "0.6.2"
+        "revision": "51fd2565bc5111770ecaa87be46c2e46b5ac85b7",
+        "version": "0.6.3"
       }
     },
     {

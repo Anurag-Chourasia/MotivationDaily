@@ -150,7 +150,7 @@ struct HomeView: View {
         }
         .onChange(of: pageVM.refreshError) { message in
             guard let message else { return }
-            presentAlert(title: "Refresh Failed", message: message)
+            presentAlert(title: String(\MotivationStrings.refreshFailed), message: message)
             pageVM.refreshError = nil
         }
         .onChange(of: networkMonitor.isConnected) { isConnected in
@@ -426,7 +426,7 @@ struct HomeView: View {
     }
 
     private var selectedCategoryTitle: String {
-        guard let selectedCategory else { return "Random" }
+        guard let selectedCategory else { return String(\MotivationStrings.randomCategory) }
         return categories.first(where: { $0.key == selectedCategory })?.localizedDisplayName
             ?? selectedCategory.rawValue.capitalized
     }
@@ -478,25 +478,25 @@ struct HomeView: View {
                 if proposedDepth != clamped {
                     if proposedDepth < 0 {
                         presentAlert(
-                            title: "Top of the feed",
-                            message: "You are already at the top of the feed. Try scrolling down."
+                            title: String(\MotivationStrings.feedTopTitle),
+                            message: String(\MotivationStrings.feedTopMessage)
                         )
                     } else if let maxDepth, proposedDepth > maxDepth {
                         presentAlert(
-                            title: "End of this section",
-                            message: "Sorry, there is nothing more to show. You reached the bottom of this section. Try changing the tabs/section."
+                            title: String(\MotivationStrings.feedEndTitle),
+                            message: String(\MotivationStrings.feedEndMessage)
                         )
                     }
                 } else if indexShift == 0 {
                     if activeDepth == 0, value.translation.height > 24 {
                         presentAlert(
-                            title: "Top of the feed",
-                            message: "You are already at the top of the feed. Try scrolling down."
+                            title: String(\MotivationStrings.feedTopTitle),
+                            message: String(\MotivationStrings.feedTopMessage)
                         )
                     } else if let maxDepth, activeDepth == maxDepth, value.translation.height < -24 {
                         presentAlert(
-                            title: "End of this section",
-                            message: "Sorry, there is nothing more to show. You reached the bottom of this section. Try changing the tabs/section."
+                            title: String(\MotivationStrings.feedEndTitle),
+                            message: String(\MotivationStrings.feedEndMessage)
                         )
                     }
                 }
@@ -594,7 +594,7 @@ struct HomeView: View {
             } label: {
                 SideActionIconView(
                     \.crop,
-                    label: selectedRatio.rawValue
+                    label: selectedRatio.localizedTitle
                 )
             }
             .buttonStyle(.plain)
@@ -640,7 +640,7 @@ struct HomeView: View {
             await MainActor.run {
                 let resolvedData = localImageData ?? (isUITestMode ? fallbackImageDataForUITest() : nil)
                 guard let resolvedData, !resolvedData.isEmpty else {
-                    pageVM.refreshError = "Image is still preparing. Please tap Save again."
+                    pageVM.refreshError = String(\MotivationStrings.shareImagePreparing)
                     return
                 }
                 quoteVM.addToFavorites(
@@ -717,11 +717,11 @@ struct HomeView: View {
         let applyState = {
             if isConnected {
                 connectivityBannerIsWarning = false
-                connectivityMessage = "Connected"
+                connectivityMessage = String(\MotivationStrings.connectivityConnected)
                 showConnectivityBanner = true
             } else {
                 connectivityBannerIsWarning = true
-                connectivityMessage = "No internet"
+                connectivityMessage = String(\MotivationStrings.connectivityOffline)
                 showConnectivityBanner = true
             }
         }
@@ -865,7 +865,7 @@ struct HomeView: View {
         minimumLoaderDuration: TimeInterval?
     ) {
         guard networkMonitor.isConnected else {
-            pageVM.refreshError = "No internet connection. Please reconnect to load new inspiration."
+            pageVM.refreshError = String(\CommonStrings.errorsNetworkUnreachable)
             scheduleVisualEffectsRestore()
             return
         }
@@ -1135,9 +1135,9 @@ struct HomeView: View {
 
     var randomTabTitle: String {
         if let randomQuoteCount {
-            return "Random (\(randomQuoteCount))"
+            return "\(String(\MotivationStrings.randomCategory)) (\(randomQuoteCount))"
         }
-        return "Random"
+        return String(\MotivationStrings.randomCategory)
     }
 
     func maxDepth(for category: CategoryKey?) -> Int? {
