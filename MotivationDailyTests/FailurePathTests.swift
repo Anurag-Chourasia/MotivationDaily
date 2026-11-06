@@ -1,5 +1,6 @@
 import XCTest
 import UIKit
+import LocalizationKit
 @testable import MotivationDaily
 
 @MainActor
@@ -233,7 +234,7 @@ final class FailurePathTests: XCTestCase {
         vm.cacheFavoriteImageIfNeeded(quoteID: "q", imageData: Data([1]))
         XCTAssertEqual(vm.getFavorite("q")?.localImagePath, "cached.jpg")
         XCTAssertEqual(repository.favorites.first?.localImagePath, "cached.jpg")
-        let failures: [(Error, String)] = [(DescribedFailure(), "Storage unavailable"), (PlainFailure(), "Something went wrong.")]
+        let failures: [(Error, String)] = [(DescribedFailure(), "Storage unavailable"), (PlainFailure(), String(\CommonStrings.errorGeneric))]
         for (error, expected) in failures {
             vm.favorites = [favorite]
             repository.error = error
@@ -248,7 +249,7 @@ final class FailurePathTests: XCTestCase {
 
     func testWallpaperRefreshReportsNetworkAndUnexpectedErrors() async {
         let failures: [(Error, String)] = [
-            (URLError(.notConnectedToInternet), "You appear to be offline. Check your connection and try again."),
+            (URLError(.notConnectedToInternet), String(\CommonStrings.errorsNetworkUnreachable)),
             (URLError(.timedOut), "Request timed out. Please try again."),
             (URLError(.badURL), "Could not refresh at the moment."),
             (DescribedFailure(), "Storage unavailable"),
@@ -352,7 +353,7 @@ final class FailurePathTests: XCTestCase {
         let catalogue = try store(snapshot: .init(categories: [], randomQuotes: [quote()], quotesByCategory: [FeedCatalogueStore.Snapshot.randomKey: [quote()]], images: [image], updatedAt: Date()))
         let vm = FeedPageViewModel(catalogueStore: catalogue, imageLoader: ImageLoader(session: session))
         let failures: [(URLError.Code, String)] = [
-            (.notConnectedToInternet, "You appear to be offline. Check your connection and try again."),
+            (.notConnectedToInternet, String(\CommonStrings.errorsNetworkUnreachable)),
             (.timedOut, "Request timed out. Please try again."),
             (.badURL, "Could not refresh at the moment.")
         ]
@@ -374,7 +375,7 @@ final class FailurePathTests: XCTestCase {
             _ = try await vm.loadForCurrentPage(category: nil, aspectRatio: .fullScreen, cacheIdentity: "test|d0")
             XCTFail("HTTP error must fail")
         } catch {
-            XCTAssertEqual(vm.refreshError, AppError.network(status: 404).errorDescription)
+            XCTAssertEqual(vm.refreshError, AppError.network(status: 404).localizedMessage())
         }
     }
 

@@ -6,8 +6,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/AuthKit.git",
       "state": {
-        "revision": "ae7f69147c55c52660172831c083c391d2221b54",
-        "version": "0.3.0"
+        "revision": "73c5142158d49d49a4ef2be2eb7235d1b16374e0",
+        "version": "0.4.0"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/DeveloperProfileKit.git",
       "state": {
-        "revision": "2cdda61662032fedbdc0f93ad14b086586e33a65",
-        "version": "1.1.0"
+        "revision": "18a2b72001ed7a14b7ebb63cb8edb394d62d68aa",
+        "version": "1.2.0"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/LocalizationKit.git",
       "state": {
-        "revision": "4f7f71df1ded8b6f46b90e7bc6e64206502ebcd8",
-        "version": "0.6.4"
+        "revision": "2fefd94e8309c27b63f0bf579b37f0ee6faacb78",
+        "version": "0.8.0"
       }
     },
     {
@@ -132,8 +132,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/UIComponentsKit.git",
       "state": {
-        "revision": "6821ab92d761c56e527e7c36ab277536f87df449",
-        "version": "1.6.0"
+        "revision": "428f744a5a0a77c319b817dfe3eb4806432bc6f6",
+        "version": "1.8.0"
       }
     },
     {

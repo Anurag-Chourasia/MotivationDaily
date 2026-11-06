@@ -1,6 +1,6 @@
 import Foundation
 
-enum AppError: LocalizedError {
+enum AppError: Error, Equatable, Sendable {
     case invalidURL
     case network(status: Int)
     case networkMessage(String)
@@ -9,50 +9,86 @@ enum AppError: LocalizedError {
     case emptyResponse
     case unknown(String)
 
-    var errorDescription: String? {
+    enum SemanticCode: Equatable, Sendable {
+        case invalidURL
+        case blocked
+        case notFound
+        case timeout
+        case rateLimited
+        case serverUnavailable
+        case networkStatus(Int)
+        case invalidResponse
+        case imageLoadFailed
+        case untrustedNetworkMessage
+        case decoding
+        case storage
+        case imageNotReady
+        case emptyResponse
+        case unknown
+    }
+
+    enum RecoverySemanticCode: Equatable, Sendable {
+        case rateLimited
+        case serverUnavailable
+        case network
+        case refresh
+        case storage
+    }
+
+    var semanticCode: SemanticCode {
         switch self {
         case .invalidURL:
-            return "The request URL is invalid."
+            return .invalidURL
         case .network(let status):
             switch status {
             case 401, 403:
-                return "Request blocked by the server."
+                return .blocked
             case 404:
-                return "Requested resource was not found."
+                return .notFound
             case 408:
-                return "Request timed out. Please try again."
+                return .timeout
             case 429:
-                return "Too many requests right now. Please wait a moment and try again."
+                return .rateLimited
             case 500...599:
-                return "Server is temporarily unavailable. Please try again."
+                return .serverUnavailable
             default:
-                return "Network error (status: \(status))."
+                return .networkStatus(status)
             }
         case .networkMessage(let message):
-            return message
-        case .decoding(let message):
-            return "Response parsing failed. \(message)"
+            switch message {
+            case "Invalid response.":
+                return .invalidResponse
+            case "Image load failed.":
+                return .imageLoadFailed
+            default:
+                return .untrustedNetworkMessage
+            }
+        case .decoding:
+            return .decoding
         case .storage(let message):
-            return "Storage error. \(message)"
+            if message.hasPrefix("Image is not ready") {
+                return .imageNotReady
+            }
+            return .storage
         case .emptyResponse:
-            return "No data received from the server."
-        case .unknown(let message):
-            return message
+            return .emptyResponse
+        case .unknown:
+            return .unknown
         }
     }
 
-    var recoverySuggestion: String? {
+    var semanticRecovery: RecoverySemanticCode? {
         switch self {
         case .network(429):
-            return "Try again in a few seconds."
+            return .rateLimited
         case .network(let status) where (500...599).contains(status):
-            return "Please retry shortly."
+            return .serverUnavailable
         case .network:
-            return "Check your network connection and retry."
+            return .network
         case .emptyResponse, .decoding:
-            return "Please refresh again."
+            return .refresh
         case .storage:
-            return "Restart the app and try again."
+            return .storage
         case .invalidURL, .networkMessage, .unknown:
             return nil
         }

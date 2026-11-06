@@ -134,7 +134,7 @@ final class QuoteViewModel: ObservableObject {
 
     private func userFacingMessage(for error: Error) -> String {
         if let appError = error as? AppError {
-            return appError.errorDescription ?? String(\CommonStrings.errorGeneric)
+            return appError.localizedMessage(fallbackKeyPath: nil)
         }
         if let local = error as? LocalizedError, let description = local.errorDescription {
             return description

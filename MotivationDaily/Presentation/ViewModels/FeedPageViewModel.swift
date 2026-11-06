@@ -218,7 +218,7 @@ final class FeedPageViewModel: ObservableObject {
 
     private func userFacingMessage(for error: Error) -> String {
         if let appError = error as? AppError {
-            return appError.errorDescription ?? String(\MotivationStrings.errorRefresh)
+            return appError.localizedMessage()
         }
 
         if let local = error as? LocalizedError, let description = local.errorDescription {

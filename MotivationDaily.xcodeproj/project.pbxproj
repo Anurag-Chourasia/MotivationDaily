@@ -875,7 +875,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/AuthKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.3.0;
+				version = 0.4.0;
 			};
 		};
 		M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */ = {
@@ -899,7 +899,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/LocalizationKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.6.4;
+				version = 0.8.0;
 			};
 		};
 		M00400000000000000000001 /* XCRemoteSwiftPackageReference "DesignTokensKit" */ = {
@@ -915,7 +915,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/UIComponentsKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.6.0;
+				version = 1.8.0;
 			};
 		};
 		M00600000000000000000001 /* XCRemoteSwiftPackageReference "DeveloperProfileKit" */ = {
@@ -923,7 +923,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/DeveloperProfileKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.1.0;
+				version = 1.2.0;
 			};
 		};
 		M00700000000000000000001 /* XCRemoteSwiftPackageReference "SnapshotTestKit" */ = {

@@ -250,6 +250,10 @@ final class DomainTests: XCTestCase {
     // MARK: - AppError Tests
 
     func testAppErrorDescriptionsAndRecovery() {
+        let controller = LocalizationController.shared
+        let previous = controller.locale
+        defer { controller.setLocale(previous) }
+
         let errors: [AppError] = [
             .invalidURL,
             .network(status: 401),
@@ -260,27 +264,54 @@ final class DomainTests: XCTestCase {
             .network(status: 500),
             .network(status: 503),
             .network(status: 999),
-            .networkMessage("Custom network message"),
+            .networkMessage("Invalid response."),
+            .networkMessage("Image load failed."),
+            .networkMessage("Untrusted upstream provider message"),
             .decoding("JSON syntax error"),
             .storage("Disk full"),
+            .storage("Image is not ready yet. Please try saving again."),
             .emptyResponse,
             .unknown("Something weird")
         ]
 
-        for err in errors {
-            XCTAssertFalse((err.errorDescription ?? "").isEmpty)
-            _ = err.recoverySuggestion
+        for localeIdentifier in ["en", "fr", "ar"] {
+            controller.setLocale(Locale(identifier: localeIdentifier))
+            let context = LocalizedContext<MotivationDomain>(provider: controller)
+            for err in errors {
+                let message = err.localizedMessage(in: context)
+                XCTAssertFalse(message.isEmpty)
+                XCTAssertFalse(message.contains("Untrusted upstream provider message"))
+                XCTAssertFalse(message.contains("JSON syntax error"))
+                XCTAssertFalse(message.contains("Disk full"))
+                XCTAssertFalse(message.contains("Something weird"))
+                _ = err.localizedRecoverySuggestion(in: context)
+            }
+            XCTAssertTrue(AppError.network(status: 999).localizedMessage(in: context).contains("999"))
         }
 
-        XCTAssertEqual(AppError.network(status: 429).recoverySuggestion, "Try again in a few seconds.")
-        XCTAssertEqual(AppError.network(status: 502).recoverySuggestion, "Please retry shortly.")
-        XCTAssertEqual(AppError.network(status: 404).recoverySuggestion, "Check your network connection and retry.")
-        XCTAssertEqual(AppError.emptyResponse.recoverySuggestion, "Please refresh again.")
-        XCTAssertEqual(AppError.decoding("").recoverySuggestion, "Please refresh again.")
-        XCTAssertEqual(AppError.storage("").recoverySuggestion, "Restart the app and try again.")
-        XCTAssertNil(AppError.invalidURL.recoverySuggestion)
-        XCTAssertNil(AppError.networkMessage("").recoverySuggestion)
-        XCTAssertNil(AppError.unknown("").recoverySuggestion)
+        controller.setLocale(Locale(identifier: "en"))
+        let enContext = LocalizedContext<MotivationDomain>(provider: controller)
+        XCTAssertEqual(AppError.network(status: 429).localizedRecoverySuggestion(in: enContext), "Try again in a few seconds.")
+        XCTAssertEqual(AppError.network(status: 502).localizedRecoverySuggestion(in: enContext), "Please retry shortly.")
+        XCTAssertEqual(AppError.network(status: 404).localizedRecoverySuggestion(in: enContext), "Check your network connection and retry.")
+        XCTAssertEqual(AppError.emptyResponse.localizedRecoverySuggestion(in: enContext), "Please refresh again.")
+        XCTAssertEqual(AppError.decoding("").localizedRecoverySuggestion(in: enContext), "Please refresh again.")
+        XCTAssertEqual(AppError.storage("").localizedRecoverySuggestion(in: enContext), "Restart the app and try again.")
+        XCTAssertNil(AppError.invalidURL.localizedRecoverySuggestion(in: enContext))
+        XCTAssertNil(AppError.networkMessage("").localizedRecoverySuggestion(in: enContext))
+        XCTAssertNil(AppError.unknown("").localizedRecoverySuggestion(in: enContext))
+
+        controller.setLocale(Locale(identifier: "fr"))
+        let frContext = LocalizedContext<MotivationDomain>(provider: controller)
+        XCTAssertEqual(AppError.network(status: 404).localizedMessage(in: frContext), "La ressource demandée est introuvable.")
+        XCTAssertEqual(AppError.networkMessage("Untrusted upstream provider message").localizedMessage(in: frContext), "Actualisation impossible pour le moment.")
+        XCTAssertEqual(AppError.storage("Image is not ready yet. Please try saving again.").localizedMessage(in: frContext), "L’image n’est pas encore prête. Veuillez réessayer d’enregistrer.")
+
+        controller.setLocale(Locale(identifier: "ar"))
+        let arContext = LocalizedContext<MotivationDomain>(provider: controller)
+        XCTAssertTrue(controller.isRightToLeft)
+        XCTAssertEqual(AppError.network(status: 404).localizedMessage(in: arContext), "لم يتم العثور على المورد المطلوب.")
+        XCTAssertEqual(AppError.networkMessage("Untrusted upstream provider message").localizedMessage(in: arContext), "تعذر التحديث حاليًا.")
     }
 
     // MARK: - Use Cases Tests
