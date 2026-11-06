@@ -7,6 +7,7 @@ import LocalizationKit
 struct FavoriteCellView: View {
     let favorite: FavoriteQuote
     let imageURL: URL?
+    var imageLoader: any ImageLoading = ImageLoader.shared
     let onImageTap: () -> Void
     let onToggleFavorite: () -> Void
     let onImageDataResolved: ((Data) -> Void)?
@@ -172,21 +173,14 @@ struct FavoriteCellView: View {
             return
         }
 
-        if let cached = LightImageCache.shared.image(for: url) {
-            renderedImage = cached
-            isLoading = false
-            persistImageIfNeeded(from: cached)
-            return
-        }
-
         isLoading = true
         loadTask = Task {
-            let cachedOnlyImage = await ImageLoader.shared.cachedImage(for: url)
+            let cached = await imageLoader.cachedImage(for: url)
             if Task.isCancelled { return }
             await MainActor.run {
-                if let cachedOnlyImage {
-                    renderedImage = cachedOnlyImage
-                    persistImageIfNeeded(from: cachedOnlyImage)
+                if let cached {
+                    renderedImage = cached
+                    persistImageIfNeeded(from: cached)
                 }
                 isLoading = false
             }

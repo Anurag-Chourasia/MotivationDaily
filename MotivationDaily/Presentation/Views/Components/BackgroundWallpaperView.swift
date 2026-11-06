@@ -5,6 +5,7 @@ import DesignTokensKit
 struct BackgroundWallpaperView: View {
     let url: URL?
     let aspectRatio: CGFloat?
+    private let imageLoader: any ImageLoading
     let onImageLoaded: ((UIImage, URL) -> Void)?
     let onImageFailed: ((URL) -> Void)?
 
@@ -18,11 +19,13 @@ struct BackgroundWallpaperView: View {
     init(
         url: URL?,
         aspectRatio: CGFloat? = 9.0 / 16.0,
+        imageLoader: any ImageLoading = ImageLoader.shared,
         onImageLoaded: ((UIImage, URL) -> Void)? = nil,
         onImageFailed: ((URL) -> Void)? = nil
     ) {
         self.url = url
         self.aspectRatio = aspectRatio
+        self.imageLoader = imageLoader
         self.onImageLoaded = onImageLoaded
         self.onImageFailed = onImageFailed
     }
@@ -116,20 +119,23 @@ struct BackgroundWallpaperView: View {
             return
         }
 
-        if let cached = LightImageCache.shared.image(for: url) {
-            guard activeURL == url else { return }
-            currentImage = cached
-            nextImage = nil
-            isLoading = false
-            displayedURL = url
-            onImageLoaded?(cached, url)
-            return
-        }
-
         isLoading = true
         loadTask = Task {
+            if let cached = await imageLoader.cachedImage(for: url) {
+                if Task.isCancelled { return }
+                await MainActor.run {
+                    guard activeURL == url else { return }
+                    currentImage = cached
+                    nextImage = nil
+                    isLoading = false
+                    displayedURL = url
+                    onImageLoaded?(cached, url)
+                }
+                return
+            }
+
             do {
-                let image = try await ImageLoader.shared.load(url: url)
+                let image = try await imageLoader.load(url: url)
                 if Task.isCancelled { return }
                 await MainActor.run {
                     guard activeURL == url else { return }

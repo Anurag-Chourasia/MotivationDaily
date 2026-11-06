@@ -94,10 +94,12 @@ struct HomeView: View {
     private let actionRailExclusionWidth: CGFloat = 132
     private let actionRailExclusionHeight: CGFloat = 320
     private let visitedDepthLimit = 120
+    private let imageLoader: any ImageLoading
 
-    init(quoteVM: QuoteViewModel, pageVM: FeedPageViewModel) {
+    init(quoteVM: QuoteViewModel, pageVM: FeedPageViewModel, imageLoader: (any ImageLoading)? = nil) {
         _quoteVM = StateObject(wrappedValue: quoteVM)
         _pageVM = StateObject(wrappedValue: pageVM)
+        self.imageLoader = imageLoader ?? pageVM.imageLoader
     }
 
     var body: some View {
@@ -121,7 +123,7 @@ struct HomeView: View {
             await performInitialBootIfNeeded()
         }
         .fullScreenCover(isPresented: $showFavorites) {
-            FavoritesView(quoteVM: quoteVM)
+            FavoritesView(quoteVM: quoteVM, imageLoader: imageLoader)
         }
         .sheet(isPresented: $showShareSheet, onDismiss: { sharingContent = nil }) {
             let activeContent = sharingContent ?? pageVM.current
@@ -130,7 +132,8 @@ struct HomeView: View {
                 favoriteImage: nil,
                 quote: activeContent?.quote,
                 wallpaper: activeContent?.image,
-                layoutSize: shareLayoutSize()
+                layoutSize: shareLayoutSize(),
+                imageLoader: imageLoader
             )
         }
         .fullScreenCover(isPresented: $showAboutDeveloper) {
@@ -634,7 +637,7 @@ struct HomeView: View {
         }
 
         Task {
-            let masterImage = LightImageCache.shared.image(for: content.imageURL) ?? content.originalImage
+            let masterImage = await imageLoader.cachedImage(for: content.imageURL) ?? content.originalImage
             let localImageData = await jpegDataForStorage(from: masterImage)
             let requestSize = pageVM.imageRequestSize(for: selectedRatio)
             await MainActor.run {
@@ -666,8 +669,8 @@ struct HomeView: View {
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
         let image = renderer.image { context in
             let rect = CGRect(origin: .zero, size: size)
-            let colors = [UIColor(red: 0.12, green: 0.16, blue: 0.25, alpha: 1).cgColor,
-                          UIColor(red: 0.20, green: 0.32, blue: 0.44, alpha: 1).cgColor]
+            let colors = [PlaceholderColorToken.uiGradientStart.cgColor,
+                          PlaceholderColorToken.uiGradientEnd.cgColor]
             guard let gradient = CGGradient(
                 colorsSpace: CGColorSpaceCreateDeviceRGB(),
                 colors: colors as CFArray,
@@ -1171,7 +1174,7 @@ struct HomeView: View {
         _ content: FeedPageViewModel.FeedPageContent,
         for ratio: WallpaperAspectRatio
     ) -> FeedPageViewModel.FeedPageContent {
-        let sourceImage = LightImageCache.shared.image(for: content.imageURL) ?? content.originalImage
+        let sourceImage = content.originalImage
         guard let targetAspect = ratio.value else {
             return FeedPageViewModel.FeedPageContent(
                 quote: content.quote,

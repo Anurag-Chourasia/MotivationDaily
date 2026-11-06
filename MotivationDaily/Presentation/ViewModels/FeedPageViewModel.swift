@@ -47,10 +47,10 @@ final class FeedPageViewModel: ObservableObject {
     }
 
     private let catalogueStore: FeedCatalogueStore
-    private let imageLoader: ImageLoader
+    let imageLoader: any ImageLoading
     private var inFlightTasks: [String: Task<FeedPageContent, Error>] = [:]
 
-    init(catalogueStore: FeedCatalogueStore, imageLoader: ImageLoader = .shared) {
+    init(catalogueStore: FeedCatalogueStore, imageLoader: any ImageLoading = ImageLoader.shared) {
         self.catalogueStore = catalogueStore
         self.imageLoader = imageLoader
     }

@@ -137,7 +137,8 @@ final class AppContainer {
     @MainActor
     func makeFeedPageViewModel() -> FeedPageViewModel {
         FeedPageViewModel(
-            catalogueStore: feedCatalogueStore
+            catalogueStore: feedCatalogueStore,
+            imageLoader: imageLoader
         )
     }
 

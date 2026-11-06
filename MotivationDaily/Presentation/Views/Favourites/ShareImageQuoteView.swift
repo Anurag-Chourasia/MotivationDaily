@@ -16,6 +16,7 @@ struct ShareImageQuoteView: View {
     let quote: Quote?
     let wallpaper: UIImage?
     let layoutSize: CGSize?
+    var imageLoader: any ImageLoading = ImageLoader.shared
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.motivationL10n) private var l10n
@@ -397,25 +398,15 @@ struct ShareImageQuoteView: View {
             }
 
             if let imageURL = favorite.imageURL {
-                if let cached = LightImageCache.shared.image(for: imageURL) {
-                    sourceImage = cached
-                    renderComposite(
-                        image: cached,
-                        content: quoteText,
-                        author: quoteAuthor
-                    )
-                    return
-                }
-
                 isPreparingImage = true
                 imageLoadTask = Task {
-                    let cachedOnlyImage = await ImageLoader.shared.cachedImage(for: imageURL)
+                    let cached = await imageLoader.cachedImage(for: imageURL)
                     if Task.isCancelled { return }
                     await MainActor.run {
-                        if let cachedOnlyImage {
-                            sourceImage = cachedOnlyImage
+                        if let cached {
+                            sourceImage = cached
                             renderComposite(
-                                image: cachedOnlyImage,
+                                image: cached,
                                 content: quoteText,
                                 author: quoteAuthor
                             )
