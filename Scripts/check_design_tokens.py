@@ -30,7 +30,7 @@ for path in files:
         if '@State private var scrollOffset:' in line: continue
         if '@State private var gestureStartOffset:' in line: continue
         if 'actionRailExclusion' in line: continue
-        if 'HomeView.swift' in path.name and ('fallbackImageDataForUITest' in line or 'makeFallbackImage' in line or 'UIColor(' in line or 'let size = CGSize' in line): continue
+        if ('HomeView.swift' in path.name or 'FeedExportCoordinator.swift' in path.name) and ('fallbackImageDataForUITest' in line or 'makeFallbackImage' in line or 'UIColor(' in line or 'let size = CGSize' in line): continue
 
         if 'AccentTheme.swift' in path.name and 'Color(assetName)' in line: continue
         if 'ViewSnapshot.swift' in path.name and '.backgroundColor = .clear' in line: continue

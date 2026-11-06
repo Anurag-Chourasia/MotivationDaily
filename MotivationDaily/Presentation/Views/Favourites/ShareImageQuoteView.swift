@@ -65,13 +65,17 @@ struct ShareImageQuoteView: View {
         favoriteImage: UIImage?,
         quote: Quote?,
         wallpaper: UIImage?,
-        layoutSize: CGSize? = nil
+        layoutSize: CGSize? = nil,
+        imageLoader: (any ImageLoading)? = nil
     ) {
         self.favorite = favorite
         self.favoriteImage = favoriteImage
         self.quote = quote
         self.wallpaper = wallpaper
         self.layoutSize = layoutSize
+        if let imageLoader {
+            self.imageLoader = imageLoader
+        }
     }
 
     private var shareContent: String {

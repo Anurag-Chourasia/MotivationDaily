@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 final class DefaultFavoritesRepository: FavoritesRepository {
     private let userDefaults: UserDefaults
