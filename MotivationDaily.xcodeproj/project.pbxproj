@@ -928,7 +928,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/SnapshotTestKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.0.2;
+				version = 1.0.4;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

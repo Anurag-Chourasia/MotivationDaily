@@ -99,6 +99,9 @@ jobs:
       - name: Run UI Smoke test lane (PR and Push)
         run: bash Scripts/test-smoke.sh
 
+      - name: Compare reviewed snapshots on pinned iPhone 11 runtime
+        run: bash Scripts/test-snapshots.sh
+
       - name: Run Integration & Performance test lanes (Merge to main & Scheduled)
         if: github.event_name != 'pull_request'
         run: |
@@ -123,6 +126,9 @@ jobs:
             -onlyUsePackageVersionsFromResolvedFile -disableAutomaticPackageResolution \
             -scmProvider system CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES \
             -parallel-testing-enabled NO -only-testing:MotivationDailyTests/FixtureBoundaryTests
+
+      - name: Verify snapshot and XCTest exclusion from Release
+        run: python3 Scripts/verify-snapshot-boundary.py "$RUNNER_TEMP/AppDerived/Build/Products/Release-iphonesimulator/MotivationDaily.app/MotivationDaily"
 
       - name: Upload test results
         if: always()
