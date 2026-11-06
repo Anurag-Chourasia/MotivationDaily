@@ -396,7 +396,10 @@
 				"$(SRCROOT)/Submodules/AppStubData/Sources/AppStubData/Resources/motivationdaily-ui-fixtures.json",
 			);
 			name = "Copy Debug fixture resources";
-			outputPaths = ("$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/DeveloperFixtures",);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/DeveloperFixtures",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/DeveloperFixtures/motivationdaily-ui-fixtures.json",
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "sh \"${SRCROOT}/Scripts/copy-developer-fixtures.sh\"";
