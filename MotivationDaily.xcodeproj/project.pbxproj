@@ -876,7 +876,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/LocalizationKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.6.3;
+				version = 0.6.4;
 			};
 		};
 		M00400000000000000000001 /* XCRemoteSwiftPackageReference "DesignTokensKit" */ = {

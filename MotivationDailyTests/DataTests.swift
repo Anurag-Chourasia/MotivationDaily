@@ -219,7 +219,7 @@ final class DataTests: XCTestCase {
 
         let veryLongID = String(repeating: "long_quote_id_", count: 10)
         let safeLong = try repo.storeImageData(sampleData, for: veryLongID)
-        XCTAssertLessThanOrEqual(safeLong.count, 85) // 80 chars + .jpg
+        XCTAssertLessThanOrEqual(URL(fileURLWithPath: safeLong).lastPathComponent.count, 85) // 80 chars + .jpg
 
         // Corrupted UserDefaults data
         defaults.set(Data([0xFF, 0xFE, 0xFD]), forKey: "favs")

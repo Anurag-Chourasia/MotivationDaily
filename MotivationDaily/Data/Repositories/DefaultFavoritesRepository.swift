@@ -4,6 +4,17 @@ final class DefaultFavoritesRepository: FavoritesRepository {
     private let userDefaults: UserDefaults
     private let fileManager: FileManager
     private let storageKey: String
+    private let ownerID: String?
+    private struct OwnedFavorites: Codable {
+        var legacyOwner: String?
+        var accounts: [String: [FavoriteQuote]] = [:]
+    }
+    private var ownedKey: String { storageKey + ".owners.v1" }
+    private var guestKey: String { storageKey + ".guest.v1" }
+    private var imagePrefix: String {
+        if let ownerID { return "accounts/" + ownerID + "/" }
+        return (try? readOwners().legacyOwner) == nil ? "unclaimed/" : "guest/"
+    }
     private let imagesDirectoryURL: URL
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
@@ -11,16 +22,19 @@ final class DefaultFavoritesRepository: FavoritesRepository {
     init(
         userDefaults: UserDefaults = .standard,
         fileManager: FileManager = .default,
-        storageKey: String = "favoriteQuotes"
+        storageKey: String = "favoriteQuotes",
+        ownerID: UUID? = nil,
+        imagesRootURL: URL? = nil
     ) {
         self.userDefaults = userDefaults
         self.fileManager = fileManager
         self.storageKey = storageKey
+        self.ownerID = ownerID?.uuidString.lowercased()
         let baseDirectory =
             fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        self.imagesDirectoryURL = baseDirectory.appendingPathComponent("FavoriteImages", isDirectory: true)
+        self.imagesDirectoryURL = imagesRootURL ?? baseDirectory.appendingPathComponent("FavoriteImages", isDirectory: true)
 
         if !fileManager.fileExists(atPath: imagesDirectoryURL.path) {
             try? fileManager.createDirectory(
@@ -31,7 +45,9 @@ final class DefaultFavoritesRepository: FavoritesRepository {
     }
 
     func loadFavorites() throws -> [FavoriteQuote] {
-        guard let data = userDefaults.data(forKey: storageKey) else {
+        if let ownerID { return try loadOwnedFavorites(ownerID: ownerID) }
+        let key = try readOwners().legacyOwner == nil ? storageKey : guestKey
+        guard let data = userDefaults.data(forKey: key) else {
             return []
         }
 
@@ -71,7 +87,15 @@ final class DefaultFavoritesRepository: FavoritesRepository {
     func saveFavorites(_ favorites: [FavoriteQuote]) throws {
         do {
             let encoded = try encoder.encode(favorites)
-            userDefaults.set(encoded, forKey: storageKey)
+            if let ownerID {
+                _ = try loadOwnedFavorites(ownerID: ownerID)
+                var state = try readOwners()
+                state.accounts[ownerID] = favorites
+                try writeOwners(state)
+            } else {
+                let key = try readOwners().legacyOwner == nil ? storageKey : guestKey
+                userDefaults.set(encoded, forKey: key)
+            }
         } catch {
             throw AppError.storage("Failed to save favorites: \(error.localizedDescription)")
         }
@@ -87,8 +111,9 @@ final class DefaultFavoritesRepository: FavoritesRepository {
         }
 
         let safeName = makeSafeFileName(from: quoteID)
-        let fileName = "\(safeName).jpg"
+        let fileName = imagePrefix + "\(safeName).jpg"
         let fileURL = imagesDirectoryURL.appendingPathComponent(fileName)
+        try fileManager.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
 
         do {
             try data.write(to: fileURL, options: .atomic)
@@ -99,15 +124,64 @@ final class DefaultFavoritesRepository: FavoritesRepository {
     }
 
     func removeImage(at localPath: String) {
-        guard !localPath.isEmpty else { return }
-        let fileName = localPath.hasPrefix("/") ? URL(fileURLWithPath: localPath).lastPathComponent : localPath
-        let fileURL = imagesDirectoryURL.appendingPathComponent(fileName)
+        guard !localPath.isEmpty, !localPath.contains("..") else { return }
+        if ownerID != nil || (try? readOwners().legacyOwner) != nil {
+            guard localPath.hasPrefix(imagePrefix) else { return }
+        }
+        let path = localPath.hasPrefix("/") ? URL(fileURLWithPath: localPath).lastPathComponent : localPath
+        let fileURL = imagesDirectoryURL.appendingPathComponent(path)
         if fileManager.fileExists(atPath: fileURL.path) {
             try? fileManager.removeItem(at: fileURL)
         }
-        if localPath.hasPrefix("/"), fileManager.fileExists(atPath: localPath) {
-            try? fileManager.removeItem(atPath: localPath)
+    }
+
+    private func readOwners() throws -> OwnedFavorites {
+        guard let stored = userDefaults.object(forKey: ownedKey) else { return OwnedFavorites() }
+        guard let data = stored as? Data else { throw CocoaError(.coderReadCorrupt) }
+        return try decoder.decode(OwnedFavorites.self, from: data)
+    }
+
+    private func writeOwners(_ state: OwnedFavorites) throws {
+        userDefaults.set(try encoder.encode(state), forKey: ownedKey)
+    }
+
+    private func loadOwnedFavorites(ownerID: String) throws -> [FavoriteQuote] {
+        var state = try readOwners()
+        if state.legacyOwner == nil {
+            let legacy: [FavoriteQuote]
+            if let stored = userDefaults.object(forKey: storageKey) {
+                guard let data = stored as? Data else { throw CocoaError(.coderReadCorrupt) }
+                legacy = try decoder.decode([FavoriteQuote].self, from: data)
+            } else {
+                legacy = []
+            }
+            var merged = state.accounts[ownerID] ?? []
+            for favorite in legacy where !merged.contains(where: { $0.id == favorite.id }) {
+                var migrated = favorite
+                if let path = favorite.localImagePath, !path.isEmpty {
+                    guard !path.contains("..") else { throw CocoaError(.fileReadInvalidFileName) }
+                    let filename = URL(fileURLWithPath: path).lastPathComponent
+                    let bundledPath = path.hasPrefix("/") ? filename : path
+                    let current = imagesDirectoryURL.appendingPathComponent(bundledPath)
+                    let source = fileManager.fileExists(atPath: current.path) ? current : URL(fileURLWithPath: path)
+                    let relative = imagePrefix + UUID().uuidString + ".jpg"
+                    let destination = imagesDirectoryURL.appendingPathComponent(relative)
+                    if fileManager.fileExists(atPath: source.path) {
+                        try fileManager.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+                        // Atomic copy permits safe retry after an interrupted migration.
+                        try Data(contentsOf: source).write(to: destination, options: .atomic)
+                    }
+                    migrated = favorite.withLocalImagePath(relative)
+                }
+                merged.append(migrated)
+            }
+            state.accounts[ownerID] = merged
+            state.legacyOwner = ownerID
+            // One write commits ownership and metadata only after all image copies succeed.
+            // The legacy key and original images remain unchanged as recovery backups.
+            try writeOwners(state)
         }
+        return state.accounts[ownerID] ?? []
     }
 
     private func makeSafeFileName(from source: String) -> String {

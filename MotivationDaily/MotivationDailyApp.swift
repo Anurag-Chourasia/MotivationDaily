@@ -1,6 +1,7 @@
 import DesignTokensKit
 import SwiftUI
 import AuthKitUI
+import AuthKit
 import LocalizationKit
 
 extension LocalizationController: AuthLocalizing {}
@@ -41,8 +42,10 @@ struct MotivationDailyApp: App {
     }
 
     private var authenticatedContent: some View {
-        AppAuthGate(brand: .motivationDaily, localizer: container.localization) { _, _ in
-            HomeView(quoteVM: container.makeQuoteViewModel(), pageVM: container.makeFeedPageViewModel())
+        AppAuthGate(brand: .motivationDaily, localizer: container.localization) { user, _ in
+            let accountContainer = AppContainer(favoritesOwnerID: user.id, imageLoader: container.imageLoader)
+            HomeView(quoteVM: accountContainer.makeQuoteViewModel(), pageVM: accountContainer.makeFeedPageViewModel())
+                .id(user.id)
         }
     }
 
