@@ -4,6 +4,7 @@ import DesignTokensKit
 
 struct FavoriteListView: View {
     @ObservedObject var quoteVM: QuoteViewModel
+    var imageLoader: any ImageLoading = ImageLoader.shared
     let onImageTap: (FavoriteQuote) -> Void
 
     var body: some View {
@@ -15,6 +16,7 @@ struct FavoriteListView: View {
                     FavoriteCellView(
                         favorite: favorite,
                         imageURL: imageURL,
+                        imageLoader: imageLoader,
                         onImageTap: { onImageTap(favorite) },
                         onToggleFavorite: { quoteVM.removeFromFavorites(favorite.id) },
                         onImageDataResolved: { imageData in

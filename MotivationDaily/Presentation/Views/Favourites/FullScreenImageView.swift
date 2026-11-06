@@ -7,6 +7,7 @@ import LocalizationKit
 struct FullScreenImageView: View {
     let favorite: FavoriteQuote?
     let favoriteImage: UIImage?
+    var imageLoader: any ImageLoading = ImageLoader.shared
     @Binding var isPresented: Bool
     let onImageDataResolved: ((String, Data) -> Void)?
 
@@ -235,21 +236,14 @@ struct FullScreenImageView: View {
             return
         }
 
-        if let cached = LightImageCache.shared.image(for: url) {
-            displayedImage = cached
-            isLoadingImage = false
-            persistImageIfNeeded(cached)
-            return
-        }
-
         isLoadingImage = true
         loadTask = Task {
-            let cachedOnlyImage = await ImageLoader.shared.cachedImage(for: url)
+            let cached = await imageLoader.cachedImage(for: url)
             if Task.isCancelled { return }
             await MainActor.run {
-                if let cachedOnlyImage {
-                    displayedImage = cachedOnlyImage
-                    persistImageIfNeeded(cachedOnlyImage)
+                if let cached {
+                    displayedImage = cached
+                    persistImageIfNeeded(cached)
                 }
                 isLoadingImage = false
             }

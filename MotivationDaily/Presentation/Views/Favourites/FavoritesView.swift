@@ -5,6 +5,7 @@ import LocalizationKit
 
 struct FavoritesView: View {
     @ObservedObject var quoteVM: QuoteViewModel
+    var imageLoader: any ImageLoading = ImageLoader.shared
     @Environment(\.dismiss) private var dismiss
     @Environment(\.motivationL10n) private var l10n
 
@@ -19,6 +20,7 @@ struct FavoritesView: View {
                 } else {
                     FavoriteListView(
                         quoteVM: quoteVM,
+                        imageLoader: imageLoader,
                         onImageTap: { favorite in
                             selectedFavorite = favorite
                             showFullScreen = true
@@ -56,6 +58,7 @@ struct FavoritesView: View {
                 FullScreenImageView(
                     favorite: selectedFavorite,
                     favoriteImage: nil,
+                    imageLoader: imageLoader,
                     isPresented: $showFullScreen,
                     onImageDataResolved: { quoteID, imageData in
                         quoteVM.cacheFavoriteImageIfNeeded(quoteID: quoteID, imageData: imageData)

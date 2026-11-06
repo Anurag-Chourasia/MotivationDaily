@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 final class DefaultFavoritesRepository: FavoritesRepository {
     private let userDefaults: UserDefaults
@@ -44,6 +45,16 @@ final class DefaultFavoritesRepository: FavoritesRepository {
         }
     }
 
+    private func ensureImagesDirectoryExists() throws {
+        if !fileManager.fileExists(atPath: imagesDirectoryURL.path) {
+            do {
+                try fileManager.createDirectory(at: imagesDirectoryURL, withIntermediateDirectories: true)
+            } catch {
+                throw AppError.storage("Failed to prepare image storage: \(error.localizedDescription)")
+            }
+        }
+    }
+
     func loadFavorites() throws -> [FavoriteQuote] {
         if let ownerID { return try loadOwnedFavorites(ownerID: ownerID) }
         let key = try readOwners().legacyOwner == nil ? storageKey : guestKey
@@ -76,9 +87,15 @@ final class DefaultFavoritesRepository: FavoritesRepository {
                 return item
             }
             if needsMigration {
-                try? saveFavorites(normalized)
+                do {
+                    try saveFavorites(normalized)
+                } catch {
+                    AppRuntime.logger.log("Non-fatal: failed to persist normalized favorites: \(error.localizedDescription)", level: .warning)
+                }
             }
             return normalized
+        } catch let appError as AppError {
+            throw appError
         } catch {
             throw AppError.storage("Failed to decode favorites: \(error.localizedDescription)")
         }
@@ -96,19 +113,15 @@ final class DefaultFavoritesRepository: FavoritesRepository {
                 let key = try readOwners().legacyOwner == nil ? storageKey : guestKey
                 userDefaults.set(encoded, forKey: key)
             }
+        } catch let appError as AppError {
+            throw appError
         } catch {
             throw AppError.storage("Failed to save favorites: \(error.localizedDescription)")
         }
     }
 
     func storeImageData(_ data: Data, for quoteID: String) throws -> String {
-        if !fileManager.fileExists(atPath: imagesDirectoryURL.path) {
-            do {
-                try fileManager.createDirectory(at: imagesDirectoryURL, withIntermediateDirectories: true)
-            } catch {
-                throw AppError.storage("Failed to prepare image storage: \(error.localizedDescription)")
-            }
-        }
+        try ensureImagesDirectoryExists()
 
         let safeName = makeSafeFileName(from: quoteID)
         let fileName = imagePrefix + "\(safeName).jpg"

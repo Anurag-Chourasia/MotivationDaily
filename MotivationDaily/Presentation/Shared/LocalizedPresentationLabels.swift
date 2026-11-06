@@ -92,3 +92,18 @@ extension AppError {
         }
     }
 }
+
+extension QuoteSource {
+    var titleKeyPath: KeyPath<MotivationStrings, String> {
+        switch self {
+        case .zenQuotes:
+            return \.sourceZenQuotes
+        case .quotable:
+            return \.sourceQuotable
+        case .quoteGarden:
+            return \.sourceQuoteGarden
+        case .adviceSlip:
+            return \.sourceAdviceSlip
+        }
+    }
+}
