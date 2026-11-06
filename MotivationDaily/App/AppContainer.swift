@@ -22,6 +22,7 @@ final class AppContainer {
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments,
          favoritesDefaults: UserDefaults = .standard,
+         favoritesOwnerID: UUID? = nil,
          imageLoader: any ImageLoading = ImageLoader.shared) {
         self.imageLoader = imageLoader
         self.localization = LocalizationController(initialLocale: .current)
@@ -95,7 +96,7 @@ final class AppContainer {
         )
         #endif
 
-        let favoritesRepository = DefaultFavoritesRepository(userDefaults: favoritesDefaults)
+        let favoritesRepository = DefaultFavoritesRepository(userDefaults: favoritesDefaults, ownerID: favoritesOwnerID)
         #if DEBUG
         if isUITestMode {
             if arguments.contains("-UITestClearFavorites") {
