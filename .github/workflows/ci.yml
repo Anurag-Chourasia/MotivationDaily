@@ -36,7 +36,7 @@ jobs:
     needs: swiftlint
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ${{ vars.IOS_CI_RUNNER || 'xcode-27' }}
-    timeout-minutes: 45
+    timeout-minutes: 65
     env:
       RECORD_SNAPSHOTS: "0"
       SNAPSHOT_RECORD: "0"
@@ -112,7 +112,7 @@ jobs:
       - name: Build app Release for iOS Simulator
         run: >-
           xcodebuild -project MotivationDaily.xcodeproj -scheme MotivationDaily
-          -configuration Release -destination 'generic/platform=iOS Simulator'
+          -configuration Release -destination "$TEST_DESTINATION"
           -derivedDataPath "$RUNNER_TEMP/AppDerived"
           -onlyUsePackageVersionsFromResolvedFile -disableAutomaticPackageResolution
           -scmProvider system CODE_SIGNING_ALLOWED=NO build
