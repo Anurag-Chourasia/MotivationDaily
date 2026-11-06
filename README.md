@@ -1,5 +1,7 @@
 # Motivation Daily 🌟
 
+Architecture and ownership: [portfolio master document](https://app.notion.com/p/40ffa5f855b98192ad2ede66a5d36fe7).
+
 ## Reproduce the simulator build
 
 On a Mac with Xcode 27, its iOS Simulator SDK, Python 3, and GitHub access to the private dependencies, run `bash Scripts/bootstrap.sh` from a fresh checkout. Set `DEVELOPER_DIR` to your Xcode installation if needed. The command initializes submodules, verifies the checked-in dependency revisions, resolves those revisions and builds Debug. Use `BUILD_CONFIGURATION=Release bash Scripts/bootstrap.sh` for Release. The build uses unsigned simulator compilation. Runtime authentication verification requires a signed test host.
@@ -205,7 +207,7 @@ Active technical debt backlog and tracking with dual evaluation:
 
 ## 📦 Modular SPM Packages Ecosystem
 
-`Motivation Daily` consumes modular Swift Package Manager (SPM) libraries to enforce strict separation of concerns, eliminate duplicate assets/code, and share common capabilities across apps:
+This table is a historical package inventory. Current pins are maintained in `Scripts/dependencies.json`; current ownership and architecture are maintained in the portfolio master document linked above.
 
 | Package | Pin / Revision | Responsibility & Consumption |
 | :--- | :--- | :--- |
@@ -216,7 +218,7 @@ Active technical debt backlog and tracking with dual evaluation:
 | **`UIComponentsKit`** | `1.2.0` (`0fcdd71`) | Accessible and token-driven UI widgets: `StateMessage` (empty favorites), `IconMessageBanner` (connectivity warning), and `CenteredProgressOverlay` (loading states). |
 | **`DeveloperProfileKit`** | `1.0.0` (`d418170`) | Reusable `DeveloperProfileView` for the About sheet, bundling bio metadata (`DeveloperAppInfo`), contact links, and asset catalogs (`Anurag`, `CV`, `GitHub`, `LinkedIn`, `Gmail`). |
 | **`SnapshotTestKit`** | `1.0.2` (`121e979`) | Cross-variant snapshot test harness (`SnapshotAssert.assertVariants`) covering Light, Dark, and Dynamic Type / Accessibility modes. |
-| **`AppStubData`** | `Submodules/AppStubData` (`903da26`) | Pinned local submodule with deterministic JSON fixtures (`.positive`, `.empty`, `.negative`) for offline mock providers and tests. |
+| **`AppStubData`** | `Submodules/AppStubData` (`73c35f6`) | Pinned local submodule with deterministic JSON fixtures (`.positive`, `.empty`, `.negative`) for offline mock providers and tests. |
 
 ---
 
@@ -254,9 +256,9 @@ SWIFTLINT_BIN="$PWD/.build/swiftlint/swiftlint" bash Scripts/lint.sh
 
 ## 📦 Shared Stub Data Submodule
 
-All three apps retain AppStubData as a Git submodule pinned to `903da26b9eb10519dd7f7748f62f4801b26579fe`. Motivation Daily does not link or import its Swift package. Its unit-test target copies the pinned submodule’s Resources folder into the test bundle; the test-only MotivationDailyStubProvider decodes positive, empty and negative JSON scenarios. Production app targets receive neither this provider nor these resources.
+All three apps pin AppStubData at `73c35f6239003b2bce100fdae2caf35e012bbe8b` and consume resources without linking its Swift module. Motivation’s unit-test target copies the endpoint JSON into its test bundle; its test-only decoder covers positive, empty and negative scenarios. The app copies only its UI fixture catalog in Debug, with host-owned decoding and image generation.
 
-UI-test arguments, generated fixture repositories and favorites seed/clear behavior are compiled only in Debug. Release ignores these arguments; CI verifies both behavior and artifact boundaries.
+UI-test arguments, fixture catalog loading, image generators and favorites seed/clear behavior are compiled only in Debug. Release excludes shared fixture resources and ignores these arguments; CI verifies both behavior and artifact boundaries.
 
 ### Submodule Verification & Tests
 Verify pinned submodule commit and test fixtures decoding:
