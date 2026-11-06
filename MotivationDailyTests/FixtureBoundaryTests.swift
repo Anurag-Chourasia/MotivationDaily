@@ -35,4 +35,27 @@ final class FixtureBoundaryTests: XCTestCase {
         XCTAssertEqual(try repository.loadFavorites(), [favorite])
         #endif
     }
+    #if DEBUG
+    func testDebugAppCatalogMatchesPinnedTestResources() throws {
+        let appURL = try XCTUnwrap(Bundle.main.url(forResource: "motivationdaily-ui-fixtures", withExtension: "json",
+                                                  subdirectory: "DeveloperFixtures"))
+        let testURL = try XCTUnwrap(Bundle(for: FixtureBoundaryTests.self).url(
+            forResource: "motivationdaily-ui-fixtures", withExtension: "json", subdirectory: "Resources"))
+        XCTAssertEqual(try Data(contentsOf: appURL), try Data(contentsOf: testURL))
+        let catalog = try UITestFixtureCatalog.load()
+        XCTAssertEqual(catalog.randomQuoteCount, 24)
+        XCTAssertEqual(catalog.categories.map(\.key), ["focus", "growth"])
+        XCTAssertEqual(catalog.gradientPalettes.count, 4)
+    }
+
+    func testMalformedOrInvalidFixtureCatalogIsRejected() throws {
+        XCTAssertThrowsError(try UITestFixtureCatalog.decode(Data("{}".utf8)))
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "motivationdaily-ui-fixtures", withExtension: "json",
+                                               subdirectory: "DeveloperFixtures"))
+        var invalid = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        invalid["gradientPalettes"] = []
+        XCTAssertThrowsError(try UITestFixtureCatalog.decode(JSONSerialization.data(withJSONObject: invalid)))
+    }
+    #endif
+
 }

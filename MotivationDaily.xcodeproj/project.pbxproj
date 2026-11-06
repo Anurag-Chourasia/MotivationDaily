@@ -204,6 +204,7 @@
 				344A41682EC37AE100B74E80 /* Sources */,
 				344A41692EC37AE100B74E80 /* Frameworks */,
 				344A416A2EC37AE100B74E80 /* Resources */,
+				9679313A7DA64E43AB6AE3F6 /* Copy Debug fixture resources */,
 			);
 			buildRules = (
 			);
@@ -383,6 +384,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9679313A7DA64E43AB6AE3F6 /* Copy Debug fixture resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = (
+				"$(SRCROOT)/Scripts/copy-developer-fixtures.sh",
+				"$(SRCROOT)/Submodules/AppStubData/Sources/AppStubData/Resources/motivationdaily-ui-fixtures.json",
+			);
+			name = "Copy Debug fixture resources";
+			outputPaths = ("$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/DeveloperFixtures",);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "sh \"${SRCROOT}/Scripts/copy-developer-fixtures.sh\"";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		344A41682EC37AE100B74E80 /* Sources */ = {

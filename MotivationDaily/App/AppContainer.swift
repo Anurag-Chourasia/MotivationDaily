@@ -143,10 +143,11 @@ final class AppContainer {
 
     #if DEBUG
     private static func seedUITestFavoritesIfNeeded(using favoritesRepository: any FavoritesRepository) {
+        let fixture = UITestFixtureCatalog.current
         let seedFavorite = FavoriteQuote(
-            id: "uitest-seed-favorite",
-            text: "Keep going. One step at a time.",
-            author: "MotivationDaily",
+            id: fixture.favorite.id,
+            text: fixture.favorite.text,
+            author: fixture.author,
             source: .adviceSlip,
             categoryKey: nil,
             imageURL: nil,
@@ -194,7 +195,7 @@ actor UITestWallpaperRepository: WallpaperRepository {
         let quote = Quote(
             id: "uitest-\(categoryRaw)-\(quoteIndex)",
             text: "\(categoryRaw.capitalized) quote #\(quoteIndex)",
-            author: "MotivationDaily",
+            author: UITestFixtureCatalog.current.author,
             source: category == nil ? .zenQuotes : .quotable,
             categoryKey: category
         )
@@ -228,14 +229,8 @@ actor UITestWallpaperRepository: WallpaperRepository {
         categoryRaw: String
     ) throws {
         let size = CGSize(width: width, height: height)
-        let palette: [[UIColor]] = [
-            [UIColor(red: 0.07, green: 0.10, blue: 0.18, alpha: 1), UIColor(red: 0.25, green: 0.37, blue: 0.56, alpha: 1)],
-            [UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1), UIColor(red: 0.34, green: 0.18, blue: 0.24, alpha: 1)],
-            [UIColor(red: 0.07, green: 0.15, blue: 0.16, alpha: 1), UIColor(red: 0.12, green: 0.35, blue: 0.30, alpha: 1)],
-            [UIColor(red: 0.10, green: 0.08, blue: 0.18, alpha: 1), UIColor(red: 0.24, green: 0.22, blue: 0.48, alpha: 1)]
-        ]
         let seed = categoryRaw.unicodeScalars.reduce(0) { $0 + Int($1.value) }
-        let colors = palette[seed % palette.count]
+        let colors = UITestFixtureCatalog.current.palette(for: seed)
 
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1

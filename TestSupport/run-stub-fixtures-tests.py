@@ -28,4 +28,8 @@ for endpoint in ("quotes", "authors", "wallpapers"):
             assert value == [], path
         else:
             assert isinstance(value, dict) and value, path
-print("Nine fixture payloads valid; submodule pinned; resources test-only; no local SPM linkage.")
+print("Nine fixture payloads valid; submodule pinned; endpoint resources test-only; no local SPM linkage.")
+
+catalog = json.loads((resources / "motivationdaily-ui-fixtures.json").read_text())
+assert catalog["gradientPalettes"] and catalog["randomQuoteCount"] > 0
+assert any(obj.get("name") == "Copy Debug fixture resources" for obj in project.values())

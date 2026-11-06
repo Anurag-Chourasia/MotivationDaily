@@ -36,8 +36,9 @@ extension FeedCatalogueStore {
         let imagesDirectory = cacheRoot.appendingPathComponent("images", isDirectory: true)
         try? fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
 
+        let fixture = UITestFixtureCatalog.current
         var images: [CatalogueImageMeta] = []
-        for index in 0..<24 {
+        for index in 0..<fixture.randomQuoteCount {
             let width = index.isMultiple(of: 2) ? 900 : 1200
             let height = index.isMultiple(of: 2) ? 1600 : 800
             let fileURL = imagesDirectory.appendingPathComponent("uitest-image-\(index).jpg")
@@ -47,7 +48,7 @@ extension FeedCatalogueStore {
 
             let meta = CatalogueImageMeta(
                 id: "uitest-\(index)",
-                author: "MotivationDaily",
+                author: fixture.author,
                 width: width,
                 height: height,
                 url: fileURL,
@@ -56,49 +57,26 @@ extension FeedCatalogueStore {
             images.append(meta)
         }
 
-        let randomQuotes = (0..<24).map { index in
+        let randomQuotes = (0..<fixture.randomQuoteCount).map { index in
             Quote(
                 id: "uitest-random-\(index)",
                 text: "Random quote #\(index + 1)",
-                author: "MotivationDaily",
+                author: fixture.author,
                 source: .zenQuotes,
                 categoryKey: nil
             )
         }
 
-        let focusKey = "focus"
-        let growthKey = "growth"
-
-        let focusQuotes = (0..<30).map { index in
-            Quote(
-                id: "uitest-focus-\(index)",
-                text: "Focus quote #\(index + 1)",
-                author: "MotivationDaily",
-                source: .quotable,
-                categoryKey: CategoryKey(rawValue: focusKey)
-            )
+        let categories = fixture.categories.map {
+            CatalogueCategory(keyRawValue: $0.key, displayName: $0.name, quoteCount: $0.quoteCount)
         }
-
-        let growthQuotes = (0..<30).map { index in
-            Quote(
-                id: "uitest-growth-\(index)",
-                text: "Growth quote #\(index + 1)",
-                author: "MotivationDaily",
-                source: .quotable,
-                categoryKey: CategoryKey(rawValue: growthKey)
-            )
+        var quotesByCategory = [Snapshot.randomKey: randomQuotes]
+        for category in fixture.categories {
+            quotesByCategory[category.key] = (0..<category.quoteCount).map { index in
+                Quote(id: "uitest-\(category.key)-\(index)", text: "\(category.name) quote #\(index + 1)",
+                      author: fixture.author, source: .quotable, categoryKey: CategoryKey(rawValue: category.key))
+            }
         }
-
-        let categories: [CatalogueCategory] = [
-            CatalogueCategory(keyRawValue: focusKey, displayName: "Focus", quoteCount: focusQuotes.count),
-            CatalogueCategory(keyRawValue: growthKey, displayName: "Growth", quoteCount: growthQuotes.count)
-        ]
-
-        let quotesByCategory: [String: [Quote]] = [
-            Snapshot.randomKey: randomQuotes,
-            focusKey: focusQuotes,
-            growthKey: growthQuotes
-        ]
 
         return Snapshot(
             categories: categories,
@@ -111,13 +89,7 @@ extension FeedCatalogueStore {
 
     private static func renderUITestImage(at url: URL, width: Int, height: Int, seed: Int) throws {
         let size = CGSize(width: max(width, 1), height: max(height, 1))
-        let palette: [[UIColor]] = [
-            [UIColor(red: 0.07, green: 0.10, blue: 0.18, alpha: 1), UIColor(red: 0.25, green: 0.37, blue: 0.56, alpha: 1)],
-            [UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1), UIColor(red: 0.34, green: 0.18, blue: 0.24, alpha: 1)],
-            [UIColor(red: 0.07, green: 0.15, blue: 0.16, alpha: 1), UIColor(red: 0.12, green: 0.35, blue: 0.30, alpha: 1)],
-            [UIColor(red: 0.10, green: 0.08, blue: 0.18, alpha: 1), UIColor(red: 0.24, green: 0.22, blue: 0.48, alpha: 1)]
-        ]
-        let colors = palette[abs(seed) % palette.count]
+        let colors = UITestFixtureCatalog.current.palette(for: seed)
 
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
