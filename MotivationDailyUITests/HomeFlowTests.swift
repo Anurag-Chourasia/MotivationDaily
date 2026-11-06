@@ -118,7 +118,7 @@ final class HomeFlowTests: UITestBase {
 
         for _ in 0..<3 {
             let instance = XCUIApplication()
-            instance.launchArguments = ["-developer.authentication", "NO"]
+            instance.launchArguments = ["-developer.authentication", "NO", "-developer.source", "stub"]
             instance.launch()
             let openApp = instance.buttons["developer-open-app"]
             XCTAssertTrue(openApp.waitForExistence(timeout: 10))
