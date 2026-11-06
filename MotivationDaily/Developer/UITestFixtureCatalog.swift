@@ -44,8 +44,10 @@ nonisolated struct UITestFixtureCatalog: Decodable, Sendable {
     }
 
     func palette(for seed: Int) -> [UIColor] {
-        gradientPalettes[Int(seed.magnitude % UInt(gradientPalettes.count))].map {
-            UIColor(red: CGFloat($0[0]), green: CGFloat($0[1]), blue: CGFloat($0[2]), alpha: CGFloat($0[3]))
+        let paletteIndex = Int(seed.magnitude % UInt(gradientPalettes.count))
+        return gradientPalettes[paletteIndex].map { components in
+            let ciColor = CIColor(red: CGFloat(components[0]), green: CGFloat(components[1]), blue: CGFloat(components[2]), alpha: CGFloat(components[3]))
+            return UIColor(ciColor: ciColor)
         }
     }
 }
