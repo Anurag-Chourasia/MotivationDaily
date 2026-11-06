@@ -41,6 +41,7 @@ xcrun xcodebuild test -project MotivationDaily.xcodeproj -scheme MotivationDaily
     -only-testing:MotivationDailyTests/FixtureBoundaryTests \
     -only-testing:MotivationDailyTests/AuthenticationFlagTests \
     -only-testing:MotivationDailyTests/DataTests \
+    -only-testing:MotivationDailyTests/AccountFavoritesTests \
     -only-testing:MotivationDailyTests/DomainTests \
     -only-testing:MotivationDailyTests/PrivacyManifestTests \
     -only-testing:MotivationDailyTests/ViewModelTests \

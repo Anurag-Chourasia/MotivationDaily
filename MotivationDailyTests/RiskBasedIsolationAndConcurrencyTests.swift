@@ -28,8 +28,8 @@ final class RiskBasedIsolationAndConcurrencyTests: XCTestCase {
     // MARK: - Account Isolation & Multi-User Favorites
 
     func testUserAccountSwitchingIsolatesFavoritesRepository() throws {
-        let repoA = DefaultFavoritesRepository(userDefaults: defaults, storageKey: "favs_user_A")
-        let repoB = DefaultFavoritesRepository(userDefaults: defaults, storageKey: "favs_user_B")
+        let repoA = DefaultFavoritesRepository(userDefaults: defaults, ownerID: UUID())
+        let repoB = DefaultFavoritesRepository(userDefaults: defaults, ownerID: UUID())
 
         let quoteA = Quote(id: "quote-A", text: "Courage is resistance to fear.", author: "Mark Twain", source: .zenQuotes, categoryKey: nil)
         let favoriteA = FavoriteQuote(from: quoteA, imageURL: nil, localImagePath: nil, ratioRawValue: "1:1", imageWidth: 200, imageHeight: 200)

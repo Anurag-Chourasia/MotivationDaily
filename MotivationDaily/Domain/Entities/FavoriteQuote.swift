@@ -63,8 +63,14 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
         )
     }
 
+    func withLocalImagePath(_ path: String) -> FavoriteQuote {
+        FavoriteQuote(id: id, text: text, author: author, source: source, categoryKey: categoryKey,
+                      imageURL: imageURL, localImagePath: path, ratioRawValue: ratioRawValue,
+                      imageWidth: imageWidth, imageHeight: imageHeight, savedDate: savedDate)
+    }
+
     var resolvedLocalImageURL: URL? {
-        guard let localImagePath, !localImagePath.isEmpty else { return nil }
+        guard let localImagePath, !localImagePath.isEmpty, !localImagePath.contains("..") else { return nil }
 
         let filename = localImagePath.hasPrefix("/")
             ? URL(fileURLWithPath: localImagePath).lastPathComponent
