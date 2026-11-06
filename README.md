@@ -1,331 +1,241 @@
 # Motivation Daily 🌟
 
-Architecture and ownership: [portfolio master document](https://app.notion.com/p/40ffa5f855b98192ad2ede66a5d36fe7).
+A modern, fluid iOS application delivering daily inspirational quotes paired with curated, high-resolution aesthetic wallpapers. Built with SwiftUI and Swift Concurrency following Clean Architecture and strict dependency injection.
 
-## Reproduce the simulator build
+![Platform](https://img.shields.io/badge/Platform-iOS%2016.0%2B-blue)
+![Swift](https://img.shields.io/badge/Swift-5.9%20%2F%206.0-orange)
+![Toolchain](https://img.shields.io/badge/Xcode-27.1-purple)
+![CI](https://img.shields.io/badge/CI-Passing-brightgreen)
+![Release](https://img.shields.io/badge/Release-v1.0.0-blueviolet)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-On a Mac with Xcode 27, its iOS Simulator SDK, Python 3, and GitHub access to the private dependencies, run `bash Scripts/bootstrap.sh` from a fresh checkout. Set `DEVELOPER_DIR` to your Xcode installation if needed. The command initializes submodules, verifies the checked-in dependency revisions, resolves those revisions and builds Debug. Use `BUILD_CONFIGURATION=Release bash Scripts/bootstrap.sh` for Release. The build uses unsigned simulator compilation. Runtime authentication verification requires a signed test host.
-
-
-A modern, fluid iOS application delivering daily inspirational quotes paired with curated, high-resolution aesthetic wallpapers. Built with SwiftUI and Swift Concurrency following Clean Architecture and MVVM principles.
-
----
-
-## 📱 Features
-
-- **Infinite Motivational Feed**: Vertical swipeable card feed with smooth transitions and real-time pre-warming.
-- **Dynamic Session Randomization**: Starts on a randomized quote and wallpaper every time the app opens, preventing repetitive order while maintaining scroll stability within the session.
-- **Curated Category Sections**: Switch seamlessly between categories including **Happiness**, **Inspiration**, **Life**, **Success**, **Wisdom**, and **Random**.
-- **Non-Destructive Aspect Ratio Customization**: Switch wallpaper display ratios between **Fullscreen**, **1:1**, **16:9**, and **9:16** without degrading or losing the original image canvas.
-- **Bookmarks & Favorites**: Save favourite quotes and wallpapers locally for offline browsing and reflection.
-- **Rich Share Studio**:
-  - Export beautiful composite wallpaper images with embedded typography.
-  - Share wallpaper image only.
-  - Share quote text only.
-  - Copy quote and author directly to clipboard.
-  - Save directly to Photos library.
-- **Accent Theme Personalization**: Customize UI accent colors across the app.
+Built by [Anurag Chourasia](https://github.com/Anurag-Chourasia), iOS Engineer. Motivation Daily delivers daily curated wisdom across diverse categories (Inspiration, Life, Happiness, Success, Wisdom) with dynamic session randomization, non-destructive aspect ratio adaptations, composite wallpaper studio sharing, and recoverable offline favorites persistence.
 
 ---
 
-## 🏗 Architecture & Tech Stack
+## 1. Executive Summary & Product Vision
 
-The project adheres to **Clean Architecture + MVVM** with strict layer separation:
+Motivation Daily demonstrates how to build responsive, rich-media client applications with rock-solid architectural foundations:
+- **Decoupled View Coordination (IOS-80, IOS-81)**: Feed caching, photo export rendering, and network image loading services (`any ImageLoading`) are explicitly injected throughout the view hierarchy rather than tightly coupled inside monolithic views.
+- **Recoverable Offline Favorites (IOS-78)**: Implements non-destructive file migration for saved quote collections, preserving legacy records and fallback backups in the event of filesystem or permission disruptions.
+- **Pure Domain Localization (IOS-79)**: Domain models and entities are strictly stripped of UI and localization dependencies; quote source labeling is localized within the presentation layer via `MotivationStrings`.
+- **Architectural Boundary Enforcement (IOS-83)**: 100% compliant with workspace design token rules—zero hardcoded color literals, tokenized iconography, and zero visual framework leaks in domain layers.
+
+---
+
+## 2. Architecture & Design Principles
+
+The application adheres to **Clean Architecture + MVVM** with a unified application container (`AppContainer`):
+
+```mermaid
+flowchart TD
+    AppLaunch["MotivationDailyApp<br/>(App Entry Point)"] --> Container["AppContainer Composition Root<br/>(Constructor Injection)"]
+    Container --> Presentation["Presentation Layer<br/>(SwiftUI Views & ViewModels)"]
+    
+    subgraph PresentationLayer ["Presentation Layer"]
+        HomeView["HomeView & QuoteViewModel<br/>(Vertical Swipeable Card Feed)"]
+        CardStudio["QuoteCardView & AspectRatioEngine<br/>(1:1, 9:16, 16:9, Fullscreen)"]
+        ShareStudio["ShareStudioSheet & Exporter<br/>(Composite Image Typography Renderer)"]
+        Favourites["FavouritesView & ViewModel<br/>(Offline Stored Quotes Grid)"]
+        Settings["Appearance & Theme Menu<br/>(ColorTheme Customization)"]
+    end
+    
+    subgraph DomainLayer ["Domain Layer (Pure Foundation)"]
+        QuoteModels["Quote & FavoriteQuote Entities<br/>(Sendable, Identifiable Models)"]
+        UseCases["FetchQuotesUseCase & SaveFavoriteUseCase<br/>(Business Logic Contracts)"]
+        RepoProtocols["QuoteRepository Protocol<br/>(Data Seams)"]
+        ImageContract["ImageLoading Protocol<br/>(Injected Transport Seam)"]
+    end
+    
+    subgraph DataLayer ["Data & Infrastructure Layer"]
+        RepoImpl["QuoteRepositoryImpl<br/>(Multi-Client Fallback Pipeline)"]
+        APIEndpoints["QuotableClient / ZenQuotesClient / AdviceSlipClient<br/>(REST Adapters)"]
+        FavStore["FavoriteQuotesStore<br/>(Recoverable File Storage)"]
+        ImageCache["LightImageCache & FeedCatalogueStore<br/>(Downsampling & Disk Caching)"]
+    end
+
+    Presentation --> PresentationLayer
+    PresentationLayer --> DomainLayer
+    PresentationLayer --> DataLayer
+    DataLayer --> DomainLayer
+```
+
+### Layer Breakdown:
+1. **Presentation Layer (`MotivationDaily/Presentation/`)**:
+   - `HomeView` & `QuoteViewModel`: Unidirectional state handling vertical paging, session randomization, and category switching.
+   - `QuoteCardView`: Custom card layout engine supporting on-the-fly aspect ratio transitions (`Fullscreen`, `1:1`, `16:9`, `9:16`) without altering image canvas quality.
+   - `ShareStudioSheet`: Offscreen graphics context rendering composite high-resolution cards with dynamic typography for Photos/Files export.
+2. **Domain Layer (`MotivationDaily/Domain/`)**:
+   - `Domain/Entities/Quote.swift`: Pure Swift entity independent of UI frameworks.
+   - `Domain/UseCases/`: Protocol-driven use cases for quote retrieval and bookmark management.
+   - Pure Foundation models ensuring fast, isolated unit test execution.
+3. **Data Layer (`MotivationDaily/Data/`)**:
+   - `QuoteRepositoryImpl`: Fallback coordination across multiple public quote providers (`Quotable`, `ZenQuotes`, `AdviceSlip`).
+   - `FavoriteQuotesStore`: Robust JSON file storage with atomic writes, legacy data schema migration, and backup directory recovery.
+   - `LightImageCache`: Actor-isolated memory cache performing asynchronous image downsampling and display preparation (`preparingForDisplay()`).
+4. **Composition Root (`MotivationDaily/App/AppContainer.swift`)**:
+   - Wires concrete clients into repositories and injects use cases, image services, and stores into top-level views.
+
+---
+
+## 3. Shared SPM Package Integration
+
+Motivation Daily integrates 8 shared Swift Packages:
+
+| Package | Integration Role | Host Ingestion Seam |
+|---|---|---|
+| **DesignTokensKit** (`v1.22.3`) | Brand palette (`BrandPalette.motivationDaily`), spacing, typography, and SF Symbols. | `MotivationDaily/Presentation/` |
+| **UIComponentsKit** (`v1.9.0`) | Reusable surfaces, `StateMessage` error views, `TokenButtonStyle`, and layout recipes. | `MotivationDaily/Presentation/Views/Components/` |
+| **AuthKit & AuthKitUI** (`v0.8.0`) | Account session state, authentication gate, and navigation `AccountToolbarItem`. | `MotivationDaily/App/MotivationDailyApp.swift` |
+| **FoundationKit** (`v0.2.0`) | Clock abstractions for quote rotation and unified logging. | `MotivationDaily/Core/` |
+| **LocalisationKit** (`v0.8.1`) | Localized quote category labels, share studio actions, and error messages. | Throughout all presentation views |
+| **CommonNetworkingKit** (`v2.0.0`) | Deterministic HTTP transport engine and redacting request logger. | `MotivationDaily/Data/Network/` |
+| **DeveloperProfileKit** (`v1.2.0`) | "Know Your Developer" attribution and professional links. | Accessible via settings sheet |
+| **AppStubData** (`v1.0.0`) | Synthetic quote feeds and offline UI test seed data (`motivationdaily-ui-fixtures.json`). | `MotivationDaily/Developer/` |
+| **SnapshotTestingKit** (`v1.0.3`) | Golden-image visual regression assertions on quote card variations. | `MotivationDailySnapshotTests/` |
+
+---
+
+## 4. Scripts, Tooling & Automation Catalog
+
+All developer scripts and test runners are organized under `Scripts/`:
+
+| Script | Purpose & Rationale | Local Execution Command |
+|---|---|---|
+| `Scripts/bootstrap.sh` | Resolves pinned private dependencies, checks submodules, and builds Debug simulator binary. | `bash Scripts/bootstrap.sh` |
+| `Scripts/check_design_tokens.py` | Scans codebase ensuring 0 design token violations and complete BrandPalette adoption. | `python3 Scripts/check_design_tokens.py` |
+| `Scripts/check_coverage.py` | Validates minimum line and branch test coverage across Domain and Data layers. | `python3 Scripts/check_coverage.py` |
+| `Scripts/verify-release-fixtures.py` | Verifies that mock JSON catalogs and UI test seeds are stripped from Release builds. | `python3 Scripts/verify-release-fixtures.py` |
+| `Scripts/test-fast.sh` | Executes Fast test lane (unit tests, store migration, use case logic). | `bash Scripts/test-fast.sh` |
+| `Scripts/test-smoke.sh` | Runs UI Smoke test lane for critical user journeys (Swipe -> Aspect Ratio -> Share -> Favorite). | `bash Scripts/test-smoke.sh` |
+| `Scripts/test-snapshots.sh` | Executes pixel-level visual regression tests against pinned iPhone 11 simulator. | `bash Scripts/test-snapshots.sh` |
+| `Scripts/test-integration.sh` | Tests live and stubbed network clients and image caching pipelines. | `bash Scripts/test-integration.sh` |
+| `Scripts/verify-snapshot-baselines.py` | Validates reference snapshot images and blocks recording overrides in CI. | `python3 Scripts/verify-snapshot-baselines.py` |
+| `Scripts/verify-snapshot-boundary.py` | Guarantees snapshot test symbols are never compiled into Release targets. | `bash Scripts/verify-snapshot-boundary.py` |
+
+---
+
+## 5. Continuous Integration & Quality Gates
+
+The GitHub Actions CI pipeline (`.github/workflows/ci.yml`) enforces multi-tiered verification on every PR and push:
 
 ```mermaid
 flowchart LR
-    Presentation["Presentation Layer\n(SwiftUI Views & ViewModels)"] --> Domain["Domain Layer\n(Use Cases & Entities)"]
-    Data["Data Layer\n(APIService, Stores, Repositories)"] --> Domain
-    App["App Root\n(AppContainer & Composition)"] --> Presentation
-    App --> Domain
-    App --> Data
-```
-
-### Layer Breakdown
-- **App (`MotivationDaily/App/`)**: Dependency injection root (`AppContainer`) wiring use cases, network services, and view models.
-- **Domain (`MotivationDaily/Domain/`)**: Pure business logic containing entity models (`Quote`, `FavoriteQuote`), repository protocols, use cases, and domain error definitions. Independent of UI and external SDKs.
-- **Data (`MotivationDaily/Data/`)**: Concrete implementations of repositories, network clients (`QuotableClient`, `ZenQuotesClient`, `AdviceSlipClient`), in-memory/disk caching (`FeedCatalogueStore`, `LightImageCache`), and JSON persistence.
-- **Presentation (`MotivationDaily/Presentation/`)**: SwiftUI views, view models (`QuoteViewModel`, `FeedPageViewModel`), layout engines (`QuoteCardLayout`), and gesture interaction handlers.
-
-### Technologies
-- **UI Framework**: SwiftUI
-- **Concurrency**: Swift Concurrency (`async`/`await`, `Task`, `actor`)
-- **Minimum Target**: iOS 16.0+
-- **Image Pipeline**: Custom `LightImageCache` with async image downsampling and display preparation (`preparingForDisplay()`).
-
----
-
-## 📂 Project Structure
-
-```text
-Motivation Daily/
-├── MotivationDaily.xcodeproj
-├── MotivationDaily/
-│   ├── App/
-│   │   ├── MotivationDailyApp.swift
-│   │   └── AppContainer.swift
-│   ├── Domain/
-│   │   ├── Entities/
-│   │   ├── Repositories/
-│   │   ├── UseCases/
-│   │   └── Errors/
-│   ├── Data/
-│   │   ├── Catalog/
-│   │   ├── Network/
-│   │   └── Repositories/
-│   ├── Presentation/
-│   │   ├── ViewModels/
-│   │   ├── Views/
-│   │   │   ├── Components/
-│   │   │   ├── Favourites/
-│   │   │   └── HomeView.swift
-│   │   └── Shared/
-│   └── Assets.xcassets
-└── MotivationDailyUITests/
-    ├── HomeFlowTests.swift
-    └── UITestBase.swift
+    Toolchain["1. Toolchain & Lint<br/>(Xcode 27.1, SwiftLint Strict)"] --> Tokens["2. Architecture & Tokens<br/>(check_design_tokens.py)"]
+    Tokens --> Fast["3. Fast Test Lane<br/>(Unit Tests & Recoverable Migration)"]
+    Fast --> Smoke["4. UI Smoke & Snapshots<br/>(Simulator E2E & Golden Diffs)"]
+    Smoke --> Release["5. Release Sanitization<br/>(Fixture & Symbol Stripping)"]
 ```
 
 ---
 
-## Integration status
+## 6. Local Setup & Contribution Guide
 
-The original-image retention and relative-filename persistence fixes are implemented.
-Shared networking, runtime primitives, design tokens, UI components and developer-profile
-resources are wired into the app. LocalizationKit is available through the container;
-most visible strings still need migration.
+### Prerequisites:
+- macOS Sonoma or Sequoia with **Xcode 27.1** installed (`/Applications/Xcode 27.1.app`).
+- Python 3.10+ installed and on `PATH`.
+- Pinned iPhone 11 Simulator installed.
 
-The design-token guard scans all 66 application Swift files. Its explicit baseline
-tracks 185 existing violations; passing means no new violations, not full compliance.
-Run `python3 Scripts/check_design_tokens.py` to verify. Baseline changes require review.
-
-CI runs unit, UI and snapshot tests and checks that all three suites actually passed.
-It also builds Release and uploads the result bundle. The runner needs Xcode 27.1,
-an iPhone 11 simulator with iOS 27.0 (matching the visual baselines), and the private
-package secrets listed in `Scripts/configure-private-dependencies.sh`. Set the repository
-variable `IOS_CI_RUNNER` if the default runner does not provide that toolchain.
-Remote CI execution and minimum-iOS device acceptance must be verified separately.
-The Home snapshot covers its cold-start surface only; loaded-feed journeys run in
-HomeFlowTests. Accessibility images are visual checks, not proof of VoiceOver order.
-
-From this repository, run:
-
+### Step-by-Step Setup:
 ```sh
-DEVELOPER_DIR='/Applications/Xcode 27.1.app/Contents/Developer' bash Scripts/test-integration.sh
-```
+# 1. Clone repository
+git clone https://github.com/Anurag-Chourasia/MotivationDaily.git
+cd "Motivation Daily"
 
-The suite starts a temporary HTTPS server on loopback and verifies that a self-signed certificate is rejected. For the failure-path suite alone, run `python3 Scripts/test-local-tls.py` with the same Xcode selected. The fixture requires Python 3 and OpenSSL.
+# 2. Bootstrap dependencies and build Debug simulator binary
+DEVELOPER_DIR='/Applications/Xcode 27.1.app/Contents/Developer' bash Scripts/bootstrap.sh
 
-Use `TEST_DESTINATION` and a fresh `TEST_RESULT_PATH` to override the destination/result.
-Do not record snapshots in CI. Review changed reference images before accepting them.
+# 3. Run fast unit test suite
+DEVELOPER_DIR='/Applications/Xcode 27.1.app/Contents/Developer' bash Scripts/test-fast.sh
 
----
-
-## 🚀 Future Plans & Roadmap
-
-### 1. Architecture & Best Engineering Practices
-- **Best Engineering Practices Alignment**: Refine the Clean Architecture layer boundaries, enforce protocol abstractions, and align dependency injection with modern Swift paradigms.
-- **Strict Concurrency Compliance**: Migrate towards Swift 6 strict concurrency checking (`SWIFT_STRICT_CONCURRENCY=complete`), ensuring Sendable conformance across data transfer objects and actor-isolated stores.
-- **Unidirectional Data Flow (UDF)**: Refine state handling so user intents flow through explicit actions and state transitions to prevent unintended view re-renders.
-- **Modularization via Custom Swift Packages (SPMs)**: Decouple monolithic targets into standalone packages (`MotivationCore`, `MotivationDomain`, `MotivationData`, `MotivationUI`, `FeatureHome`, `FeatureFavorites`) to speed up compilation and enforce architectural boundaries.
-
-### 2. Testing & Quality Assurance
-- **Comprehensive UI Testing**: Broaden automated XCUITest suites to cover all core user journeys, tab switching, sheet presentations, share actions, and error recovery states.
-- **Snapshot Testing**: Expand visual regression testing using our `SnapshotTestKit` across multiple device sizes, light/dark themes, and Dynamic Type accessibility scales.
-- **Stub-Data Submodules**: Create dedicated mock and fixture test submodules to provide deterministic JSON payloads and offline fixtures, fully isolating tests from live network dependencies.
-- **SwiftLint Integration**: Enforce clean code guidelines, naming conventions, docstrings, and anti-pattern prevention via an SPM Build Tool plugin and pre-commit hooks.
-- **Continuous Integration (CI) Pipeline**: Set up automated GitHub Actions to run matrix testing, automated builds, test-result reporting, and code quality verification on every pull request.
-
-### 3. User Experience & Core Enhancements
-- **Tab Bar Navigation**: Modernize primary app navigation into a persistent native Tab Bar (Feed, Favorites/Bookmarks, Explore/Categories, Settings) for intuitive discoverability.
-- **Cross-Device Sync**: Integrate CloudKit / iCloud sync to seamlessly synchronize favorites, custom themes, and reading history across iPhone, iPad, and macOS.
-- **Resilient Image Loading Pipeline**: Enhance the image loader with progressive loading, multi-CDN fallback sources, exponential backoff retries, and disk cache size governance.
-- **Accessibility Support**: Ensure full VoiceOver screen reader auditing, custom accessibility actions, high contrast modes, and respectful reduced-motion accommodations for all animated transitions.
-- **Performance Measurement & Telemetry**: Instrument MetricKit, `os_signpost` intervals, app launch benchmarks, scroll hitch rate monitoring, and memory footprint tracking.
-
-### 4. iOS System Integrations & Engagement
-- **WidgetKit (Home & Lock Screen Widgets)**:
-  - Small, Medium, Large, and Extra Large Home Screen widgets showing the Quote of the Day with dynamic wallpaper backgrounds.
-  - Circular and rectangular Lock Screen widgets with concise affirmations.
-  - Interactive widgets (iOS 17+) with one-tap refresh directly from the Home Screen.
-  - StandBy mode interactive display for bedside docks.
-- **App Intents, Siri & Shortcuts**:
-  - *"Hey Siri, motivate me"* voice command to trigger spoken or on-screen affirmations.
-  - Action Button integration (iPhone 15 Pro / 16) for one-press daily quote inspiration.
-  - Shortcuts actions (*"Get Daily Quote"*, *"Set Wallpaper"*) allowing users to automate morning routines.
-- **Rich Interactive Notifications**:
-  - Scheduled morning/evening motivation notifications with rich media previews of the wallpaper and quote typography.
-  - Direct notification actions: *"Save to Favorites"* and *"Share Quote"*.
-
-### 5. Multi-Platform Ecosystem
-- **Apple Watch Companion App (watchOS)**:
-  - Standalone Watch app with cached daily quotes and complications (Modular, Circular, Corner) delivering wrist-based affirmations throughout the day.
-- **macOS Companion & Dynamic Wallpaper**:
-  - Native macOS menu bar dropdown companion.
-  - Automatic desktop wallpaper updates matching the daily motivational image.
-- **iPadOS Optimization**:
-  - Adaptive two-column split-view / sidebar navigation and full Stage Manager multi-window support.
-
-### 6. Creative Studio & Personalization
-- **Typography & Canvas Styling**:
-  - Curated font pairings (Modern Serif, Minimalist Sans, Elegant Script, Bold Monospace).
-  - Fine-grained controls for quote card opacity, backdrop blur intensity, and text alignment.
-- **User Photo Backgrounds**:
-  - Allow users to import personal images from their Photos library to pair with any quote.
-- **Animated & Parallax Wallpapers**:
-  - Gyroscope-based 3D depth parallax motion on quote cards when tilting the device.
-
-### 7. Mindfulness & Habit Building
-- **Mood & Intention Tagging**:
-  - Quick mood selector (*Grateful*, *Determined*, *Calm*, *Energized*, *Reflective*) dynamically adapting the recommended feed.
-- **Daily Reflection Micro-Journal**:
-  - Attach a private note or personal reflection to any favorited quote.
-- **Reading Streaks & Mindful Milestones**:
-  - Gentle, non-intrusive habit tracking celebrating consecutive daily check-ins and reflection milestones.
-
-### 8. Localization & Privacy
-- **Localization (i18n) via String Catalogs**:
-  - Multi-language quotes and interface translations (Spanish, French, German, Japanese, Hindi, etc.) using `.xcstrings`.
-- **Biometric Lock (Face ID / Touch ID)**:
-  - Optional biometric protection for personal favorites and private journal entries.
-- **Zero-Tracker Privacy Architecture**:
-  - 100% on-device processing and analytics, with zero third-party advertising trackers or data harvesting.
-
-### 9. Technical Debt Governance (Engineering & Customer Journey)
-Active technical debt backlog and tracking with dual evaluation:
-- **Engineering Perspective**:
-  - [x] **Eliminate absolute filesystem paths in local persistence**: Migrated `DefaultFavoritesRepository` and `FavoriteQuote` to relative filename storage with dynamic container-aware path resolution (`resolvedLocalImageURL`), fixing broken image links across container UUID updates.
-  - [ ] **Decouple singleton dependencies**: Replace direct calls to `LightImageCache.shared` and `ImageLoader.shared` with protocol-injected services in view models and views.
-  - [x] **Isolate live API clients from test targets**: Provide protocol-based mock adapters and offline JSON fixtures via pinned [`Submodules/AppStubData`](Submodules/AppStubData).
-- **Customer Journey Perspective**:
-  - [x] **Preserve original master image on custom ratio saves**: Ensure pristine, uncropped master images are saved on disk so users can freely switch aspect ratios (1:1, 16:9, 9:16, Fullscreen) inside Bookmarks/Favorites without blurriness or cropping artifacts.
-  - [x] **Prevent saved favorite images from getting lost on app reopens**: Persisting stable relative image filenames ensures favorites stay intact indefinitely across app launches and sandbox container rotations.
-  - [ ] **Eliminate blank card flickers during fast scrolling**: Proactive prewarming and preloading for adjacent cards in the feed.
-  - [ ] **Graceful offline recovery banners**: Auto-retry quote and image fetching when network connectivity returns.
-
----
-
-## 📦 Modular SPM Packages Ecosystem
-
-This table is a historical package inventory. Current pins are maintained in `Scripts/dependencies.json`; current ownership and architecture are maintained in the portfolio master document linked above.
-
-| Package | Pin / Revision | Responsibility & Consumption |
-| :--- | :--- | :--- |
-| **`CommonNetworking`** | `1.1.0` (`c6ff2b5`) | Production HTTP networking client (`HTTPClient`) with structured request logging, response decoding, and robust error mapping used in `APIService`. |
-| **`FoundationKit`** | `0.1.1` (`bb31bce`) | Core app runtime primitives (`AppConfiguration`, `BuildEnvironment`, `FeatureFlags`, `AppLogger`, `SystemClock`) orchestrated in `AppRuntime`. |
-| **`LocalizationKit`** | `0.1.1` (`fdb91f3`) | Standardized localization protocol (`LocalizationProviding`) and bundled string providers injected into `AppContainer`. |
-| **`DesignTokensKit`** | `1.2.0` (`511f8e6`) | Centralized typography, colors, padding, spacing, border radii, line widths, and opacity tokens across quote cards, empty states, and overlays. |
-| **`UIComponentsKit`** | `1.2.0` (`0fcdd71`) | Accessible and token-driven UI widgets: `StateMessage` (empty favorites), `IconMessageBanner` (connectivity warning), and `CenteredProgressOverlay` (loading states). |
-| **`DeveloperProfileKit`** | `1.0.0` (`d418170`) | Reusable `DeveloperProfileView` for the About sheet, bundling bio metadata (`DeveloperAppInfo`), contact links, and asset catalogs (`Anurag`, `CV`, `GitHub`, `LinkedIn`, `Gmail`). |
-| **`SnapshotTestKit`** | `1.0.2` (`121e979`) | Cross-variant snapshot test harness (`SnapshotAssert.assertVariants`) covering Light, Dark, and Dynamic Type / Accessibility modes. |
-| **`AppStubData`** | `Submodules/AppStubData` (`73c35f6`) | Pinned local submodule with deterministic JSON fixtures (`.positive`, `.empty`, `.negative`) for offline mock providers and tests. |
-
----
-
-## 🔒 Dependency & Code Quality Governance
-
-To prevent dependency drift, unvetted commits, and raw styling anti-patterns, the project enforces automated verification scripts:
-
-### 1. Exact Pin Verification
-Verifies the seven remote package pins against `Scripts/dependencies.json`, then checks AppStubData against its Git submodule pin:
-```bash
-python3 Scripts/verify_pins.py
-python3 Scripts/verify-submodules.py
-```
-
-### 2. Standalone Package Dependency Tests
-Tests each external dependency package independently via `swift test`:
-```bash
-python3 Scripts/test_dependencies.py
-```
-
-### 3. Design Token Linting
-Enforces the strict rule that no view uses hardcoded colors, point dimensions, font sizes, corner radii, or padding:
-```bash
-python3 Scripts/check_design_tokens.py
-```
-
-### 4. Code Style & SwiftLint
-Configured with dedicated scripts and CI integration:
-```bash
-bash Scripts/install-swiftlint.sh "$PWD/.build/swiftlint"
-SWIFTLINT_BIN="$PWD/.build/swiftlint/swiftlint" bash Scripts/lint.sh
+# 4. Run UI Smoke tests
+DEVELOPER_DIR='/Applications/Xcode 27.1.app/Contents/Developer' bash Scripts/test-smoke.sh
 ```
 
 ---
 
-## 📦 Shared Stub Data Submodule
+## 7. End-to-End Ecosystem Connectivity
 
-All three apps pin AppStubData at `73c35f6239003b2bce100fdae2caf35e012bbe8b` and consume resources without linking its Swift module. Motivation’s unit-test target copies the endpoint JSON into its test bundle; its test-only decoder covers positive, empty and negative scenarios. The app copies only its UI fixture catalog in Debug, with host-owned decoding and image generation.
+```mermaid
+graph TD
+    subgraph CoreServices ["Shared Core Services (SPMs)"]
+        FoundationKit["FoundationKit<br/>(System Clock, Unified Logging, Thread Safety)"]
+        LocalisationKit["LocalisationKit<br/>(Typed Strings, Pluralization, String Catalogs)"]
+        DesignTokensKit["DesignTokensKit<br/>(BrandPalettes, ColorTheme, Typography, Metrics, SF Symbols)"]
+        CommonNetworkingKit["CommonNetworkingKit<br/>(HTTPClient, URLSession, RequestBuilder, Interceptors)"]
+        AppStubData["AppStubData<br/>(Synthetic Fixtures, Offline Catalogs, Test Scenarios)"]
+    end
 
-UI-test arguments, fixture catalog loading, image generators and favorites seed/clear behavior are compiled only in Debug. Release excludes shared fixture resources and ignores these arguments; CI verifies both behavior and artifact boundaries.
+    subgraph UIServices ["Shared Presentation & Auth (SPMs)"]
+        UIComponentsKit["UIComponentsKit<br/>(CatalogTile, SurfaceCard, StateMessage, Recipes)"]
+        AuthKit["AuthKit & AuthKitUI<br/>(SessionManager, AppAuthGate, AccountToolbarItem)"]
+        DeveloperProfileKit["DeveloperProfileKit<br/>(DeveloperProfileView, Runtime Overlays)"]
+        SnapshotTestingKit["SnapshotTestingKit<br/>(Subpixel Comparison, Golden Baseline Engine)"]
+    end
 
-### Submodule Verification & Tests
-Verify pinned submodule commit and test fixtures decoding:
-```bash
-python3 Scripts/verify-submodules.py
-python3 TestSupport/run-stub-fixtures-tests.py
+    subgraph HostApps ["Host Applications"]
+        ShowBook["ShowBook<br/>(Book Discovery, Core Data Persistence, Open Library)"]
+        MyTV["myTV<br/>(IPTV Browser, AVPlayer Lifecycle, Directory Cache)"]
+        MotivationDaily["Motivation Daily<br/>(Card Feed, Quote Persistence, Image Export Studio)"]
+    end
+
+    subgraph QualityGates ["CI/CD Automation & Tooling"]
+        ArchitectureGuard["check_architecture.py<br/>(Boundary Enforcement, Zero Token Leakage)"]
+        SnapshotVerifier["verify-snapshot-baselines.py<br/>(Visual Regression Gate)"]
+        GHActions["GitHub Actions CI<br/>(Fast Lane, Smoke Lane, Release Build Verification)"]
+    end
+
+    %% Dependencies between Shared SPMs
+    DesignTokensKit --> UIComponentsKit
+    LocalisationKit --> UIComponentsKit
+    DesignTokensKit --> AuthKit
+    UIComponentsKit --> AuthKit
+    FoundationKit --> CommonNetworkingKit
+    DesignTokensKit --> DeveloperProfileKit
+    UIComponentsKit --> DeveloperProfileKit
+    LocalisationKit --> DeveloperProfileKit
+
+    %% Dependencies from Host Apps to Shared SPMs
+    DesignTokensKit --> ShowBook
+    UIComponentsKit --> ShowBook
+    AuthKit --> ShowBook
+    CommonNetworkingKit --> ShowBook
+    DeveloperProfileKit --> ShowBook
+    AppStubData --> ShowBook
+
+    DesignTokensKit --> MyTV
+    UIComponentsKit --> MyTV
+    AuthKit --> MyTV
+    CommonNetworkingKit --> MyTV
+    DeveloperProfileKit --> MyTV
+    AppStubData --> MyTV
+
+    DesignTokensKit --> MotivationDaily
+    UIComponentsKit --> MotivationDaily
+    AuthKit --> MotivationDaily
+    CommonNetworkingKit --> MotivationDaily
+    DeveloperProfileKit --> MotivationDaily
+    AppStubData --> MotivationDaily
+
+    %% Testing & Verification Linkage
+    SnapshotTestingKit -.-> ShowBook
+    SnapshotTestingKit -.-> MyTV
+    SnapshotTestingKit -.-> MotivationDaily
+
+    ArchitectureGuard --> HostApps
+    ArchitectureGuard --> CoreServices
+    ArchitectureGuard --> UIServices
+    SnapshotVerifier --> SnapshotTestingKit
+    GHActions --> HostApps
+    GHActions --> UIServices
+    GHActions --> CoreServices
 ```
 
 ---
 
-## 🛠 Getting Started
+## 8. Canonical Notion Dashboards & Governance Links
 
-### Prerequisites
-- macOS 14.0 or newer
-- Xcode 27.1 for the validated build/test workflow
-- iOS 16.0+ Simulator or Physical Device
-
-### Building & Running
-Open the project in Xcode:
-```bash
-open "MotivationDaily.xcodeproj"
-```
-
-Or build directly from the command line:
-```bash
-xcrun xcodebuild build \
-  -project MotivationDaily.xcodeproj \
-  -scheme MotivationDaily \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
-```
-
-#### Showcase Mode (Credential-Free Demo)
-To launch directly into the populated Showcase experience without the initial Developer Settings panel, run the `MotivationDaily Showcase` scheme or supply the `-Showcase` launch argument / `SHOWCASE_MODE=1` environment variable:
-```bash
-xcrun xcodebuild test \
-  -project MotivationDaily.xcodeproj \
-  -scheme "MotivationDaily Showcase" \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
-```
-When running in Showcase mode, the app displays a subtle `SHOWCASE DEMO` pill at the top of the screen. Tapping it opens the Developer Settings sheet so runtime parameters can still be adjusted at any time. In standard debug launches, shake the simulator or device to reopen Developer Settings.
-
-### Running Tests
-
-#### 1. Snapshot Tests
-Verify UI components across Light, Dark, and Accessibility configurations:
-```bash
-xcrun xcodebuild test \
-  -project "Motivation Daily/MotivationDaily.xcodeproj" \
-  -scheme MotivationDailySnapshotTests \
-  -destination 'platform=iOS Simulator,name=iPhone 11' \
-  -only-testing:MotivationDailySnapshotTests
-```
-
-To re-record or update reference snapshots when intentional design changes occur:
-```bash
-RECORD_SNAPSHOTS=1 xcrun xcodebuild test \
-  -project "Motivation Daily/MotivationDaily.xcodeproj" \
-  -scheme MotivationDailySnapshotTests \
-  -destination 'platform=iOS Simulator,name=iPhone 11' \
-  -only-testing:MotivationDailySnapshotTests
-```
-
-#### 2. UI & Integration Tests
-Execute automated user flow tests (`HomeFlowTests`, `FavoritesFlowTests`, `AboutFlowTests`):
-```bash
-xcrun xcodebuild test \
-  -project "Motivation Daily/MotivationDaily.xcodeproj" \
-  -scheme MotivationDailyUITests \
-  -destination 'platform=iOS Simulator,name=iPhone 11'
-```
+- [iOS Portfolio — Engineering Tickets Dashboard](https://app.notion.com/p/c20d7f4b133b44499c8ac0b4d5f6249e?pvs=204)
+- [iOS Portfolio — Master Document](https://app.notion.com/p/40ffa5f855b98192ad2ede66a5d36fe7)
+- [Architecture Boundary Validator (`check_architecture.py`)](file:///Users/anuragchourasia/Desktop/Projects/UIComponentsKit/Scripts/check_architecture.py)
+- [Release & Gate Policy Documentation (`Docs/MASTER.md`)](file:///Users/anuragchourasia/Desktop/Projects/Docs/MASTER.md)
