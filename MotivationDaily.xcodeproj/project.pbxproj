@@ -875,7 +875,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/AuthKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.4.0;
+				version = 0.7.0;
 			};
 		};
 		M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */ = {
@@ -907,7 +907,7 @@
 			repositoryURL = "https://github.com/Anurag-Chourasia/DesignTokensKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.19.0;
+				version = 1.20.0;
 			};
 		};
 		M00500000000000000000001 /* XCRemoteSwiftPackageReference "UIComponentsKit" */ = {

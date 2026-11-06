@@ -2,20 +2,24 @@ import XCTest
 import UIKit
 import SwiftUI
 import FoundationKit
+import DesignTokensKit
 @testable import MotivationDaily
 
 @MainActor
 final class AppTests: XCTestCase {
 
     func testBrandColorsStayOpaqueInBothAppearances() throws {
-        let names = ["BrandBackground", "BrandSurface", "BrandAction",
-                     "AuthBackground", "AuthForeground", "AuthAction", "AuthOnAction"]
+        let palette = BrandPalette.motivationDaily
+        let colors: [Color] = [
+            palette.background, palette.surface, palette.action,
+            palette.authBackground, palette.authForeground, palette.authAction, palette.authOnAction
+        ]
         for style in [UIUserInterfaceStyle.light, .dark] {
             let traits = UITraitCollection(userInterfaceStyle: style)
-            for name in names {
-                let color = try XCTUnwrap(UIColor(named: name, in: .main, compatibleWith: traits))
-                XCTAssertEqual(color.resolvedColor(with: traits).cgColor.alpha, 1, accuracy: 0.001,
-                               "\(name) must remain opaque")
+            for color in colors {
+                let resolved = UIColor(color).resolvedColor(with: traits)
+                XCTAssertEqual(resolved.cgColor.alpha, 1, accuracy: 0.001,
+                               "Brand color must remain opaque")
             }
         }
     }

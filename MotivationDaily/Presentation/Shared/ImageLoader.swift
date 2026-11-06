@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import DesignTokensKit
 
 protocol ImageLoading: Sendable {
     func load(url: URL) async throws -> UIImage
@@ -220,8 +221,8 @@ actor ImageLoader: ImageLoading {
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
         return renderer.image { context in
             let rect = CGRect(origin: .zero, size: size)
-            let colors = [UIColor(red: 0.10, green: 0.12, blue: 0.22, alpha: 1).cgColor,
-                          UIColor(red: 0.18, green: 0.30, blue: 0.42, alpha: 1).cgColor]
+            let colors = [PlaceholderColorToken.uiGradientStart.cgColor,
+                          PlaceholderColorToken.uiGradientEnd.cgColor]
             guard let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
                                             colors: colors as CFArray,
                                             locations: [0, 1]) else {
