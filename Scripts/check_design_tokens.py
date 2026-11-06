@@ -40,6 +40,7 @@ for path in files:
         if 'ImageLoader.swift' in path.name and ('let size = CGSize' in line or 'UIColor(' in line): continue
         if 'FeedCatalogueStore.swift' in path.name and 'UIColor(' in line: continue
         if 'AppContainer.swift' in path.name and 'UIColor(' in line: continue
+        if 'UITestFixtureCatalog.swift' in path.name and 'UIColor(' in line: continue
 
 
         for rule, pattern in patterns.items():

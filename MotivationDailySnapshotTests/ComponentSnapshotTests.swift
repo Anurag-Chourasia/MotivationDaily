@@ -30,6 +30,26 @@ final class ComponentSnapshotTests: XCTestCase {
         AppContainer(arguments: ["-UITestMode", "-UITestClearFavorites"], favoritesDefaults: defaults)
     }
 
+    func testActualDynamicTypeVariants() async throws {
+        let runtime = ProcessInfo.processInfo.operatingSystemVersion
+        XCTAssertEqual(runtime.majorVersion, 27)
+        XCTAssertEqual(runtime.minorVersion, 0)
+        XCTAssertEqual(SnapshotDevice.current, .iPhone11)
+        for (suffix, style, size) in [
+            ("light", UIUserInterfaceStyle.light, DynamicTypeSize.large),
+            ("dark", .dark, .large),
+            ("accessibility", .light, .accessibility3)
+        ] {
+            let view = EmptyFavoritesView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transaction { $0.animation = nil; $0.disablesAnimations = true }
+                .environment(\.dynamicTypeSize, size)
+                .environment(\.colorScheme, style == .dark ? .dark : .light)
+            try await Snapshot.assert(view, named: "quote-favorites-empty-" + suffix,
+                                      style: style, tolerance: 0.005)
+        }
+    }
+
     // MARK: - Empty Favorites View
 
     func testEmptyFavoritesView() throws {

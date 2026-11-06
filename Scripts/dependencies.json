@@ -24,8 +24,8 @@
     "version": "0.6.4"
   },
   "snapshottestkit": {
-    "revision": "121e979186c23a34001effd812bd01fdf1d66ff7",
-    "version": "1.0.2"
+    "revision": "cfe8362e50e57275299ef3e8b4711455c1227394",
+    "version": "1.0.4"
   },
   "supabase-swift": {
     "revision": "63fa5a8c650fad12a14543186024bd3214a65d9c",

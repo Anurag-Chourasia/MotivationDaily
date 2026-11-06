@@ -60,8 +60,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/Anurag-Chourasia/SnapshotTestKit.git",
       "state": {
-        "revision": "121e979186c23a34001effd812bd01fdf1d66ff7",
-        "version": "1.0.2"
+        "revision": "cfe8362e50e57275299ef3e8b4711455c1227394",
+        "version": "1.0.4"
       }
     },
     {
