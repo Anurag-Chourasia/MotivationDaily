@@ -943,7 +943,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    let container = AppContainer.live
+    let container = AppContainer.preview
     HomeView(
         quoteVM: container.makeQuoteViewModel(),
         pageVM: container.makeFeedPageViewModel()

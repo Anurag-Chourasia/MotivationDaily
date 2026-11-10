@@ -19,7 +19,7 @@ final class AboutViewModel: ObservableObject {
     init(
         version: String = AppRuntime.version,
         build: String = AppRuntime.build,
-        localization: LocalizationProviding = AppContainer.live.localization
+        localization: LocalizationProviding = LocalizationController.shared
     ) {
         self.version = version
         self.build = build

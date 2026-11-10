@@ -76,6 +76,6 @@ struct FavoritesView: View {
 }
 
 #Preview {
-    let container = AppContainer.live
+    let container = AppContainer.preview
     FavoritesView(quoteVM: container.makeQuoteViewModel())
 }

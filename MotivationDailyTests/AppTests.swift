@@ -149,4 +149,24 @@ final class AuthenticationFlagTests: XCTestCase {
         defaults.set(false, forKey: key)
         XCTAssertFalse(AppRuntime.authenticationEnabled)
     }
+
+    #if DEBUG
+    func testPreviewQuoteRepositoryAndAppContainerPreview() async throws {
+        let repo = PreviewQuoteRepository()
+        let random = try await repo.fetchRandom()
+        XCTAssertFalse(random.text.isEmpty)
+        XCTAssertEqual(random.author, UITestFixtureCatalog.current.author)
+
+        let inspirationKey = try XCTUnwrap(CategoryKey(rawValue: "inspiration"))
+        let categoryQuote = try await repo.fetchByCategory(inspirationKey)
+        XCTAssertEqual(categoryQuote.categoryKey, inspirationKey)
+
+        let categories = try await repo.fetchCategories()
+        XCTAssertFalse(categories.isEmpty)
+
+        let previewContainer = AppContainer.preview
+        XCTAssertNotNil(previewContainer.makeQuoteViewModel())
+        XCTAssertNotNil(previewContainer.makeFeedPageViewModel())
+    }
+    #endif
 }
