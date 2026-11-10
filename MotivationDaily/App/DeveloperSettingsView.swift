@@ -231,6 +231,7 @@ struct DeveloperSettingsView: View {
                 }
                 if source == "stub" {
                     Picker(String(\.developerScenario), selection: $scenario) {
+                        Text(\.developerPresetShowcase).tag("showcase")
                         Text(\.developerScenarioSuccess).tag("success")
                         Text(\.developerScenarioEmpty).tag("empty")
                         Text(\.developerScenarioOffline).tag("offline")

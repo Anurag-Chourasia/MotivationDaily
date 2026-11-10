@@ -8,6 +8,12 @@
 	<string>motivationdaily-auth://auth/callback</string>
 	<key>AUTH_PROVIDERS</key>
 	<string>google,github</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>fr</string>
+		<string>ar</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -30,11 +36,5 @@
 		<key>UIColorName</key>
 		<string>LaunchBackground</string>
 	</dict>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>en</string>
-		<string>fr</string>
-		<string>ar</string>
-	</array>
 </dict>
 </plist>
