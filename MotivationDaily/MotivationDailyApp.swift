@@ -4,7 +4,7 @@ import AuthKitUI
 import AuthKit
 import LocalizationKit
 
-extension LocalizationController: AuthLocalizing {}
+extension LocalizationController: @retroactive AuthLocalizing {}
 
 @main
 struct MotivationDailyApp: App {

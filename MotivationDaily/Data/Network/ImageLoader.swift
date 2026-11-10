@@ -126,7 +126,7 @@ actor ImageLoader: ImageLoading {
         return decoded
     }
 
-    private static func makeDefaultSession() -> URLSession {
+    nonisolated private static func makeDefaultSession() -> URLSession {
         let configuration = URLSessionConfiguration.default
         configuration.requestCachePolicy = .returnCacheDataElseLoad
         configuration.urlCache = URLCache(

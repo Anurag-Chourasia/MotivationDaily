@@ -10,7 +10,7 @@ if [[ "${CI:-}" != "" && ( "${RECORD_SNAPSHOTS:-0}" == 1 || "${SNAPSHOT_RECORD:-
     echo "CI cannot record snapshots" >&2; exit 1
 fi
 
-destination="${TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 11}"
+destination="${TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 11,OS=27.0}"
 if [[ "$destination" =~ id=([A-Fa-f0-9-]+) ]]; then
     xcrun simctl bootstatus "${BASH_REMATCH[1]}" -b || true
 fi
