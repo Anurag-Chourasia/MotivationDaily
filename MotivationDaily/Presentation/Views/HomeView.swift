@@ -64,8 +64,8 @@ struct HomeView: View {
     @Namespace private var categoryTabNamespace
 
     private let effectsRestoreDelay: TimeInterval = 0.08
-    private let actionRailExclusionWidth: CGFloat = 132
-    private let actionRailExclusionHeight: CGFloat = 320
+    private let actionRailExclusionWidth: CGFloat = DesignMetric.p140
+    private let actionRailExclusionHeight: CGFloat = DesignMetric.p320
     private let imageLoader: any ImageLoading
 
     init(quoteVM: QuoteViewModel, pageVM: FeedPageViewModel, imageLoader: (any ImageLoading)? = nil) {
@@ -707,16 +707,16 @@ struct HomeView: View {
 
     func minimumQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
         let layout = QuoteCardLayout.style(for: imageRect)
-        return layout.isCompact ? 160 : 220
+        return layout.isCompact ? DesignMetric.p160 : DesignMetric.p210
     }
 
     func preferredQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
         let layout = QuoteCardLayout.style(for: imageRect)
-        return layout.isCompact ? 248 : 320
+        return layout.isCompact ? DesignMetric.p248 : DesignMetric.p320
     }
 
     func resolvedQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
-        let availableHeight = max(imageRect.height - 12, 1)
+        let availableHeight = max(imageRect.height - Spacing.twelve, 1)
         let minimumHeight = minimumQuoteCardHeight(for: imageRect)
         let preferredHeight = preferredQuoteCardHeight(for: imageRect)
         return min(preferredHeight, max(availableHeight, minimumHeight))
