@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import FoundationKit
 import LocalizationKit
+import CommonNetworkingKit
 
 final class AppContainer {
     static let live = AppContainer()
@@ -23,8 +24,16 @@ final class AppContainer {
     init(arguments: [String] = ProcessInfo.processInfo.arguments,
          favoritesDefaults: UserDefaults = .standard,
          favoritesOwnerID: UUID? = nil,
-         imageLoader: any ImageLoading = ImageLoader.shared) {
-        self.imageLoader = imageLoader
+         imageLoader: (any ImageLoading)? = nil) {
+        let session = APIService.makeSession()
+        let fetcher = ImageDataFetcher(
+            client: CommonNetworkingKit.HTTPClient(session: session),
+            cache: PersistentImageDataCache(
+                memoryCapacityBytes: 80 * 1024 * 1024,
+                diskDirectoryName: "motivationdaily.images.urlcache"
+            )
+        )
+        self.imageLoader = imageLoader ?? ImageLoader(fetcher: fetcher, session: session)
         self.localization = LocalizationController(initialLocale: .current)
         self.configuration = AppRuntime.configuration
         self.logger = AppRuntime.logger
