@@ -18,7 +18,7 @@ struct AboutView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             DeveloperProfileView(
                 app: DeveloperAppInfo(
                     name: viewModel.appName,
@@ -34,15 +34,15 @@ struct AboutView: View {
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button { dismiss() } label: {
-                        Label(\.back, \.chevronLeft)
+                        Image(\.close)
                     }
+                    .accessibilityLabel(\.close)
                     .accessibilityIdentifier(.aboutBackButton)
                 }
             }
         }
-        .navigationViewStyle(.stack)
     }
 }
 

@@ -14,6 +14,7 @@
 		346EE02E309117C6006198AF /* SnapshotTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00700000000000000000002 /* SnapshotTestKit */; };
 		7544F1DB267F4C7AA1F540A4 /* AuthKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5E4534C332C0400D99B19C9E /* AuthKit */; };
 		8ADAACDF10904600ADFA7657 /* AuthKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = E162D437EDA7442DA326C667 /* AuthKitUI */; };
+		M00800000000000000000001 /* AuthKitSupabase in Frameworks */ = {isa = PBXBuildFile; productRef = M00800000000000000000002 /* AuthKitSupabase */; };
 		B2C1A0010000000000000001 /* UITestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0010000000000000001 /* UITestBase.swift */; };
 		B2C1A0020000000000000001 /* HomeFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0020000000000000001 /* HomeFlowTests.swift */; };
 		B2C1A0030000000000000001 /* FavoritesFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0030000000000000001 /* FavoritesFlowTests.swift */; };
@@ -111,6 +112,7 @@
 			files = (
 				7544F1DB267F4C7AA1F540A4 /* AuthKit in Frameworks */,
 				8ADAACDF10904600ADFA7657 /* AuthKitUI in Frameworks */,
+				M00800000000000000000001 /* AuthKitSupabase in Frameworks */,
 				M00100000000000000000003 /* CommonNetworking in Frameworks */,
 				M00200000000000000000003 /* FoundationKit in Frameworks */,
 				M00300000000000000000003 /* LocalizationKit in Frameworks */,
@@ -217,6 +219,7 @@
 			packageProductDependencies = (
 				5E4534C332C0400D99B19C9E /* AuthKit */,
 				E162D437EDA7442DA326C667 /* AuthKitUI */,
+				M00800000000000000000002 /* AuthKitSupabase */,
 				M00100000000000000000002 /* CommonNetworking */,
 				M00200000000000000000002 /* FoundationKit */,
 				M00300000000000000000002 /* LocalizationKit */,
@@ -944,6 +947,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */;
 			productName = AuthKitUI;
+		};
+		M00800000000000000000002 /* AuthKitSupabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */;
+			productName = AuthKitSupabase;
 		};
 		M00100000000000000000002 /* CommonNetworking */ = {
 			isa = XCSwiftPackageProductDependency;

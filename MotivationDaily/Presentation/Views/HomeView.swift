@@ -596,6 +596,7 @@ struct HomeView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier(.contentShareButton)
         }
+        .frame(width: \.p100)
     }
 
     private func toggleFavorite(for content: FeedPageViewModel.FeedPageContent) {

@@ -65,6 +65,8 @@ struct SideActionIconView: View {
 
             labelView
                 .font(\.caption2)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
                 .foregroundColor(\.white)
                 .padding(.horizontal, \.eight)
                 .padding(.vertical, \.four)
@@ -72,6 +74,7 @@ struct SideActionIconView: View {
                 .clipShape(Capsule())
                 .shadow(color: \.black, opacity: \.p0_25, radius: \.four, y: \.two)
         }
+        .frame(width: \.p100)
     }
 
     @ViewBuilder

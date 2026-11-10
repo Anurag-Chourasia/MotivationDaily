@@ -122,6 +122,7 @@ struct FullScreenImageView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier(.favoritesFullScreenCloseButton)
         }
+        .frame(width: \.p100)
     }
 
     private func favoriteQuote(_ favorite: FavoriteQuote, in imageRect: CGRect, canvasSize: CGSize) -> some View {
