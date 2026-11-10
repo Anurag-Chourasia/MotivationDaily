@@ -19,6 +19,7 @@ final class AppContainer {
     private let cacheFavoriteImageUseCase: CacheFavoriteImageUseCase
     private let removeFavoriteQuoteUseCase: RemoveFavoriteQuoteUseCase
     private let clearFavoritesUseCase: ClearFavoritesUseCase
+    private let prefetchFeedPageUseCase: PrefetchFeedPageUseCase
     private let feedCatalogueStore: FeedCatalogueStore
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments,
@@ -124,6 +125,7 @@ final class AppContainer {
         self.cacheFavoriteImageUseCase = CacheFavoriteImageUseCase(favoritesRepository: favoritesRepository)
         self.removeFavoriteQuoteUseCase = RemoveFavoriteQuoteUseCase(favoritesRepository: favoritesRepository)
         self.clearFavoritesUseCase = ClearFavoritesUseCase(favoritesRepository: favoritesRepository)
+        self.prefetchFeedPageUseCase = PrefetchFeedPageUseCase(repository: self.feedCatalogueStore)
     }
 
     @MainActor
@@ -146,7 +148,7 @@ final class AppContainer {
     @MainActor
     func makeFeedPageViewModel() -> FeedPageViewModel {
         FeedPageViewModel(
-            catalogueStore: feedCatalogueStore,
+            prefetchFeedPageUseCase: prefetchFeedPageUseCase,
             imageLoader: imageLoader
         )
     }
