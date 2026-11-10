@@ -12,7 +12,6 @@ struct FavoriteCellView: View {
     let onToggleFavorite: () -> Void
     let onImageDataResolved: ((Data) -> Void)?
 
-    @Environment(\.motivationL10n) private var l10n
     @State private var renderedImage: UIImage?
     @State private var isLoading = false
     @State private var loadTask: Task<Void, Never>?
@@ -63,7 +62,7 @@ struct FavoriteCellView: View {
                     tagPill(favorite.source.titleKeyPath)
                 }
 
-                Text("— \(favorite.author ?? String(\MotivationStrings.authorUnknown))")
+                Text(formattedAuthor)
                     .font(\.subheadline)
                     .italic()
                     .foregroundColor(\.secondary)
@@ -97,6 +96,11 @@ struct FavoriteCellView: View {
         .onDisappear {
             loadTask?.cancel()
         }
+    }
+
+    private var formattedAuthor: String {
+        let author = favorite.author ?? String(\MotivationStrings.authorUnknown)
+        return "— \(author)"
     }
 
     private var imagePlaceholder: some View {

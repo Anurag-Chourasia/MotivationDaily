@@ -6,6 +6,11 @@ import CommonNetworkingKit
 
 final class AppContainer {
     static let live = AppContainer()
+    #if DEBUG
+    static var preview: AppContainer {
+        AppContainer(arguments: ["-UITestMode"])
+    }
+    #endif
 
     let localization: LocalizationController
     let configuration: AppConfiguration
@@ -78,12 +83,26 @@ final class AppContainer {
         )
         #endif
 
-        let quoteRepository = DefaultQuoteRepository(
+        let quoteRepository: any QuoteRepository
+        #if DEBUG
+        if isStubMode {
+            quoteRepository = PreviewQuoteRepository()
+        } else {
+            quoteRepository = DefaultQuoteRepository(
+                zenClient: zenClient,
+                quotableClient: quotableClient,
+                adviceSlipClient: adviceSlipClient,
+                mappingStore: mappingStore
+            )
+        }
+        #else
+        quoteRepository = DefaultQuoteRepository(
             zenClient: zenClient,
             quotableClient: quotableClient,
             adviceSlipClient: adviceSlipClient,
             mappingStore: mappingStore
         )
+        #endif
 
         let imageRepository = DefaultImageRepository(
             picsumFactory: picsumFactory
@@ -106,7 +125,11 @@ final class AppContainer {
         )
         #endif
 
-        let favoritesRepository = DefaultFavoritesRepository(userDefaults: favoritesDefaults, ownerID: favoritesOwnerID)
+        let favoritesRepository = DefaultFavoritesRepository(
+            userDefaults: favoritesDefaults,
+            ownerID: favoritesOwnerID,
+            logger: logger
+        )
         #if DEBUG
         if isUITestMode {
             if arguments.contains("-UITestClearFavorites") {

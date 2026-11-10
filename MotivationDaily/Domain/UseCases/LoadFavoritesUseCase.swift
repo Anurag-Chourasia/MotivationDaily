@@ -1,6 +1,6 @@
 import Foundation
 
-struct LoadFavoritesUseCase {
+struct LoadFavoritesUseCase: Sendable {
     private let repository: any FavoritesRepository
 
     init(repository: any FavoritesRepository) {

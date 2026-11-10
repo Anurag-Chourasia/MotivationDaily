@@ -1,7 +1,7 @@
 import Foundation
 import CommonNetworkingKit
 
-final class APIService {
+final class APIService: Sendable {
     static let shared = APIService()
 
     private let client: CommonNetworkingKit.HTTPClient

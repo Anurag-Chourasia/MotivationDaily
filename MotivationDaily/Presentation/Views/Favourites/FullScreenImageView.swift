@@ -11,7 +11,6 @@ struct FullScreenImageView: View {
     @Binding var isPresented: Bool
     let onImageDataResolved: ((String, Data) -> Void)?
 
-    @Environment(\.motivationL10n) private var l10n
     @State private var showShareSheet = false
     @State private var displayedImage: UIImage?
     @State private var isLoadingImage = false
@@ -46,7 +45,7 @@ struct FullScreenImageView: View {
 
                 sideActionRail()
                     .padding(.trailing, \.sixteen)
-                    .padding(.bottom, max(proxy.safeAreaInsets.bottom + 24, 32))
+                    .padding(.bottom, max(proxy.safeAreaInsets.bottom + Spacing.twentyFour, Spacing.thirtyTwo))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
             .edgesIgnoringSafeArea(.all)
@@ -191,16 +190,16 @@ struct FullScreenImageView: View {
 
     private func minimumQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
         let style = QuoteCardLayout.style(for: imageRect)
-        return style.isCompact ? 160 : 220
+        return style.isCompact ? DesignMetric.p160 : DesignMetric.p210
     }
 
     private func preferredQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
         let style = QuoteCardLayout.style(for: imageRect)
-        return style.isCompact ? 248 : 320
+        return style.isCompact ? DesignMetric.p248 : DesignMetric.p320
     }
 
     private func resolvedQuoteCardHeight(for imageRect: CGRect) -> CGFloat {
-        let availableHeight = max(imageRect.height - 12, 1)
+        let availableHeight = max(imageRect.height - Spacing.twelve, 1)
         let minimumHeight = minimumQuoteCardHeight(for: imageRect)
         let preferredHeight = preferredQuoteCardHeight(for: imageRect)
         return min(preferredHeight, max(availableHeight, minimumHeight))

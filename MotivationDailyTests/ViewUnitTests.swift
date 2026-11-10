@@ -329,8 +329,8 @@ final class ViewUnitTests: XCTestCase {
         _ = homeView.resolvedQuoteCardHeight(for: compactRect)
 
         let largeRect = CGRect(x: 0, y: 0, width: 300, height: 600)
-        XCTAssertEqual(homeView.minimumQuoteCardHeight(for: largeRect), 220)
-        XCTAssertEqual(homeView.preferredQuoteCardHeight(for: largeRect), 320)
+        XCTAssertEqual(homeView.minimumQuoteCardHeight(for: largeRect), DesignMetric.p210)
+        XCTAssertEqual(homeView.preferredQuoteCardHeight(for: largeRect), DesignMetric.p320)
         _ = homeView.resolvedQuoteCardHeight(for: largeRect)
 
         // laneKey & coordinate

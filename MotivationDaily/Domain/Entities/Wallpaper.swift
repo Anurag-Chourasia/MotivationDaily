@@ -1,6 +1,6 @@
 import Foundation
 
-struct Wallpaper: Codable, Equatable {
+struct Wallpaper: Codable, Equatable, Sendable {
     let quote: Quote
     let imageURL: URL
     let imageSource: ImageSource

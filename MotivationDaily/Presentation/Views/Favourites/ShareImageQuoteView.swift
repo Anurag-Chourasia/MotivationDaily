@@ -19,7 +19,6 @@ struct ShareImageQuoteView: View {
     var imageLoader: any ImageLoading = ImageLoader.shared
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.motivationL10n) private var l10n
     @State private var showCopiedBadge = false
     @State private var showCopiedAlert = false
     @State private var compositeImage: UIImage?
@@ -81,7 +80,12 @@ struct ShareImageQuoteView: View {
     private var shareContent: String {
         let content = favorite?.text ?? quote?.text ?? ""
         let author = favorite?.author ?? quote?.author ?? ""
-        return "✨ \"\(content)\"\n\n— \(author)\n\n#DailyMotivation"
+        return String(
+            format: String(\MotivationStrings.shareTemplate),
+            locale: LocalizationController.shared.locale,
+            content,
+            author
+        )
     }
 
     private var quoteText: String {

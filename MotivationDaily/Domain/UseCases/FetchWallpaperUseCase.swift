@@ -1,6 +1,6 @@
 import Foundation
 
-struct FetchWallpaperUseCase {
+struct FetchWallpaperUseCase: Sendable {
     private let repository: any WallpaperRepository
 
     init(repository: any WallpaperRepository) {

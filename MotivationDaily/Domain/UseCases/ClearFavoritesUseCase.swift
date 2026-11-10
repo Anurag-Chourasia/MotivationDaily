@@ -1,6 +1,6 @@
 import Foundation
 
-struct ClearFavoritesUseCase {
+struct ClearFavoritesUseCase: Sendable {
     private let favoritesRepository: any FavoritesRepository
 
     init(favoritesRepository: any FavoritesRepository) {

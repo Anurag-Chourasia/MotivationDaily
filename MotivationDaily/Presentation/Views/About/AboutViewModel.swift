@@ -4,12 +4,13 @@ import DeveloperProfileKit
 import LocalizationKit
 import FoundationKit
 
+@MainActor
 final class AboutViewModel: ObservableObject {
     var navigationTitle: String { MotivationStrings(provider: localization).aboutDeveloper }
     let developerName = "Anurag Chourasia"
-    let developerRole = "iOS Developer"
+    var developerRole: String { MotivationStrings(provider: localization).developerRole }
     var appName: String { MotivationStrings(provider: localization).motivationAppName }
-    let appDescription = "Inspirational quotes paired with aesthetic wallpapers. Built with SwiftUI, Clean Architecture and MVVM."
+    var appDescription: String { MotivationStrings(provider: localization).appDescription }
     var disclaimer: String { MotivationStrings(provider: localization).aboutDisclaimer }
 
     let version: String
@@ -19,7 +20,7 @@ final class AboutViewModel: ObservableObject {
     init(
         version: String = AppRuntime.version,
         build: String = AppRuntime.build,
-        localization: LocalizationProviding = AppContainer.live.localization
+        localization: LocalizationProviding = LocalizationController.shared
     ) {
         self.version = version
         self.build = build
@@ -38,7 +39,7 @@ final class AboutViewModel: ObservableObject {
         labels.linkHint = strings.profileLinkHint
         labels.errorTitle = strings.profileLinkError
         labels.errorMessage = strings.errorRetryLater
-        labels.okay = L10n.Common.ok(using: localization)
+        labels.okay = CommonStrings(provider: localization).ok
         return labels
     }
 }

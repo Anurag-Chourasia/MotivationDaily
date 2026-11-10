@@ -111,13 +111,11 @@ actor FeedCatalogueStore: FeedCatalogueRepository {
 
         var currentCategories: [Category] = []
         for category in snapshot.categories where !category.keyRawValue.isEmpty {
-            let item = await MainActor.run {
-                Category(
-                    key: CategoryKey(rawValue: category.keyRawValue),
-                    displayName: category.displayName,
-                    quoteCount: category.quoteCount
-                )
-            }
+            let item = Category(
+                key: CategoryKey(rawValue: category.keyRawValue),
+                displayName: category.displayName,
+                quoteCount: category.quoteCount
+            )
             currentCategories.append(item)
         }
         currentCategories.sort {
@@ -348,16 +346,14 @@ actor FeedCatalogueStore: FeedCatalogueRepository {
     }
 
     private func fetchPicsumImages(page: Int, limit: Int) async throws -> [CatalogueImageMeta] {
-        let url = try await MainActor.run {
-            try apiService.makeURL(
-                base: "https://picsum.photos",
-                path: "/v2/list",
-                queryItems: [
-                    URLQueryItem(name: "page", value: String(max(page, 1))),
-                    URLQueryItem(name: "limit", value: String(max(limit, 1)))
-                ]
-            )
-        }
+        let url = try apiService.makeURL(
+            base: "https://picsum.photos",
+            path: "/v2/list",
+            queryItems: [
+                URLQueryItem(name: "page", value: String(max(page, 1))),
+                URLQueryItem(name: "limit", value: String(max(limit, 1)))
+            ]
+        )
 
         let data = try await apiService.getData(url, cachePolicy: .reloadIgnoringLocalCacheData)
         let dtos = try decoder.decode([PicsumImageDTO].self, from: data)
@@ -383,7 +379,7 @@ actor FeedCatalogueStore: FeedCatalogueRepository {
         repeat {
             guard !Task.isCancelled else { break }
             let response = try await quotableClient.fetchQuotes(tags: slug, page: page, limit: perPage)
-            let categoryKey = await MainActor.run { CategoryKey(rawValue: slug) }
+            let categoryKey = CategoryKey(rawValue: slug)
             let mapped = response.results.map {
                 Quote(
                     id: $0._id,

@@ -4,12 +4,17 @@ import DesignTokensKit
 import UIComponentsKit
 import LocalizationKit
 
+@MainActor
 struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: AboutViewModel
 
-    init(viewModel: AboutViewModel = AboutViewModel()) {
+    init(viewModel: AboutViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
+    }
+
+    init() {
+        _viewModel = StateObject(wrappedValue: AboutViewModel())
     }
 
     var body: some View {

@@ -1,6 +1,6 @@
 import Foundation
 
-final class AdviceSlipClient {
+final class AdviceSlipClient: Sendable {
     private let apiService: APIService
 
     init(apiService: APIService) {

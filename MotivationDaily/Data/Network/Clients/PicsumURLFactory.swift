@@ -1,6 +1,6 @@
 import Foundation
 
-struct PicsumURLFactory {
+struct PicsumURLFactory: Sendable {
     func url(width: Int, height: Int, cacheKey _: String?) -> URL {
         let safeWidth = max(width, 1)
         let safeHeight = max(height, 1)
