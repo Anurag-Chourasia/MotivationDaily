@@ -4,15 +4,7 @@ enum FeedCatalogueError: Error {
     case unavailable
 }
 
-struct FeedCataloguePage {
-    let quote: Quote
-    let imageURL: URL
-    let imageSource: ImageSource
-    let seed: String
-    let imageCategoryTitle: String?
-}
-
-actor FeedCatalogueStore {
+actor FeedCatalogueStore: FeedCatalogueRepository {
     struct CatalogueCategory: Codable {
         let keyRawValue: String
         let displayName: String

@@ -46,13 +46,17 @@ final class FeedPageViewModel: ObservableObject {
         return content
     }
 
-    private let catalogueStore: FeedCatalogueStore
+    private let prefetchFeedPageUseCase: PrefetchFeedPageUseCase
     let imageLoader: any ImageLoading
     private var inFlightTasks: [String: Task<FeedPageContent, Error>] = [:]
 
-    init(catalogueStore: FeedCatalogueStore, imageLoader: any ImageLoading = ImageLoader.shared) {
-        self.catalogueStore = catalogueStore
+    init(prefetchFeedPageUseCase: PrefetchFeedPageUseCase, imageLoader: any ImageLoading = ImageLoader.shared) {
+        self.prefetchFeedPageUseCase = prefetchFeedPageUseCase
         self.imageLoader = imageLoader
+    }
+
+    convenience init(catalogueStore: FeedCatalogueStore, imageLoader: any ImageLoading = ImageLoader.shared) {
+        self.init(prefetchFeedPageUseCase: PrefetchFeedPageUseCase(repository: catalogueStore), imageLoader: imageLoader)
     }
 
     func applyCached(_ content: FeedPageContent) {
@@ -106,16 +110,16 @@ final class FeedPageViewModel: ObservableObject {
 
     func warmupCatalogue() {
         Task {
-            await catalogueStore.warmup()
+            await prefetchFeedPageUseCase.warmup()
         }
     }
 
     func categories(fallback: [Category]) async -> [Category] {
-        await catalogueStore.categories(fallback: fallback)
+        await prefetchFeedPageUseCase.categories(fallback: fallback)
     }
 
     func randomQuoteCount() async -> Int {
-        await catalogueStore.randomQuoteCount()
+        await prefetchFeedPageUseCase.randomQuoteCount()
     }
 
     func imageRequestSize(for aspectRatio: WallpaperAspectRatio) -> (width: Int, height: Int) {
@@ -169,7 +173,7 @@ final class FeedPageViewModel: ObservableObject {
                 throw FeedCatalogueError.unavailable
             }
 
-            let page = try await catalogueStore.page(
+            let page = try await prefetchFeedPageUseCase.execute(
                 category: category,
                 depth: depth,
                 quoteOverride: quoteOverride
