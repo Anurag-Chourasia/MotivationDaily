@@ -17,8 +17,8 @@ packages = {key for key, value in objects.items()
 if len(packages) != 1:
     raise SystemExit("Expected one canonical SnapshotTestKit package")
 package = objects[next(iter(packages))]
-if package.get("requirement") != {"kind": "exactVersion", "version": "1.0.4"}:
-    raise SystemExit("SnapshotTestKit must be pinned exactly to 1.0.4")
+if package.get("requirement") != {"kind": "exactVersion", "version": "1.1.0"}:
+    raise SystemExit("SnapshotTestKit must be pinned exactly to 1.1.0")
 products = {key for key, value in objects.items() if value.get("package") in packages}
 consumers = []
 for target in objects.values():
