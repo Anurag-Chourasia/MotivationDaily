@@ -55,6 +55,7 @@ final class DefaultFavoritesRepository: FavoritesRepository, @unchecked Sendable
         imagesDirectoryURL: URL? = nil,
         fileManager: FileManager = .default
     ) {
+        nonisolated(unsafe) let fileManager = fileManager
         FavoriteQuote.resolveURL = { path in
             Self.resolveLocalImageURL(for: path, fileManager: fileManager, imagesDirectoryURL: imagesDirectoryURL)
         }

@@ -12,7 +12,7 @@ def main():
     parser.add_argument('result', type=Path)
     parser.add_argument('--target', default='MotivationDaily.app')
     parser.add_argument('--minimum', type=float, default=None)
-    parser.add_argument('--governance', action='store_true', help='Validate 85% Domain/Data and 80% ViewModels')
+    parser.add_argument('--governance', action='store_true', help='Validate 85%% Domain/Data and 80%% ViewModels')
     parser.add_argument('--json-output', type=Path)
     args = parser.parse_args()
 
