@@ -133,4 +133,28 @@ final class HomeFlowTests: UITestBase {
 
         XCTAssertGreaterThan(observedQuotes.count, 1, "App should randomize quotes across launches")
     }
+
+    func testSaveButtonMaintainsFixedPositionWhenToggled() {
+        launchApp()
+
+        let saveButton = firstHittable(in: app.buttons.matching(identifier: "content.saveButton"), timeout: 15)
+        waitFor(saveButton, timeout: 15)
+        waitForHittable(saveButton, timeout: 15)
+
+        let initialFrame = saveButton.frame
+        let screenshotBefore = app.screenshot()
+        try? screenshotBefore.pngRepresentation.write(to: URL(fileURLWithPath: "/tmp/save_button_before.png"))
+
+        saveButton.tap()
+
+        // Wait brief moment for toggle animation
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+
+        let toggledFrame = saveButton.frame
+        let screenshotAfter = app.screenshot()
+        try? screenshotAfter.pngRepresentation.write(to: URL(fileURLWithPath: "/tmp/save_button_after.png"))
+
+        // The button center (midX) must remain fixed so the side rail does not shift horizontally
+        XCTAssertEqual(initialFrame.midX, toggledFrame.midX, accuracy: 2.0)
+    }
 }

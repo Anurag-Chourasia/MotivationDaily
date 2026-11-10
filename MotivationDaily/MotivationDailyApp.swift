@@ -41,7 +41,11 @@ struct MotivationDailyApp: App {
     }
 
     private var authenticatedContent: some View {
-        AppAuthGate(brand: .motivationDaily, localizer: container.localization) { user, _ in
+        AppAuthGate(
+            brand: .motivationDaily,
+            backendFactory: container.authBackendFactory,
+            localizer: container.localization
+        ) { user, _ in
             let accountContainer = AppContainer(favoritesOwnerID: user.id, imageLoader: container.imageLoader)
             HomeView(quoteVM: accountContainer.makeQuoteViewModel(), pageVM: accountContainer.makeFeedPageViewModel())
                 .id(user.id)

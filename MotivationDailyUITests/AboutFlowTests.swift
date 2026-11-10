@@ -7,6 +7,9 @@ final class AboutFlowTests: UITestBase {
         openAbout()
         waitFor(app.navigationBars["About Developer"])
 
+        let screenshot = app.screenshot()
+        try? screenshot.pngRepresentation.write(to: URL(fileURLWithPath: "/tmp/about_developer_modal.png"))
+
         let doneButton = app.buttons["about.backButton"]
         waitFor(doneButton)
         doneButton.tap()

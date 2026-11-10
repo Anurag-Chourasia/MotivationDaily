@@ -3,6 +3,9 @@ import UIKit
 import FoundationKit
 import LocalizationKit
 import CommonNetworkingKit
+import AuthKit
+import AuthKitUI
+import AuthKitSupabase
 
 final class AppContainer {
     static let live = AppContainer()
@@ -16,6 +19,7 @@ final class AppContainer {
     let configuration: AppConfiguration
     let logger: AppLogger
     let imageLoader: any ImageLoading
+    let authBackendFactory: AuthBackendFactory
 
     private let fetchCategoriesUseCase: FetchCategoriesUseCase
     private let fetchWallpaperUseCase: FetchWallpaperUseCase
@@ -30,7 +34,9 @@ final class AppContainer {
     init(arguments: [String] = ProcessInfo.processInfo.arguments,
          favoritesDefaults: UserDefaults = .standard,
          favoritesOwnerID: UUID? = nil,
-         imageLoader: (any ImageLoading)? = nil) {
+         imageLoader: (any ImageLoading)? = nil,
+         authBackendFactory: @escaping AuthBackendFactory = SupabaseBackendFactory.make) {
+        self.authBackendFactory = authBackendFactory
         let session = APIService.makeSession()
         let fetcher = ImageDataFetcher(
             client: CommonNetworkingKit.HTTPClient(session: session),
