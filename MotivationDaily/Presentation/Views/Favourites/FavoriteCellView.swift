@@ -62,7 +62,7 @@ struct FavoriteCellView: View {
                     tagPill(favorite.source.titleKeyPath)
                 }
 
-                Text("— \(favorite.author ?? String(\MotivationStrings.authorUnknown))")
+                Text(formattedAuthor)
                     .font(\.subheadline)
                     .italic()
                     .foregroundColor(\.secondary)
@@ -96,6 +96,11 @@ struct FavoriteCellView: View {
         .onDisappear {
             loadTask?.cancel()
         }
+    }
+
+    private var formattedAuthor: String {
+        let author = favorite.author ?? String(\MotivationStrings.authorUnknown)
+        return "— \(author)"
     }
 
     private var imagePlaceholder: some View {

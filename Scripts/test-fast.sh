@@ -50,6 +50,10 @@ xcrun xcodebuild test -project MotivationDaily.xcodeproj -scheme MotivationDaily
     -only-testing:MotivationDailyTests/AccessibilityJourneyTests \
     -only-testing:MotivationDailyTests/LocalizationAndRTLJourneyTests
 
+# 4. Verify code coverage against governance gates (85% Domain/Data, 80% ViewModels)
+echo "--> Verifying governance coverage gates..."
+python3 Scripts/check_coverage.py "$result" --governance
+
 END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))
 echo "=== [Motivation Daily] Fast Lane Succeeded in ${ELAPSED}s (Result: $result) ==="
