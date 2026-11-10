@@ -106,7 +106,11 @@ final class AppContainer {
         )
         #endif
 
-        let favoritesRepository = DefaultFavoritesRepository(userDefaults: favoritesDefaults, ownerID: favoritesOwnerID)
+        let favoritesRepository = DefaultFavoritesRepository(
+            userDefaults: favoritesDefaults,
+            ownerID: favoritesOwnerID,
+            logger: logger
+        )
         #if DEBUG
         if isUITestMode {
             if arguments.contains("-UITestClearFavorites") {

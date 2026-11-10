@@ -6,6 +6,7 @@ final class DefaultFavoritesRepository: FavoritesRepository {
     private let fileManager: FileManager
     private let storageKey: String
     private let ownerID: String?
+    private let logger: (any AppLogger)?
     private struct OwnedFavorites: Codable {
         var legacyOwner: String?
         var accounts: [String: [FavoriteQuote]] = [:]
@@ -25,17 +26,20 @@ final class DefaultFavoritesRepository: FavoritesRepository {
         fileManager: FileManager = .default,
         storageKey: String = "favoriteQuotes",
         ownerID: UUID? = nil,
-        imagesRootURL: URL? = nil
+        imagesRootURL: URL? = nil,
+        logger: (any AppLogger)? = nil
     ) {
         self.userDefaults = userDefaults
         self.fileManager = fileManager
         self.storageKey = storageKey
         self.ownerID = ownerID?.uuidString.lowercased()
+        self.logger = logger
         let baseDirectory =
             fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        self.imagesDirectoryURL = imagesRootURL ?? baseDirectory.appendingPathComponent("FavoriteImages", isDirectory: true)
+        let dir = imagesRootURL ?? baseDirectory.appendingPathComponent("FavoriteImages", isDirectory: true)
+        self.imagesDirectoryURL = dir
 
         if !fileManager.fileExists(atPath: imagesDirectoryURL.path) {
             try? fileManager.createDirectory(
@@ -43,6 +47,47 @@ final class DefaultFavoritesRepository: FavoritesRepository {
                 withIntermediateDirectories: true
             )
         }
+
+        Self.configureDefaultResolver(imagesDirectoryURL: dir, fileManager: fileManager)
+    }
+
+    static func configureDefaultResolver(
+        imagesDirectoryURL: URL? = nil,
+        fileManager: FileManager = .default
+    ) {
+        FavoriteQuote.resolveURL = { path in
+            Self.resolveLocalImageURL(for: path, fileManager: fileManager, imagesDirectoryURL: imagesDirectoryURL)
+        }
+    }
+
+    static func resolveLocalImageURL(
+        for localImagePath: String?,
+        fileManager: FileManager = .default,
+        imagesDirectoryURL: URL? = nil
+    ) -> URL? {
+        guard let localImagePath, !localImagePath.isEmpty, !localImagePath.contains("..") else { return nil }
+
+        let filename = localImagePath.hasPrefix("/")
+            ? URL(fileURLWithPath: localImagePath).lastPathComponent
+            : localImagePath
+
+        let baseDirectory = imagesDirectoryURL ?? {
+            let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+                ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
+                ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            return base.appendingPathComponent("FavoriteImages", isDirectory: true)
+        }()
+
+        let fileURL = baseDirectory.appendingPathComponent(filename)
+        if fileManager.fileExists(atPath: fileURL.path) {
+            return fileURL
+        }
+
+        if localImagePath.hasPrefix("/"), fileManager.fileExists(atPath: localImagePath) {
+            return URL(fileURLWithPath: localImagePath)
+        }
+
+        return nil
     }
 
     private func ensureImagesDirectoryExists() throws {
@@ -70,6 +115,11 @@ final class DefaultFavoritesRepository: FavoritesRepository {
                 if path.hasPrefix("/") {
                     needsMigration = true
                     let filename = URL(fileURLWithPath: path).lastPathComponent
+                    let resolvedURL = Self.resolveLocalImageURL(
+                        for: filename,
+                        fileManager: self.fileManager,
+                        imagesDirectoryURL: self.imagesDirectoryURL
+                    )
                     return FavoriteQuote(
                         id: item.id,
                         text: item.text,
@@ -81,7 +131,8 @@ final class DefaultFavoritesRepository: FavoritesRepository {
                         ratioRawValue: item.ratioRawValue,
                         imageWidth: item.imageWidth,
                         imageHeight: item.imageHeight,
-                        savedDate: item.savedDate
+                        savedDate: item.savedDate,
+                        resolvedLocalImageURL: resolvedURL
                     )
                 }
                 return item
@@ -90,7 +141,7 @@ final class DefaultFavoritesRepository: FavoritesRepository {
                 do {
                     try saveFavorites(normalized)
                 } catch {
-                    AppRuntime.logger.log("Non-fatal: failed to persist normalized favorites: \(error.localizedDescription)", level: .warning)
+                    logger?.log("Non-fatal: failed to persist normalized favorites: \(error.localizedDescription)", level: .warning)
                 }
             }
             return normalized

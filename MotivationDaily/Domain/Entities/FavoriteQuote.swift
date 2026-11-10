@@ -1,6 +1,6 @@
 import Foundation
 
-struct FavoriteQuote: Codable, Identifiable, Equatable {
+struct FavoriteQuote: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let text: String
     let author: String?
@@ -12,6 +12,7 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
     let imageWidth: Int?
     let imageHeight: Int?
     let savedDate: Date
+    let resolvedLocalImageURL: URL?
 
     init(
         id: String,
@@ -24,7 +25,8 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
         ratioRawValue: String?,
         imageWidth: Int?,
         imageHeight: Int?,
-        savedDate: Date = Date()
+        savedDate: Date = Date(),
+        resolvedLocalImageURL: URL? = nil
     ) {
         self.id = id
         self.text = text
@@ -37,6 +39,7 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
         self.imageWidth = imageWidth
         self.imageHeight = imageHeight
         self.savedDate = savedDate
+        self.resolvedLocalImageURL = resolvedLocalImageURL ?? Self.resolveURL?(localImagePath)
     }
 
     init(
@@ -46,7 +49,8 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
         ratioRawValue: String?,
         imageWidth: Int?,
         imageHeight: Int?,
-        savedDate: Date = Date()
+        savedDate: Date = Date(),
+        resolvedLocalImageURL: URL? = nil
     ) {
         self.init(
             id: quote.id ?? quote.text,
@@ -59,37 +63,79 @@ struct FavoriteQuote: Codable, Identifiable, Equatable {
             ratioRawValue: ratioRawValue,
             imageWidth: imageWidth,
             imageHeight: imageHeight,
-            savedDate: savedDate
+            savedDate: savedDate,
+            resolvedLocalImageURL: resolvedLocalImageURL
         )
     }
 
+    enum CodingKeys: String, CodingKey {
+        case id, text, author, source, categoryKey, imageURL, localImagePath, ratioRawValue, imageWidth, imageHeight, savedDate
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.text = try container.decode(String.self, forKey: .text)
+        self.author = try container.decodeIfPresent(String.self, forKey: .author)
+        self.source = try container.decode(QuoteSource.self, forKey: .source)
+        self.categoryKey = try container.decodeIfPresent(CategoryKey.self, forKey: .categoryKey)
+        self.imageURL = try container.decodeIfPresent(URL.self, forKey: .imageURL)
+        self.localImagePath = try container.decodeIfPresent(String.self, forKey: .localImagePath)
+        self.ratioRawValue = try container.decodeIfPresent(String.self, forKey: .ratioRawValue)
+        self.imageWidth = try container.decodeIfPresent(Int.self, forKey: .imageWidth)
+        self.imageHeight = try container.decodeIfPresent(Int.self, forKey: .imageHeight)
+        self.savedDate = try container.decodeIfPresent(Date.self, forKey: .savedDate) ?? Date()
+        self.resolvedLocalImageURL = Self.resolveURL?(self.localImagePath)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(text, forKey: .text)
+        try container.encodeIfPresent(author, forKey: .author)
+        try container.encode(source, forKey: .source)
+        try container.encodeIfPresent(categoryKey, forKey: .categoryKey)
+        try container.encodeIfPresent(imageURL, forKey: .imageURL)
+        try container.encodeIfPresent(localImagePath, forKey: .localImagePath)
+        try container.encodeIfPresent(ratioRawValue, forKey: .ratioRawValue)
+        try container.encodeIfPresent(imageWidth, forKey: .imageWidth)
+        try container.encodeIfPresent(imageHeight, forKey: .imageHeight)
+        try container.encode(savedDate, forKey: .savedDate)
+    }
+
     func withLocalImagePath(_ path: String) -> FavoriteQuote {
-        FavoriteQuote(id: id, text: text, author: author, source: source, categoryKey: categoryKey,
-                      imageURL: imageURL, localImagePath: path, ratioRawValue: ratioRawValue,
-                      imageWidth: imageWidth, imageHeight: imageHeight, savedDate: savedDate)
+        FavoriteQuote(
+            id: id,
+            text: text,
+            author: author,
+            source: source,
+            categoryKey: categoryKey,
+            imageURL: imageURL,
+            localImagePath: path,
+            ratioRawValue: ratioRawValue,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
+            savedDate: savedDate,
+            resolvedLocalImageURL: Self.resolveURL?(path)
+        )
     }
 
-    var resolvedLocalImageURL: URL? {
-        guard let localImagePath, !localImagePath.isEmpty, !localImagePath.contains("..") else { return nil }
-
-        let filename = localImagePath.hasPrefix("/")
-            ? URL(fileURLWithPath: localImagePath).lastPathComponent
-            : localImagePath
-
-        let baseDirectory =
-            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        let fileURL = baseDirectory.appendingPathComponent("FavoriteImages", isDirectory: true).appendingPathComponent(filename)
-
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            return fileURL
-        }
-
-        if localImagePath.hasPrefix("/"), FileManager.default.fileExists(atPath: localImagePath) {
-            return URL(fileURLWithPath: localImagePath)
-        }
-
-        return nil
+    func withResolvedLocalImageURL(_ url: URL?) -> FavoriteQuote {
+        FavoriteQuote(
+            id: id,
+            text: text,
+            author: author,
+            source: source,
+            categoryKey: categoryKey,
+            imageURL: imageURL,
+            localImagePath: localImagePath,
+            ratioRawValue: ratioRawValue,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
+            savedDate: savedDate,
+            resolvedLocalImageURL: url
+        )
     }
+
+    nonisolated(unsafe) static var resolveURL: (@Sendable (String?) -> URL?)?
 }
