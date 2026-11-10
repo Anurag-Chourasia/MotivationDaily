@@ -65,8 +65,6 @@ struct SideActionIconView: View {
 
             labelView
                 .font(\.caption2)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
                 .foregroundColor(\.white)
                 .padding(.horizontal, \.eight)
                 .padding(.vertical, \.four)
