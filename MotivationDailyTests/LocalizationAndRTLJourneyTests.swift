@@ -37,11 +37,12 @@ final class LocalizationAndRTLJourneyTests: XCTestCase {
         for localeCode in locales {
             let controller = LocalizationController(initialLocale: Locale(identifier: localeCode))
 
-            let signIn = L10n.Auth.signIn(using: controller)
-            let email = L10n.Auth.email(using: controller)
-            let password = L10n.Auth.password(using: controller)
-            let deleteAccount = L10n.Account.deleteAccount(using: controller)
-            let signOut = L10n.Account.signOut(using: controller)
+            let common = CommonStrings(provider: controller)
+            let signIn = common.authTitleSignIn
+            let email = common.authFieldEmail
+            let password = common.authFieldPassword
+            let deleteAccount = common.authButtonDeleteAccount
+            let signOut = common.authButtonSignOut
 
             XCTAssertFalse(signIn.isEmpty, "Sign in string should not be empty for \(localeCode)")
             XCTAssertFalse(email.isEmpty, "Email string should not be empty for \(localeCode)")

@@ -159,7 +159,7 @@ private struct DebugSettingsPresenter: UIViewControllerRepresentable {
 }
 
 struct DeveloperSettingsView: View {
-    var buttonTitle = "Apply and close"
+    var buttonTitle = String(\MotivationStrings.applyAndClose)
     var onContinue: () -> Void
     @AppStorage("developer.source") private var source = "live"
     @AppStorage("developer.scenario") private var scenario = "success"
@@ -294,9 +294,14 @@ struct DeveloperSettingsView: View {
     private func refreshCacheSummary() {
         let count = diskCache.entryCount
         if count == 0 {
-            cacheSummary = "0 quotes (0 KB)"
+            cacheSummary = String(\MotivationStrings.developerCacheEmpty)
         } else {
-            cacheSummary = "\(count) quotes (\(diskCache.formattedFileSize))"
+            cacheSummary = String(
+                format: String(\MotivationStrings.developerCacheSummary),
+                locale: LocalizationController.shared.locale,
+                count,
+                diskCache.formattedFileSize
+            )
         }
     }
 }

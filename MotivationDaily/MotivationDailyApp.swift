@@ -16,7 +16,6 @@ struct MotivationDailyApp: App {
             appContent
             .tint(AccentTheme.resolve(from: accentThemeRawValue).color)
             .environment(\.layoutDirection, container.localization.isRightToLeft ? .rightToLeft : .leftToRight)
-            .environment(\.motivationL10n, LocalizedContext<MotivationDomain>(provider: container.localization))
         }
     }
 

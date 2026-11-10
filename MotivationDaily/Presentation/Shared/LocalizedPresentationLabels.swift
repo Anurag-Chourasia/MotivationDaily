@@ -53,7 +53,7 @@ extension AppError {
         case .serverUnavailable:
             return context[\.errorServerUnavailable]
         case .networkStatus(let status):
-            return context.string("motivation.error.network_status", arguments: [status])
+            return context.string(\.errorNetworkStatus, arguments: [status])
         case .invalidResponse:
             return context[\.errorInvalidResponse]
         case .imageLoadFailed:

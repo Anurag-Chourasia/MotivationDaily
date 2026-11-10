@@ -5,8 +5,6 @@ import LocalizationKit
 
 // MARK: - Empty State
 struct EmptyFavoritesView: View {
-    @Environment(\.motivationL10n) private var l10n
-
     var body: some View {
         StateMessage(
             spacing: \.twelve,

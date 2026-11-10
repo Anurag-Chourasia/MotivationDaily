@@ -7,7 +7,6 @@ struct FavoritesView: View {
     @ObservedObject var quoteVM: QuoteViewModel
     var imageLoader: any ImageLoading = ImageLoader.shared
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.motivationL10n) private var l10n
 
     @State private var selectedFavorite: FavoriteQuote?
     @State private var showFullScreen = false

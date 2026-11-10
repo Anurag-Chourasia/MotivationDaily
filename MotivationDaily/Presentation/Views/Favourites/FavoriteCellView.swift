@@ -12,7 +12,6 @@ struct FavoriteCellView: View {
     let onToggleFavorite: () -> Void
     let onImageDataResolved: ((Data) -> Void)?
 
-    @Environment(\.motivationL10n) private var l10n
     @State private var renderedImage: UIImage?
     @State private var isLoading = false
     @State private var loadTask: Task<Void, Never>?

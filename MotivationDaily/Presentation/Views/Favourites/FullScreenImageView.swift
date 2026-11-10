@@ -11,7 +11,6 @@ struct FullScreenImageView: View {
     @Binding var isPresented: Bool
     let onImageDataResolved: ((String, Data) -> Void)?
 
-    @Environment(\.motivationL10n) private var l10n
     @State private var showShareSheet = false
     @State private var displayedImage: UIImage?
     @State private var isLoadingImage = false
