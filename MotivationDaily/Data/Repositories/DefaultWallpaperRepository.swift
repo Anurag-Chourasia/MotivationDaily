@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 
-final class DefaultWallpaperRepository: WallpaperRepository {
+final class DefaultWallpaperRepository: WallpaperRepository, Sendable {
     private let quoteRepository: any QuoteRepository
     private let imageRepository: any ImageRepository
 

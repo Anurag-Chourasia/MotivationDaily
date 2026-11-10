@@ -1,6 +1,6 @@
 import Foundation
 
-struct Quote: Codable, Identifiable, Equatable {
+struct Quote: Codable, Identifiable, Equatable, Sendable {
     let id: String?
     let text: String
     let author: String?

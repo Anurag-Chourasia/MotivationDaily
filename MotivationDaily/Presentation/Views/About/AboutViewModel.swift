@@ -4,6 +4,7 @@ import DeveloperProfileKit
 import LocalizationKit
 import FoundationKit
 
+@MainActor
 final class AboutViewModel: ObservableObject {
     var navigationTitle: String { MotivationStrings(provider: localization).aboutDeveloper }
     let developerName = "Anurag Chourasia"

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Category: Codable, Hashable {
+struct Category: Codable, Hashable, Sendable {
     let key: CategoryKey
     let displayName: String
     let quoteCount: Int?

@@ -1,6 +1,6 @@
 import Foundation
 
-final class CategoryMappingStore {
+final class CategoryMappingStore: Sendable {
     struct Mapping {
         let displayName: String
         let quotableTags: String?

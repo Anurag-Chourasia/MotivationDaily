@@ -2,7 +2,7 @@ import Foundation
 
 /// Persistent disk cache for quote catalog items in Motivation Daily.
 /// Persists fetched quotes to disk atomically to ensure truthful offline catalog behavior.
-final class QuoteDiskCache {
+final class QuoteDiskCache: @unchecked Sendable {
     static let shared = QuoteDiskCache()
     private let fileURL: URL
 

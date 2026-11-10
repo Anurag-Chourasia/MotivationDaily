@@ -1,6 +1,6 @@
 import Foundation
 
-final class ZenQuotesClient {
+final class ZenQuotesClient: Sendable {
     private let apiService: APIService
     private let decoder: JSONDecoder
 

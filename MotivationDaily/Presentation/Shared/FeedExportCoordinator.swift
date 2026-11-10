@@ -1,6 +1,7 @@
 import UIKit
 import DesignTokensKit
 
+@MainActor
 final class FeedExportCoordinator {
     var isUITestMode: Bool {
         ProcessInfo.processInfo.arguments.contains("-UITestMode")

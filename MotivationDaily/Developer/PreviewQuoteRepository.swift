@@ -1,7 +1,7 @@
 #if DEBUG
 import Foundation
 
-final class PreviewQuoteRepository: QuoteRepository {
+final class PreviewQuoteRepository: QuoteRepository, Sendable {
     private let fixture: UITestFixtureCatalog
 
     init(fixture: UITestFixtureCatalog = .current) {

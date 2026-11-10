@@ -1,7 +1,7 @@
 import Foundation
 import FoundationKit
 
-final class DefaultFavoritesRepository: FavoritesRepository {
+final class DefaultFavoritesRepository: FavoritesRepository, @unchecked Sendable {
     private let userDefaults: UserDefaults
     private let fileManager: FileManager
     private let storageKey: String

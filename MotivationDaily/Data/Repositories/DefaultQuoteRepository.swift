@@ -1,6 +1,6 @@
 import Foundation
 
-final class DefaultQuoteRepository: QuoteRepository {
+final class DefaultQuoteRepository: QuoteRepository, @unchecked Sendable {
     private let zenClient: ZenQuotesClient
     private let quotableClient: QuotableClient
     private let adviceSlipClient: AdviceSlipClient

@@ -1,6 +1,6 @@
 import Foundation
 
-struct FetchCategoriesUseCase {
+struct FetchCategoriesUseCase: Sendable {
     private let repository: any QuoteRepository
 
     init(repository: any QuoteRepository) {

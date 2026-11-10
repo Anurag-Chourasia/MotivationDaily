@@ -1,6 +1,6 @@
 import Foundation
 
-final class DefaultImageRepository: ImageRepository {
+final class DefaultImageRepository: ImageRepository, Sendable {
     private let picsumFactory: PicsumURLFactory
 
     init(

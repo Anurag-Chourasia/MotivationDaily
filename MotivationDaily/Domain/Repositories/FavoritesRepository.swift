@@ -1,6 +1,6 @@
 import Foundation
 
-protocol FavoritesRepository {
+protocol FavoritesRepository: Sendable {
     func loadFavorites() throws -> [FavoriteQuote]
     func saveFavorites(_ favorites: [FavoriteQuote]) throws
     func storeImageData(_ data: Data, for quoteID: String) throws -> String

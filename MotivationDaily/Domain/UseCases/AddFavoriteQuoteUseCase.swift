@@ -1,6 +1,6 @@
 import Foundation
 
-struct AddFavoriteQuoteUseCase {
+struct AddFavoriteQuoteUseCase: Sendable {
     private let favoritesRepository: any FavoritesRepository
 
     init(favoritesRepository: any FavoritesRepository) {
@@ -44,7 +44,7 @@ struct AddFavoriteQuoteUseCase {
     }
 }
 
-struct CacheFavoriteImageUseCase {
+struct CacheFavoriteImageUseCase: Sendable {
     private let favoritesRepository: any FavoritesRepository
 
     init(favoritesRepository: any FavoritesRepository) {
