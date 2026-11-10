@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import DesignTokensKit
+import CommonNetworkingKit
 
 protocol ImageLoading: Sendable {
     func load(url: URL) async throws -> UIImage
@@ -8,9 +8,20 @@ protocol ImageLoading: Sendable {
 }
 
 actor ImageLoader: ImageLoading {
-    nonisolated static let shared = ImageLoader()
+    nonisolated static let shared: ImageLoader = {
+        let session = APIService.makeSession()
+        let client = CommonNetworkingKit.HTTPClient(session: session)
+        let cache = PersistentImageDataCache(
+            memoryCapacityBytes: 80 * 1024 * 1024,
+            diskDirectoryName: "motivationdaily.images.urlcache"
+        )
+        let fetcher = ImageDataFetcher(client: client, cache: cache)
+        return ImageLoader(fetcher: fetcher, client: client, session: session)
+    }()
 
-    private let session: URLSession
+    private let client: CommonNetworkingKit.HTTPClient
+    private let fetcher: (any ImageDataFetching)?
+    private let session: URLSession?
     private let cache: LightImageCache
     private let retryableStatusCodes: Set<Int> = [408, 429, 500, 502, 503, 504]
     private let maxRetryAttempts = 1
@@ -23,10 +34,39 @@ actor ImageLoader: ImageLoading {
     private var inFlightTasks: [URL: PendingRequest] = [:]
 
     init(
-        session: URLSession = ImageLoader.makeDefaultSession(),
+        fetcher: any ImageDataFetching,
+        client: CommonNetworkingKit.HTTPClient? = nil,
+        session: URLSession? = nil,
         cache: LightImageCache = .shared,
         retrySleep: @escaping @Sendable (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) }
     ) {
+        self.fetcher = fetcher
+        self.client = client ?? CommonNetworkingKit.HTTPClient()
+        self.session = session
+        self.cache = cache
+        self.retrySleep = retrySleep
+    }
+
+    init(
+        client: CommonNetworkingKit.HTTPClient,
+        session: URLSession? = nil,
+        cache: LightImageCache = .shared,
+        retrySleep: @escaping @Sendable (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) }
+    ) {
+        self.client = client
+        self.fetcher = nil
+        self.session = session
+        self.cache = cache
+        self.retrySleep = retrySleep
+    }
+
+    init(
+        session: URLSession = APIService.makeSession(),
+        cache: LightImageCache = .shared,
+        retrySleep: @escaping @Sendable (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) }
+    ) {
+        self.client = CommonNetworkingKit.HTTPClient(session: session)
+        self.fetcher = ImageDataFetcher(session: session)
         self.session = session
         self.cache = cache
         self.retrySleep = retrySleep
@@ -47,13 +87,16 @@ actor ImageLoader: ImageLoading {
                     return
                 }
                 let requestID = UUID()
-                let task = Task { [session, cache, retryableStatusCodes, maxRetryAttempts, retrySleep] in
+                let task = Task { [client, cache, retryableStatusCodes, maxRetryAttempts, retrySleep] in
                     let result: Result<UIImage, Error>
                     do {
                         let image = try await Self.loadWithRetry(
-                            url: url, session: session,
+                            url: url,
+                            client: client,
                             retryableStatusCodes: retryableStatusCodes,
-                            maxRetryAttempts: maxRetryAttempts, retrySleep: retrySleep)
+                            maxRetryAttempts: maxRetryAttempts,
+                            retrySleep: retrySleep
+                        )
                         try Task.checkCancellation()
                         result = .success(image)
                     } catch { result = .failure(error) }
@@ -86,12 +129,16 @@ actor ImageLoader: ImageLoading {
         for waiter in pending.waiters.values { waiter.resume(with: result) }
     }
 
-    private static func loadWithRetry(url: URL, session: URLSession,
-                                      retryableStatusCodes: Set<Int>, maxRetryAttempts: Int,
-                                      retrySleep: @Sendable (UInt64) async throws -> Void) async throws -> UIImage {
+    private static func loadWithRetry(
+        url: URL,
+        client: CommonNetworkingKit.HTTPClient,
+        retryableStatusCodes: Set<Int>,
+        maxRetryAttempts: Int,
+        retrySleep: @Sendable (UInt64) async throws -> Void
+    ) async throws -> UIImage {
         for attempt in 0...maxRetryAttempts {
             try Task.checkCancellation()
-            do { return try await loadOnce(url: url, session: session) }
+            do { return try await loadOnce(url: url, client: client) }
             catch {
                 try Task.checkCancellation()
                 guard attempt < maxRetryAttempts,
@@ -112,34 +159,21 @@ actor ImageLoader: ImageLoading {
             return inMemory
         }
 
-        var request = URLRequest(url: url)
-        request.cachePolicy = .returnCacheDataDontLoad
-        guard
-            let cachedResponse = session.configuration.urlCache?.cachedResponse(for: request),
-            !cachedResponse.data.isEmpty,
-            let decoded = UIImage(data: cachedResponse.data)
-        else {
-            return nil
+        if let session {
+            var request = URLRequest(url: url)
+            request.cachePolicy = .returnCacheDataDontLoad
+            if let cachedResponse = session.configuration.urlCache?.cachedResponse(for: request),
+               !cachedResponse.data.isEmpty,
+               let decoded = UIImage(data: cachedResponse.data) {
+                cache.insert(decoded, for: url)
+                return decoded
+            }
         }
 
-        cache.insert(decoded, for: url)
-        return decoded
+        return nil
     }
 
-    nonisolated private static func makeDefaultSession() -> URLSession {
-        let configuration = URLSessionConfiguration.default
-        configuration.requestCachePolicy = .returnCacheDataElseLoad
-        configuration.urlCache = URLCache(
-            memoryCapacity: 80 * 1024 * 1024,
-            diskCapacity: 300 * 1024 * 1024,
-            diskPath: "motivationdaily.images.urlcache"
-        )
-        configuration.timeoutIntervalForRequest = 25
-        configuration.timeoutIntervalForResource = 45
-        return URLSession(configuration: configuration)
-    }
-
-    private static func loadOnce(url: URL, session: URLSession) async throws -> UIImage {
+    private static func loadOnce(url: URL, client: CommonNetworkingKit.HTTPClient) async throws -> UIImage {
         if url.isFileURL {
             do {
                 let data = try Data(contentsOf: url)
@@ -167,13 +201,14 @@ actor ImageLoader: ImageLoading {
         request.cachePolicy = .returnCacheDataElseLoad
         request.timeoutInterval = 25
 
-        let (data, response) = try await session.data(for: request)
+        let response = try await client.send(request)
         if Task.isCancelled { throw CancellationError() }
 
-        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
-            throw AppError.network(status: http.statusCode)
+        if !(200...299).contains(response.statusCode) {
+            throw AppError.network(status: response.statusCode)
         }
 
+        let data = response.data
         if data.isEmpty {
             throw AppError.emptyResponse
         }
@@ -195,6 +230,15 @@ actor ImageLoader: ImageLoading {
     ) -> Bool {
         if let appError = error as? AppError, case .network(let status) = appError {
             return retryableStatusCodes.contains(status)
+        }
+
+        if let httpError = error as? HTTPClientError {
+            switch httpError {
+            case .unsuccessfulStatus(let response):
+                return retryableStatusCodes.contains(response.statusCode)
+            default:
+                return false
+            }
         }
 
         guard let urlError = error as? URLError else {
@@ -221,8 +265,10 @@ actor ImageLoader: ImageLoading {
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
         return renderer.image { context in
             let rect = CGRect(origin: .zero, size: size)
-            let colors = [PlaceholderColorToken.uiGradientStart.cgColor,
-                          PlaceholderColorToken.uiGradientEnd.cgColor]
+            let colors = [
+                UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1.0).cgColor,
+                UIColor(red: 0.05, green: 0.05, blue: 0.08, alpha: 1.0).cgColor
+            ]
             guard let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
                                             colors: colors as CFArray,
                                             locations: [0, 1]) else {
