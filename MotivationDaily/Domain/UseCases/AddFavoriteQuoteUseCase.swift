@@ -22,7 +22,7 @@ struct AddFavoriteQuoteUseCase: Sendable {
         }
 
         guard let localImageData, !localImageData.isEmpty else {
-            throw AppError.storage("Image is not ready yet. Please try saving again.")
+            throw AppError.imageNotReady
         }
 
         let localImagePath = try favoritesRepository.storeImageData(localImageData, for: favoriteID)

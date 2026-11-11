@@ -6,6 +6,7 @@ enum AppError: Error, Equatable, Sendable {
     case networkMessage(String)
     case decoding(String)
     case storage(String)
+    case imageNotReady
     case emptyResponse
     case unknown(String)
 
@@ -65,6 +66,8 @@ enum AppError: Error, Equatable, Sendable {
             }
         case .decoding:
             return .decoding
+        case .imageNotReady:
+            return .imageNotReady
         case .storage(let message):
             if message.hasPrefix("Image is not ready") {
                 return .imageNotReady
@@ -87,7 +90,7 @@ enum AppError: Error, Equatable, Sendable {
             return .network
         case .emptyResponse, .decoding:
             return .refresh
-        case .storage:
+        case .storage, .imageNotReady:
             return .storage
         case .invalidURL, .networkMessage, .unknown:
             return nil

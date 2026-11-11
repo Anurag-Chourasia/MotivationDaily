@@ -66,7 +66,7 @@ struct HomeView: View {
 
     private let effectsRestoreDelay: TimeInterval = 0.08
     private let actionRailExclusionWidth: CGFloat = DesignMetric.p140
-    private let actionRailExclusionHeight: CGFloat = DesignMetric.p320
+    private let actionRailExclusionHeight: CGFloat = DesignMetric.p400
     private let imageLoader: any ImageLoading
     private let user: AuthUser?
     private let sessionManager: SessionManager?
@@ -228,6 +228,8 @@ struct HomeView: View {
             Image(\.menu)
                 .font(\.title3)
                 .foregroundColor(selectedAccentTheme.color)
+                .frame(width: \.p44, height: \.p44)
+                .contentShape(Rectangle())
                 .accessibilityIdentifier(.contentMenuButton)
         }
     }
@@ -247,7 +249,7 @@ struct HomeView: View {
                 HStack {
                     Rectangle()
                         .fill(\.clear)
-                        .frame(width: \.p30, height: \.p30)
+                        .frame(width: \.p44, height: \.p44)
                     Spacer()
                     menuButton
                 }
@@ -640,7 +642,7 @@ struct HomeView: View {
             }) {
                 SideActionIconView(
                     isSaved ? \.heartFill : \.heart,
-                    isSaved ? \.saved : \.saveToPhotos,
+                    isSaved ? \.saved : \.favourites,
                     tint: isSaved ? \.red : \.white
                 )
             }

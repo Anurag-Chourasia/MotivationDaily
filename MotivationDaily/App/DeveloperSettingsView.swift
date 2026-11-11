@@ -236,8 +236,8 @@ struct DeveloperSettingsView: View {
             }
             Section(header: Text(\.developerEnvironment)) {
                 Picker(String(\.developerDataSource), selection: $source) {
-                    Text(String(\MotivationStrings.developerLive)).tag("live")
-                    Text(String(\CommonStrings.developerSourceStub)).tag("stub")
+                    Text(\MotivationStrings.developerLive).tag("live")
+                    Text(\CommonStrings.developerSourceStub).tag("stub")
                 }
                 if source == "stub" {
                     Picker(String(\.developerScenario), selection: $scenario) {
@@ -247,20 +247,20 @@ struct DeveloperSettingsView: View {
                         Text(\.developerScenarioOffline).tag("offline")
                     }
                 }
-                Text(String(\MotivationStrings.developerStubNote))
+                Text(\MotivationStrings.developerStubNote)
             }
             Section(header: Text(\.developerFeatureFlags)) {
                 Toggle(isOn: $authentication) {
                     Text(\.developerAuthentication)
                 }
                 .accessibilityIdentifier(.developerAuthentication)
-                Text(String(\MotivationStrings.developerAuthNote))
+                Text(\MotivationStrings.developerAuthNote)
             }
             Section(header: Text(\.developerDebugLogs)) {
                 Toggle(isOn: $logs) {
                     Text(\.developerHttpLogs)
                 }
-                Text(String(\CommonStrings.developerReleaseIgnores))
+                Text(\CommonStrings.developerReleaseIgnores)
             }
             Section(header: Text(\.developerVersionSimulation)) {
                 LabeledContent(String(\.developerInstalledVersion), value: AppRuntime.actualVersion)
@@ -271,7 +271,7 @@ struct DeveloperSettingsView: View {
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
             }
             Section(header: Text(\.developerPrivacySupport)) {
-                Link(destination: URL(string: "https://github.com/Anurag-Chourasia/Motivation-Daily/blob/main/Docs/PrivacyInventory.md")!) {
+                Link(destination: URL(string: "https://github.com/Anurag-Chourasia/MotivationDaily/blob/main/Docs/PrivacyInventory.md")!) {
                     Label(Text(\.developerPrivacyPolicy), \.handRaised)
                 }
                 .accessibilityIdentifier(.developerPrivacyPolicy)
@@ -281,7 +281,7 @@ struct DeveloperSettingsView: View {
                 }
                 .accessibilityIdentifier(.developerSupport)
 
-                Text(String(\MotivationStrings.developerPrivacy))
+                Text(\MotivationStrings.developerPrivacy)
                     .font(\.caption)
                     .foregroundColor(\.secondary)
             }

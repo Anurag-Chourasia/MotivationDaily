@@ -5,6 +5,7 @@ import Foundation
 final class QuoteDiskCache: @unchecked Sendable {
     static let shared = QuoteDiskCache()
     private let fileURL: URL
+    private let lock = NSLock()
 
     init(directory: URL? = nil) {
         let root = directory ?? FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
@@ -19,7 +20,9 @@ final class QuoteDiskCache: @unchecked Sendable {
     }
 
     var fileSizeBytes: Int {
-        (try? Data(contentsOf: fileURL))?.count ?? 0
+        lock.lock()
+        defer { lock.unlock() }
+        return (try? Data(contentsOf: fileURL))?.count ?? 0
     }
 
     var formattedFileSize: String {
@@ -30,10 +33,11 @@ final class QuoteDiskCache: @unchecked Sendable {
 
     func save(_ quotes: [Quote]) {
         guard !quotes.isEmpty else { return }
-        var current = load()
+        lock.lock()
+        defer { lock.unlock() }
+        var current = loadUnlocked()
         current.append(contentsOf: quotes)
 
-        // Deduplicate quotes by text and author
         var seen = Set<String>()
         var deduped: [Quote] = []
         for q in current.reversed() {
@@ -50,6 +54,12 @@ final class QuoteDiskCache: @unchecked Sendable {
     }
 
     func load() -> [Quote] {
+        lock.lock()
+        defer { lock.unlock() }
+        return loadUnlocked()
+    }
+
+    private func loadUnlocked() -> [Quote] {
         guard let data = try? Data(contentsOf: fileURL),
               let decoded = try? JSONDecoder().decode([Quote].self, from: data) else {
             return []
@@ -68,6 +78,8 @@ final class QuoteDiskCache: @unchecked Sendable {
     }
 
     func clear() {
+        lock.lock()
+        defer { lock.unlock() }
         try? FileManager.default.removeItem(at: fileURL)
     }
 }

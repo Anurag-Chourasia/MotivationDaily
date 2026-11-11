@@ -10,7 +10,7 @@ private struct DummyJSONQuotesResponseDTO: Decodable {
     let total: Int
 }
 
-final class QuotableClient: @unchecked Sendable {
+actor QuotableClient {
     private let apiService: APIService
     private let decoder: JSONDecoder
     private var cachedQuotes: [DummyJSONQuotesResponseDTO.Item] = []

@@ -50,5 +50,5 @@ In accordance with Apple App Store review guidelines, Motivation Daily declares 
 ---
 
 ## 6. Support & Privacy Contact
-- **Privacy Policy**: [https://github.com/Anurag-Chourasia/Motivation-Daily/blob/main/Docs/PrivacyInventory.md](https://github.com/Anurag-Chourasia/Motivation-Daily/blob/main/Docs/PrivacyInventory.md)
+- **Privacy Policy**: [https://github.com/Anurag-Chourasia/MotivationDaily/blob/main/Docs/PrivacyInventory.md](https://github.com/Anurag-Chourasia/MotivationDaily/blob/main/Docs/PrivacyInventory.md)
 - **Developer Support**: [mailto:anuragchourasiaios@gmail.com](mailto:anuragchourasiaios@gmail.com)
