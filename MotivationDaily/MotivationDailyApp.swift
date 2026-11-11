@@ -52,10 +52,15 @@ struct MotivationDailyApp: App {
             brand: .motivationDaily,
             backendFactory: container.authBackendFactory,
             localizer: container.localization
-        ) { user, _ in
+        ) { user, sessionManager in
             let accountContainer = AppContainer.makeCurrent(favoritesOwnerID: user.id)
-            HomeView(quoteVM: accountContainer.makeQuoteViewModel(), pageVM: accountContainer.makeFeedPageViewModel())
-                .id(user.id)
+            HomeView(
+                quoteVM: accountContainer.makeQuoteViewModel(),
+                pageVM: accountContainer.makeFeedPageViewModel(),
+                user: user,
+                sessionManager: sessionManager
+            )
+            .id(user.id)
         }
     }
 }

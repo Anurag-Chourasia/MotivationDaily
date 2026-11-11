@@ -3,6 +3,7 @@ import UIKit
 import DesignTokensKit
 import UIComponentsKit
 import LocalizationKit
+import AuthKit
 
 private enum FeedBootPhase {
     case cold
@@ -67,11 +68,22 @@ struct HomeView: View {
     private let actionRailExclusionWidth: CGFloat = DesignMetric.p140
     private let actionRailExclusionHeight: CGFloat = DesignMetric.p320
     private let imageLoader: any ImageLoading
+    private let user: AuthUser?
+    private let sessionManager: SessionManager?
+    @State private var showDeleteAccountConfirmation = false
 
-    init(quoteVM: QuoteViewModel, pageVM: FeedPageViewModel, imageLoader: (any ImageLoading)? = nil) {
+    init(
+        quoteVM: QuoteViewModel,
+        pageVM: FeedPageViewModel,
+        imageLoader: (any ImageLoading)? = nil,
+        user: AuthUser? = nil,
+        sessionManager: SessionManager? = nil
+    ) {
         _quoteVM = StateObject(wrappedValue: quoteVM)
         _pageVM = StateObject(wrappedValue: pageVM)
         self.imageLoader = imageLoader ?? pageVM.imageLoader
+        self.user = user
+        self.sessionManager = sessionManager
     }
 
     var body: some View {
@@ -123,6 +135,21 @@ struct HomeView: View {
                 )
             )
         }
+        .confirmationDialog(
+            \CommonStrings.accountDeleteConfirmationTitle,
+            isPresented: $showDeleteAccountConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(\CommonStrings.accountDeleteConfirmationAction, role: .destructive) {
+                Task {
+                    quoteVM.clearAllFavorites()
+                    await sessionManager?.deleteAccount()
+                }
+            }
+            Button(\CommonStrings.cancel, role: .cancel) {}
+        } message: {
+            Text(\CommonStrings.accountDeleteConfirmationMessage)
+        }
         .onChange(of: pageVM.refreshError) { message in
             guard let message else { return }
             presentAlert(title: String(\MotivationStrings.refreshFailed), message: message)
@@ -152,7 +179,13 @@ struct HomeView: View {
 
     private var menuButton: some View {
         Menu {
-            Menu(String(format: String(\MotivationStrings.themeMenu), locale: LocalizationController.shared.locale, selectedAccentTheme.localizedDisplayName)) {
+            Menu(
+                String(
+                    format: String(\MotivationStrings.themeMenu),
+                    locale: LocalizationController.shared.locale,
+                    selectedAccentTheme.localizedDisplayName
+                )
+            ) {
                 ForEach(AccentTheme.allCases) { theme in
                     Button(action: { selectAccentTheme(theme) }) {
                         menuItemLabel(title: theme.localizedDisplayName, isSelected: selectedAccentTheme == theme)
@@ -168,6 +201,28 @@ struct HomeView: View {
 
             Button(action: { showAboutDeveloper = true }) {
                 Label(\.aboutDeveloper, \.personCropCircle)
+            }
+
+            if let user {
+                Divider()
+
+                Section {
+                    Button(action: { sessionManager?.showAccount() }) {
+                        Label(user.email ?? String(\CommonStrings.accountTitle), \.personCropCircle)
+                    }
+
+                    Button(role: .destructive, action: {
+                        Task { await sessionManager?.signOut() }
+                    }) {
+                        Label(\CommonStrings.authButtonSignOut, \.rectanglePortraitAndArrowRight)
+                    }
+
+                    Button(role: .destructive, action: {
+                        showDeleteAccountConfirmation = true
+                    }) {
+                        Label(\CommonStrings.authButtonDeleteAccount, \.trash)
+                    }
+                }
             }
         } label: {
             Image(\.menu)
