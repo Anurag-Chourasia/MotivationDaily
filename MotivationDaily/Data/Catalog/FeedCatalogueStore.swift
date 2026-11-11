@@ -1,9 +1,5 @@
 import Foundation
 
-enum FeedCatalogueError: Error {
-    case unavailable
-}
-
 actor FeedCatalogueStore: FeedCatalogueRepository {
     struct CatalogueCategory: Codable {
         let keyRawValue: String

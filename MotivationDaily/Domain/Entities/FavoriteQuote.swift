@@ -39,7 +39,7 @@ struct FavoriteQuote: Codable, Identifiable, Equatable, Sendable {
         self.imageWidth = imageWidth
         self.imageHeight = imageHeight
         self.savedDate = savedDate
-        self.resolvedLocalImageURL = resolvedLocalImageURL ?? Self.resolveURL?(localImagePath)
+        self.resolvedLocalImageURL = resolvedLocalImageURL
     }
 
     init(
@@ -85,7 +85,7 @@ struct FavoriteQuote: Codable, Identifiable, Equatable, Sendable {
         self.imageWidth = try container.decodeIfPresent(Int.self, forKey: .imageWidth)
         self.imageHeight = try container.decodeIfPresent(Int.self, forKey: .imageHeight)
         self.savedDate = try container.decodeIfPresent(Date.self, forKey: .savedDate) ?? Date()
-        self.resolvedLocalImageURL = Self.resolveURL?(self.localImagePath)
+        self.resolvedLocalImageURL = nil
     }
 
     func encode(to encoder: Encoder) throws {
@@ -116,7 +116,7 @@ struct FavoriteQuote: Codable, Identifiable, Equatable, Sendable {
             imageWidth: imageWidth,
             imageHeight: imageHeight,
             savedDate: savedDate,
-            resolvedLocalImageURL: Self.resolveURL?(path)
+            resolvedLocalImageURL: nil
         )
     }
 
@@ -136,6 +136,4 @@ struct FavoriteQuote: Codable, Identifiable, Equatable, Sendable {
             resolvedLocalImageURL: url
         )
     }
-
-    nonisolated(unsafe) static var resolveURL: (@Sendable (String?) -> URL?)?
 }

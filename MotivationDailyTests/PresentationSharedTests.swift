@@ -184,16 +184,28 @@ final class PresentationSharedTests: XCTestCase {
         let testFile = favDir.appendingPathComponent("test_fav_image.jpg")
         try Data([0x01, 0x02, 0x03]).write(to: testFile)
 
+        let resolvedFound = DefaultFavoritesRepository.resolveLocalImageURL(
+            for: "test_fav_image.jpg",
+            fileManager: fileManager,
+            imagesDirectoryURL: favDir
+        )
         let favFound = FavoriteQuote(
             id: "f4", text: "T", author: "A", source: .zenQuotes, categoryKey: nil,
-            imageURL: nil, localImagePath: "test_fav_image.jpg", ratioRawValue: nil, imageWidth: nil, imageHeight: nil
+            imageURL: nil, localImagePath: "test_fav_image.jpg", ratioRawValue: nil, imageWidth: nil, imageHeight: nil,
+            resolvedLocalImageURL: resolvedFound
         )
         XCTAssertNotNil(favFound.resolvedLocalImageURL)
 
         // absolute path pointing to testFile
+        let resolvedAbs = DefaultFavoritesRepository.resolveLocalImageURL(
+            for: testFile.path,
+            fileManager: fileManager,
+            imagesDirectoryURL: favDir
+        )
         let favAbs = FavoriteQuote(
             id: "f5", text: "T", author: "A", source: .zenQuotes, categoryKey: nil,
-            imageURL: nil, localImagePath: testFile.path, ratioRawValue: nil, imageWidth: nil, imageHeight: nil
+            imageURL: nil, localImagePath: testFile.path, ratioRawValue: nil, imageWidth: nil, imageHeight: nil,
+            resolvedLocalImageURL: resolvedAbs
         )
         XCTAssertNotNil(favAbs.resolvedLocalImageURL)
     }

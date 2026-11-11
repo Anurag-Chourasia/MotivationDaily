@@ -26,6 +26,7 @@ struct AddFavoriteQuoteUseCase: Sendable {
         }
 
         let localImagePath = try favoritesRepository.storeImageData(localImageData, for: favoriteID)
+        let resolvedLocalImageURL = favoritesRepository.resolveImageURL(for: localImagePath)
 
         var updatedFavorites = existingFavorites
         updatedFavorites.append(
@@ -35,7 +36,8 @@ struct AddFavoriteQuoteUseCase: Sendable {
                 localImagePath: localImagePath,
                 ratioRawValue: ratioRawValue,
                 imageWidth: imageWidth,
-                imageHeight: imageHeight
+                imageHeight: imageHeight,
+                resolvedLocalImageURL: resolvedLocalImageURL
             )
         )
 

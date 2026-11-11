@@ -47,18 +47,14 @@ final class DefaultFavoritesRepository: FavoritesRepository, @unchecked Sendable
                 withIntermediateDirectories: true
             )
         }
-
-        Self.configureDefaultResolver(imagesDirectoryURL: dir, fileManager: fileManager)
     }
 
-    static func configureDefaultResolver(
-        imagesDirectoryURL: URL? = nil,
-        fileManager: FileManager = .default
-    ) {
-        nonisolated(unsafe) let fileManager = fileManager
-        FavoriteQuote.resolveURL = { path in
-            Self.resolveLocalImageURL(for: path, fileManager: fileManager, imagesDirectoryURL: imagesDirectoryURL)
-        }
+    func resolveImageURL(for localPath: String) -> URL? {
+        Self.resolveLocalImageURL(
+            for: localPath,
+            fileManager: fileManager,
+            imagesDirectoryURL: imagesDirectoryURL
+        )
     }
 
     static func resolveLocalImageURL(
@@ -112,31 +108,36 @@ final class DefaultFavoritesRepository: FavoritesRepository, @unchecked Sendable
             let favorites = try decoder.decode([FavoriteQuote].self, from: data)
             var needsMigration = false
             let normalized = favorites.map { item -> FavoriteQuote in
-                guard let path = item.localImagePath, !path.isEmpty else { return item }
-                if path.hasPrefix("/") {
-                    needsMigration = true
-                    let filename = URL(fileURLWithPath: path).lastPathComponent
-                    let resolvedURL = Self.resolveLocalImageURL(
-                        for: filename,
-                        fileManager: self.fileManager,
-                        imagesDirectoryURL: self.imagesDirectoryURL
-                    )
-                    return FavoriteQuote(
-                        id: item.id,
-                        text: item.text,
-                        author: item.author,
-                        source: item.source,
-                        categoryKey: item.categoryKey,
-                        imageURL: item.imageURL,
-                        localImagePath: filename,
-                        ratioRawValue: item.ratioRawValue,
-                        imageWidth: item.imageWidth,
-                        imageHeight: item.imageHeight,
-                        savedDate: item.savedDate,
-                        resolvedLocalImageURL: resolvedURL
-                    )
+                let filename: String?
+                if let path = item.localImagePath, !path.isEmpty {
+                    if path.hasPrefix("/") {
+                        needsMigration = true
+                        filename = URL(fileURLWithPath: path).lastPathComponent
+                    } else {
+                        filename = path
+                    }
+                } else {
+                    filename = nil
                 }
-                return item
+                let resolvedURL = Self.resolveLocalImageURL(
+                    for: filename,
+                    fileManager: self.fileManager,
+                    imagesDirectoryURL: self.imagesDirectoryURL
+                )
+                return FavoriteQuote(
+                    id: item.id,
+                    text: item.text,
+                    author: item.author,
+                    source: item.source,
+                    categoryKey: item.categoryKey,
+                    imageURL: item.imageURL,
+                    localImagePath: filename,
+                    ratioRawValue: item.ratioRawValue,
+                    imageWidth: item.imageWidth,
+                    imageHeight: item.imageHeight,
+                    savedDate: item.savedDate,
+                    resolvedLocalImageURL: resolvedURL
+                )
             }
             if needsMigration {
                 do {
@@ -246,7 +247,15 @@ final class DefaultFavoritesRepository: FavoritesRepository, @unchecked Sendable
             // The legacy key and original images remain unchanged as recovery backups.
             try writeOwners(state)
         }
-        return state.accounts[ownerID] ?? []
+        let favorites = state.accounts[ownerID] ?? []
+        return favorites.map { item in
+            let resolvedURL = Self.resolveLocalImageURL(
+                for: item.localImagePath,
+                fileManager: self.fileManager,
+                imagesDirectoryURL: self.imagesDirectoryURL
+            )
+            return item.withResolvedLocalImageURL(resolvedURL)
+        }
     }
 
     private func makeSafeFileName(from source: String) -> String {

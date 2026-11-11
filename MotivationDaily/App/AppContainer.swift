@@ -44,14 +44,16 @@ final class AppContainer {
          authBackendFactory: @escaping AuthBackendFactory = SupabaseBackendFactory.make) {
         self.authBackendFactory = authBackendFactory
         let session = APIService.makeSession()
+        let imageCache = PersistentImageDataCache(
+            memoryCapacityBytes: 80 * 1024 * 1024,
+            diskDirectoryName: "motivationdaily.images.urlcache"
+        )
         let fetcher = ImageDataFetcher(
             client: CommonNetworkingKit.HTTPClient(session: session),
-            cache: PersistentImageDataCache(
-                memoryCapacityBytes: 80 * 1024 * 1024,
-                diskDirectoryName: "motivationdaily.images.urlcache"
-            )
+            cache: imageCache
         )
-        self.imageLoader = imageLoader ?? ImageLoader(fetcher: fetcher, session: session)
+        let imageDataRepository = DefaultImageDataRepository(fetcher: fetcher, cache: imageCache)
+        self.imageLoader = imageLoader ?? ImageLoader(repository: imageDataRepository)
         self.localization = LocalizationController(initialLocale: .current)
         self.configuration = AppRuntime.configuration
         self.logger = AppRuntime.logger

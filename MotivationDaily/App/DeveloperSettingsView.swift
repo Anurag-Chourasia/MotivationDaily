@@ -20,7 +20,11 @@ struct MotivationLaunchView<Content: View>: View {
         Group {
             if showingLaunchSettings {
                 NavigationStack {
-                    DeveloperSettingsView(buttonTitle: String(\CommonStrings.developerOpenApp)) {
+                    DeveloperSettingsView(
+                        buttonTitle: String(\CommonStrings.developerOpenApp),
+                        cacheStatsProvider: { (QuoteDiskCache.shared.entryCount, QuoteDiskCache.shared.formattedFileSize) },
+                        onClearCache: { QuoteDiskCache.shared.clear() }
+                    ) {
                         authenticationEnabled = AppRuntime.authenticationEnabled
                         showingLaunchSettings = false
                     }
@@ -34,7 +38,11 @@ struct MotivationLaunchView<Content: View>: View {
                 }
                     .sheet(isPresented: $showingSettingsSheet) {
                         NavigationStack {
-                            DeveloperSettingsView(buttonTitle: String(\CommonStrings.close)) {
+                            DeveloperSettingsView(
+                                buttonTitle: String(\CommonStrings.close),
+                                cacheStatsProvider: { (QuoteDiskCache.shared.entryCount, QuoteDiskCache.shared.formattedFileSize) },
+                                onClearCache: { QuoteDiskCache.shared.clear() }
+                            ) {
                                 showingSettingsSheet = false
                                 authenticationEnabled = AppRuntime.authenticationEnabled
                                 configurationID = UUID()
@@ -160,6 +168,10 @@ private struct DebugSettingsPresenter: UIViewControllerRepresentable {
 
 struct DeveloperSettingsView: View {
     var buttonTitle = String(\MotivationStrings.applyAndClose)
+    var cacheStatsProvider: () -> (count: Int, formattedSize: String) = {
+        (QuoteDiskCache.shared.entryCount, QuoteDiskCache.shared.formattedFileSize)
+    }
+    var onClearCache: () -> Void = { QuoteDiskCache.shared.clear() }
     var onContinue: () -> Void
     @AppStorage("developer.source") private var source = "live"
     @AppStorage("developer.scenario") private var scenario = "success"
@@ -168,8 +180,6 @@ struct DeveloperSettingsView: View {
     @AppStorage("developer.version") private var version = ""
     @AppStorage("developer.build") private var build = ""
     @State private var cacheSummary = ""
-
-    private let diskCache = QuoteDiskCache.shared
 
     var body: some View {
         Form {
@@ -217,7 +227,7 @@ struct DeveloperSettingsView: View {
             Section(header: Text(\.developerCacheAndOffline)) {
                 LabeledContent(String(\.developerDiskCache), value: cacheSummary.isEmpty ? String(\.developerChecking) : cacheSummary)
                 Button(role: .destructive) {
-                    diskCache.clear()
+                    onClearCache()
                     refreshCacheSummary()
                 } label: {
                     Text(\.developerPurgeQuoteCache)
@@ -292,7 +302,8 @@ struct DeveloperSettingsView: View {
     }
 
     private func refreshCacheSummary() {
-        let count = diskCache.entryCount
+        let stats = cacheStatsProvider()
+        let count = stats.count
         if count == 0 {
             cacheSummary = String(\MotivationStrings.developerCacheEmpty)
         } else {
@@ -300,7 +311,7 @@ struct DeveloperSettingsView: View {
                 format: String(\MotivationStrings.developerCacheSummary),
                 locale: LocalizationController.shared.locale,
                 count,
-                diskCache.formattedFileSize
+                stats.formattedSize
             )
         }
     }

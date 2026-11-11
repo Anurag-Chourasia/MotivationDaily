@@ -143,6 +143,7 @@ final class DomainTests: XCTestCase {
         try Data([0xFF, 0xD8, 0xFF]).write(to: sampleImageURL)
         defer { try? FileManager.default.removeItem(at: sampleImageURL) }
 
+        let resolvedURL = DefaultFavoritesRepository.resolveLocalImageURL(for: sampleImageURL.path)
         let favWithFullPath = FavoriteQuote(
             id: "full-path",
             text: "Text",
@@ -153,7 +154,8 @@ final class DomainTests: XCTestCase {
             localImagePath: sampleImageURL.path,
             ratioRawValue: nil,
             imageWidth: nil,
-            imageHeight: nil
+            imageHeight: nil,
+            resolvedLocalImageURL: resolvedURL
         )
         XCTAssertNotNil(favWithFullPath.resolvedLocalImageURL)
     }

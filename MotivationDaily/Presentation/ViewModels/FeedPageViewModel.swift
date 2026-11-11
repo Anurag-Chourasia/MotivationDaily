@@ -55,7 +55,7 @@ final class FeedPageViewModel: ObservableObject {
         self.imageLoader = imageLoader
     }
 
-    convenience init(catalogueStore: FeedCatalogueStore, imageLoader: any ImageLoading = ImageLoader.shared) {
+    convenience init(catalogueStore: any FeedCatalogueRepository, imageLoader: any ImageLoading = ImageLoader.shared) {
         self.init(prefetchFeedPageUseCase: PrefetchFeedPageUseCase(repository: catalogueStore), imageLoader: imageLoader)
     }
 
