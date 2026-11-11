@@ -2,7 +2,11 @@ import SwiftUI
 import UIKit
 import DesignTokensKit
 
+@MainActor
 enum QuoteImageComposer {
+    private static let maxCanvasDimension = CGFloat(1920)
+    private static let maxPixelDimension = CGFloat(2048)
+
     struct RenderContext: Equatable {
         let canvasSize: CGSize
         let scale: CGFloat
@@ -26,7 +30,7 @@ enum QuoteImageComposer {
         let targetAspect = aspectRatio(from: layoutSize) ?? fallbackAspect
         let outputCanvas = canvasForAspect(targetAspect, inside: context.canvasSize)
         let imageRect = CGRect(origin: .zero, size: outputCanvas)
-        let layoutCanvas = layoutSize ?? outputCanvas
+        let layoutCanvas = clampedSize(layoutSize) ?? outputCanvas
         let layoutRect = CGRect(origin: .zero, size: layoutCanvas)
         let layout = QuoteCardLayout.style(for: layoutRect)
         let scaleFactor = min(
@@ -70,8 +74,12 @@ enum QuoteImageComposer {
         quoteText: String,
         author: String,
         size: CGSize,
-        scale: CGFloat = UIScreen.main.scale
+        scale: CGFloat = min(UIScreen.main.scale, 2.0)
     ) -> UIImage {
+        let targetSize = clampedSize(size) ?? size
+        let maxScaleFromPixels = maxPixelDimension / max(targetSize.width, targetSize.height)
+        let safeScale = min(max(scale, 1.0), min(2.0, maxScaleFromPixels))
+
         let quote = Quote(
             id: nil,
             text: quoteText,
@@ -79,7 +87,7 @@ enum QuoteImageComposer {
             source: .zenQuotes,
             categoryKey: nil
         )
-        let imageRect = CGRect(origin: .zero, size: size)
+        let imageRect = CGRect(origin: .zero, size: targetSize)
         let layout = QuoteCardLayout.style(for: imageRect)
 
         let quoteOnlyView = ZStack {
@@ -103,16 +111,16 @@ enum QuoteImageComposer {
             .frame(width: layout.width)
             .position(x: imageRect.midX, y: imageRect.midY)
         }
-        .frame(width: size.width, height: size.height)
+        .frame(width: targetSize.width, height: targetSize.height)
 
-        return quoteOnlyView.snapshot(size: size, scale: max(scale, 1))
+        return quoteOnlyView.snapshot(size: targetSize, scale: safeScale)
     }
 
     static func composeQuoteOnlyImage(
         quoteText: String,
         author: String,
         size: CGSize,
-        scale: CGFloat = UIScreen.main.scale
+        scale: CGFloat = min(UIScreen.main.scale, 2.0)
     ) -> UIImage {
         composeQuoteOnly(
             quoteText: quoteText,
@@ -123,18 +131,38 @@ enum QuoteImageComposer {
     }
 
     static func renderContext(for image: UIImage) -> RenderContext {
-        if image.size.width > 0, image.size.height > 0, image.scale > 0 {
-            // Preserve the exact source canvas and scale so composed output matches in-app rendering.
-            return RenderContext(canvasSize: image.size, scale: image.scale)
+        let rawWidth: CGFloat
+        let rawHeight: CGFloat
+
+        if image.size.width > 0, image.size.height > 0 {
+            rawWidth = image.size.width
+            rawHeight = image.size.height
+        } else {
+            let pixelSize = pixelSize(for: image)
+            rawWidth = max(pixelSize.width, 1)
+            rawHeight = max(pixelSize.height, 1)
         }
 
-        let pixelSize = pixelSize(for: image)
-        return RenderContext(
-            canvasSize: CGSize(
-                width: max(pixelSize.width, 1),
-                height: max(pixelSize.height, 1)
-            ),
-            scale: 1
+        let largestSide = max(rawWidth, rawHeight)
+        let downscale = largestSide > maxCanvasDimension ? (maxCanvasDimension / largestSide) : 1.0
+        let clampedCanvas = CGSize(
+            width: max(round(rawWidth * downscale), 1),
+            height: max(round(rawHeight * downscale), 1)
+        )
+        let maxScaleFromPixels = maxPixelDimension / max(clampedCanvas.width, clampedCanvas.height)
+        let scale = min(max(image.scale, 1.0), min(2.0, maxScaleFromPixels))
+
+        return RenderContext(canvasSize: clampedCanvas, scale: scale)
+    }
+
+    private static func clampedSize(_ size: CGSize?) -> CGSize? {
+        guard let size, size.width > 0, size.height > 0 else { return nil }
+        let largest = max(size.width, size.height)
+        guard largest > maxCanvasDimension else { return size }
+        let factor = maxCanvasDimension / largest
+        return CGSize(
+            width: max(round(size.width * factor), 1),
+            height: max(round(size.height * factor), 1)
         )
     }
 
@@ -171,4 +199,4 @@ enum QuoteImageComposer {
             return CGSize(width: sourceWidth, height: max(height, 1))
         }
     }
-} 
+}

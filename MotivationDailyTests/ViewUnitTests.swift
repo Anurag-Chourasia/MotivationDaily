@@ -72,6 +72,15 @@ final class ViewUnitTests: XCTestCase {
             showsDepthEffects: false
         )
         await evaluate(regular)
+
+        let keyPathCard = QuoteCardView(
+            quote: quote,
+            dominantColorKeyPath: \.blue,
+            overlayOpacity: 0.4,
+            compactStyle: false,
+            showsDepthEffects: true
+        )
+        await evaluate(keyPathCard)
     }
 
     func testQuoteCardContainerView() async {

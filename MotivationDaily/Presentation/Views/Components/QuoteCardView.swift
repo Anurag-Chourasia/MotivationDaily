@@ -28,7 +28,7 @@ struct QuoteCardView: View {
 
     init(
         quote: Quote,
-        dominantColor: KeyPath<ColorTheme, Color>?,
+        dominantColorKeyPath: KeyPath<ColorTheme, Color>?,
         overlayOpacity: Double = 0.5,
         compactStyle: Bool = false,
         showsDepthEffects: Bool = true,
@@ -37,7 +37,7 @@ struct QuoteCardView: View {
     ) {
         self.init(
             quote: quote,
-            dominantColor: dominantColor != nil ? colorTheme[keyPath: dominantColor!] : nil,
+            dominantColor: dominantColorKeyPath != nil ? colorTheme[keyPath: dominantColorKeyPath!] : nil,
             overlayOpacity: overlayOpacity,
             compactStyle: compactStyle,
             showsDepthEffects: showsDepthEffects,
@@ -127,7 +127,7 @@ struct QuoteCardView: View {
 
         QuoteCardView(
             quote: Quote(id: "1", text: "Life is beautiful", author: "Unknown", source: .zenQuotes, categoryKey: nil),
-            dominantColor: \.blue,
+            dominantColorKeyPath: \.blue,
             overlayOpacity: 0.5,
             compactStyle: false,
             showsDepthEffects: true

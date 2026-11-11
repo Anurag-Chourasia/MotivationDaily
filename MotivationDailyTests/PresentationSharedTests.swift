@@ -245,6 +245,18 @@ final class PresentationSharedTests: XCTestCase {
         XCTAssertEqual(renderContext.canvasSize.width, 200)
     }
 
+    @MainActor
+    func testQuoteImageComposerLargeDimensionsClamping() {
+        let largeRenderer = UIGraphicsImageRenderer(size: CGSize(width: 3000, height: 2000))
+        let highResImage = largeRenderer.image { ctx in
+            ctx.fill(CGRect(x: 0, y: 0, width: 3000, height: 2000))
+        }
+        let clampedContext = QuoteImageComposer.renderContext(for: highResImage)
+        XCTAssertLessThanOrEqual(clampedContext.canvasSize.width, 1920)
+        XCTAssertLessThanOrEqual(clampedContext.canvasSize.height, 1920)
+        XCTAssertLessThanOrEqual(clampedContext.scale, 2.0)
+    }
+
     // MARK: - ViewSnapshot Tests
 
     @MainActor

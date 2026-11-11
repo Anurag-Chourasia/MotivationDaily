@@ -152,7 +152,9 @@ struct ShareImageQuoteView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(.shareSheet)
-        .onAppear(perform: createShareableImage)
+        .task {
+            await createShareableImage()
+        }
         .onDisappear {
             imageLoadTask?.cancel()
         }
@@ -373,14 +375,18 @@ struct ShareImageQuoteView: View {
         activeSharePayload = SharePayload(items: items)
     }
 
-    private func createShareableImage() {
+    private func createShareableImage() async {
         imageLoadTask?.cancel()
         let screenSize = UIScreen.main.bounds.size
         let quoteOnlySize = preferredLayoutSize() ?? screenSize
         sourceImage = nil
         compositeImage = nil
         quoteOnlyImage = nil
-        isPreparingImage = false
+        isPreparingImage = true
+
+        await Task.yield()
+        if Task.isCancelled { return }
+
         renderQuoteOnly(size: quoteOnlySize)
 
         if let favorite {
@@ -391,6 +397,7 @@ struct ShareImageQuoteView: View {
                     content: quoteText,
                     author: quoteAuthor
                 )
+                isPreparingImage = false
                 return
             }
 
@@ -402,26 +409,23 @@ struct ShareImageQuoteView: View {
                     content: quoteText,
                     author: quoteAuthor
                 )
+                isPreparingImage = false
                 return
             }
 
             if let imageURL = favorite.imageURL {
                 isPreparingImage = true
-                imageLoadTask = Task {
-                    let cached = await imageLoader.cachedImage(for: imageURL)
-                    if Task.isCancelled { return }
-                    await MainActor.run {
-                        if let cached {
-                            sourceImage = cached
-                            renderComposite(
-                                image: cached,
-                                content: quoteText,
-                                author: quoteAuthor
-                            )
-                        }
-                        isPreparingImage = false
-                    }
+                let cached = await imageLoader.cachedImage(for: imageURL)
+                if Task.isCancelled { return }
+                if let cached {
+                    sourceImage = cached
+                    renderComposite(
+                        image: cached,
+                        content: quoteText,
+                        author: quoteAuthor
+                    )
                 }
+                isPreparingImage = false
                 return
             }
         }
@@ -433,6 +437,7 @@ struct ShareImageQuoteView: View {
                 content: quoteText,
                 author: quoteAuthor
             )
+            isPreparingImage = false
             return
         }
 

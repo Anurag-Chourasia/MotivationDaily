@@ -68,7 +68,8 @@ struct FullScreenImageView: View {
                 favoriteImage: displayedImage ?? favoriteImage,
                 quote: nil,
                 wallpaper: nil,
-                layoutSize: shareLayoutSize()
+                layoutSize: shareLayoutSize(),
+                imageLoader: imageLoader
             )
         }
     }
@@ -286,9 +287,23 @@ struct FullScreenImageView: View {
         }
 
         if let displayedImage {
+            let maxDimension = CGFloat(1920)
             if let ratio = selectedRatio.value {
-                let width = max(displayedImage.size.width, UIScreen.main.bounds.width)
-                return CGSize(width: width, height: width / max(ratio, 0.01))
+                let rawWidth = min(max(displayedImage.size.width, UIScreen.main.bounds.width), maxDimension)
+                let calculatedHeight = rawWidth / max(ratio, 0.01)
+                if calculatedHeight > maxDimension {
+                    let scaledWidth = maxDimension * ratio
+                    return CGSize(width: max(round(scaledWidth), 1), height: maxDimension)
+                }
+                return CGSize(width: max(round(rawWidth), 1), height: max(round(calculatedHeight), 1))
+            }
+            let largest = max(displayedImage.size.width, displayedImage.size.height)
+            if largest > maxDimension {
+                let scale = maxDimension / largest
+                return CGSize(
+                    width: max(round(displayedImage.size.width * scale), 1),
+                    height: max(round(displayedImage.size.height * scale), 1)
+                )
             }
             return displayedImage.size
         }
