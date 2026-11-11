@@ -74,11 +74,12 @@ enum QuoteImageComposer {
         quoteText: String,
         author: String,
         size: CGSize,
-        scale: CGFloat = min(UIScreen.main.scale, 2.0)
+        scale: CGFloat? = nil
     ) -> UIImage {
+        let actualScale = scale ?? min(UIScreen.main.scale, 2.0)
         let targetSize = clampedSize(size) ?? size
         let maxScaleFromPixels = maxPixelDimension / max(targetSize.width, targetSize.height)
-        let safeScale = min(max(scale, 1.0), min(2.0, maxScaleFromPixels))
+        let safeScale = min(max(actualScale, 1.0), min(2.0, maxScaleFromPixels))
 
         let quote = Quote(
             id: nil,
@@ -120,7 +121,7 @@ enum QuoteImageComposer {
         quoteText: String,
         author: String,
         size: CGSize,
-        scale: CGFloat = min(UIScreen.main.scale, 2.0)
+        scale: CGFloat? = nil
     ) -> UIImage {
         composeQuoteOnly(
             quoteText: quoteText,

@@ -9,6 +9,12 @@ import AuthKitSupabase
 
 final class AppContainer {
     static let live = AppContainer()
+    static func makeCurrent(
+        arguments: [String] = ProcessInfo.processInfo.arguments,
+        favoritesOwnerID: UUID? = nil
+    ) -> AppContainer {
+        AppContainer(arguments: arguments, favoritesOwnerID: favoritesOwnerID)
+    }
     #if DEBUG
     static var preview: AppContainer {
         AppContainer(arguments: ["-UITestMode"])
@@ -54,7 +60,8 @@ final class AppContainer {
 
         #if DEBUG
         let isUITestMode = arguments.contains("-UITestMode")
-        let isStubMode = isUITestMode || AppRuntime.stubScenario != nil
+        let scenario = AppRuntime.stubScenario
+        let isStubMode = isUITestMode || scenario != nil
         #endif
 
         let apiService = APIService()
@@ -66,12 +73,28 @@ final class AppContainer {
         let picsumFactory = PicsumURLFactory()
         #if DEBUG
         if isStubMode {
-            self.feedCatalogueStore = FeedCatalogueStore.makeUITestStore(
-                apiService: apiService,
-                quotableClient: quotableClient,
-                zenClient: zenClient,
-                adviceSlipClient: adviceSlipClient
-            )
+            if scenario == "empty" {
+                self.feedCatalogueStore = FeedCatalogueStore.makeEmptyUITestStore(
+                    apiService: apiService,
+                    quotableClient: quotableClient,
+                    zenClient: zenClient,
+                    adviceSlipClient: adviceSlipClient
+                )
+            } else if scenario == "offline" {
+                self.feedCatalogueStore = FeedCatalogueStore.makeOfflineUITestStore(
+                    apiService: apiService,
+                    quotableClient: quotableClient,
+                    zenClient: zenClient,
+                    adviceSlipClient: adviceSlipClient
+                )
+            } else {
+                self.feedCatalogueStore = FeedCatalogueStore.makeUITestStore(
+                    apiService: apiService,
+                    quotableClient: quotableClient,
+                    zenClient: zenClient,
+                    adviceSlipClient: adviceSlipClient
+                )
+            }
         } else {
             self.feedCatalogueStore = FeedCatalogueStore(
                 apiService: apiService,
@@ -92,7 +115,7 @@ final class AppContainer {
         let quoteRepository: any QuoteRepository
         #if DEBUG
         if isStubMode {
-            quoteRepository = PreviewQuoteRepository()
+            quoteRepository = PreviewQuoteRepository(isEmpty: scenario == "empty")
         } else {
             quoteRepository = DefaultQuoteRepository(
                 zenClient: zenClient,
@@ -117,7 +140,14 @@ final class AppContainer {
         let wallpaperRepository: any WallpaperRepository
         #if DEBUG
         if isStubMode {
-            wallpaperRepository = UITestWallpaperRepository()
+            if scenario == "empty" || scenario == "offline" {
+                wallpaperRepository = DefaultWallpaperRepository(
+                    quoteRepository: quoteRepository,
+                    imageRepository: imageRepository
+                )
+            } else {
+                wallpaperRepository = UITestWallpaperRepository()
+            }
         } else {
             wallpaperRepository = DefaultWallpaperRepository(
                 quoteRepository: quoteRepository,

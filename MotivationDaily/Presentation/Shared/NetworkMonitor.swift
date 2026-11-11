@@ -17,8 +17,21 @@ final class NetworkMonitor: ObservableObject {
             return
         }
 
+        #if DEBUG
+        if AppRuntime.stubScenario == "offline" {
+            isConnected = false
+            return
+        }
+        #endif
+
         monitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor [weak self] in
+                #if DEBUG
+                if AppRuntime.stubScenario == "offline" {
+                    self?.isConnected = false
+                    return
+                }
+                #endif
                 self?.isConnected = path.status == .satisfied
             }
         }

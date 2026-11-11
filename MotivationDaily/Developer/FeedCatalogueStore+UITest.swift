@@ -25,6 +25,60 @@ extension FeedCatalogueStore {
         )
     }
 
+    static func makeEmptyUITestStore(
+        apiService: APIService,
+        quotableClient: QuotableClient,
+        zenClient: ZenQuotesClient,
+        adviceSlipClient: AdviceSlipClient
+    ) -> FeedCatalogueStore {
+        let cacheRoot = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let uiTestRoot = cacheRoot.appendingPathComponent("feed-catalogue-empty", isDirectory: true)
+        let emptySnapshot = Snapshot(
+            categories: [],
+            randomQuotes: [],
+            quotesByCategory: [:],
+            images: [],
+            updatedAt: Date()
+        )
+        return FeedCatalogueStore(
+            apiService: apiService,
+            quotableClient: quotableClient,
+            zenClient: zenClient,
+            adviceSlipClient: adviceSlipClient,
+            cacheRootURL: uiTestRoot,
+            allowsNetworkSync: false,
+            seededSnapshot: emptySnapshot
+        )
+    }
+
+    static func makeOfflineUITestStore(
+        apiService: APIService,
+        quotableClient: QuotableClient,
+        zenClient: ZenQuotesClient,
+        adviceSlipClient: AdviceSlipClient
+    ) -> FeedCatalogueStore {
+        let cacheRoot = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        let uiTestRoot = cacheRoot.appendingPathComponent("feed-catalogue-offline", isDirectory: true)
+        let emptySnapshot = Snapshot(
+            categories: [],
+            randomQuotes: [],
+            quotesByCategory: [:],
+            images: [],
+            updatedAt: Date()
+        )
+        return FeedCatalogueStore(
+            apiService: apiService,
+            quotableClient: quotableClient,
+            zenClient: zenClient,
+            adviceSlipClient: adviceSlipClient,
+            cacheRootURL: uiTestRoot,
+            allowsNetworkSync: false,
+            seededSnapshot: emptySnapshot
+        )
+    }
+
     private static func makeUITestSnapshot(cacheRoot: URL) -> Snapshot {
         let fileManager = FileManager.default
         try? fileManager.createDirectory(at: cacheRoot, withIntermediateDirectories: true)

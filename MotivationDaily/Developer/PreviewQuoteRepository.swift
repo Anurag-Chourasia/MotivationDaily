@@ -3,13 +3,18 @@ import Foundation
 
 final class PreviewQuoteRepository: QuoteRepository, Sendable {
     private let fixture: UITestFixtureCatalog
+    private let isEmpty: Bool
 
-    init(fixture: UITestFixtureCatalog = .current) {
+    init(fixture: UITestFixtureCatalog = .current, isEmpty: Bool = false) {
         self.fixture = fixture
+        self.isEmpty = isEmpty
     }
 
     func fetchRandom() async throws -> Quote {
-        Quote(
+        if isEmpty {
+            throw AppError.emptyResponse
+        }
+        return Quote(
             id: fixture.favorite.id,
             text: fixture.favorite.text,
             author: fixture.author,
@@ -19,6 +24,9 @@ final class PreviewQuoteRepository: QuoteRepository, Sendable {
     }
 
     func fetchByCategory(_ key: CategoryKey) async throws -> Quote {
+        if isEmpty {
+            throw AppError.emptyResponse
+        }
         let matchingCategory = fixture.categories.first { $0.key == key.rawValue }
         let categoryName = matchingCategory?.name ?? key.rawValue.capitalized
         return Quote(
@@ -31,7 +39,10 @@ final class PreviewQuoteRepository: QuoteRepository, Sendable {
     }
 
     func fetchCategories() async throws -> [Category] {
-        fixture.categories.compactMap { (cat: UITestFixtureCatalog.Category) -> Category? in
+        if isEmpty {
+            return []
+        }
+        return fixture.categories.compactMap { (cat: UITestFixtureCatalog.Category) -> Category? in
             let key = CategoryKey(rawValue: cat.key)
             return Category(key: key, displayName: cat.name, quoteCount: cat.quoteCount)
         }

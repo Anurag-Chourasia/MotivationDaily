@@ -314,6 +314,14 @@ struct HomeView: View {
         return ZStack {
             if let content {
                 renderedFeedPage(content: content, containerSize: containerSize, safeAreaInsets: safeAreaInsets)
+            } else if !networkMonitor.isConnected || pageVM.refreshError != nil {
+                FeedOfflineView {
+                    loadCurrentCoordinate(forceFetch: true)
+                }
+            } else if categories.isEmpty && initialBootHasRun {
+                FeedEmptyStateView {
+                    loadCurrentCoordinate(forceFetch: true)
+                }
             } else {
                 pendingPlaceholderPage
                     .onAppear {

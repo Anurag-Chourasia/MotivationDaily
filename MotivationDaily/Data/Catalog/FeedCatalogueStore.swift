@@ -357,14 +357,17 @@ actor FeedCatalogueStore: FeedCatalogueRepository {
 
         let data = try await apiService.getData(url, cachePolicy: .reloadIgnoringLocalCacheData)
         let dtos = try decoder.decode([PicsumImageDTO].self, from: data)
+        let targetWidth = 1080
+        let targetHeight = 1920
         return dtos.map {
-            CatalogueImageMeta(
+            let optimizedURL = URL(string: "https://picsum.photos/id/\($0.id)/\(targetWidth)/\(targetHeight)") ?? $0.downloadURL
+            return CatalogueImageMeta(
                 id: $0.id,
                 author: $0.author,
-                width: $0.width,
-                height: $0.height,
+                width: targetWidth,
+                height: targetHeight,
                 url: URL(string: $0.url) ?? URL(fileURLWithPath: "/"),
-                downloadURL: $0.downloadURL
+                downloadURL: optimizedURL
             )
         }
     }

@@ -95,7 +95,39 @@ final class AppTests: XCTestCase {
 
         let freshContainer = AppContainer()
         XCTAssertNotNil(freshContainer.makeQuoteViewModel())
+
+        let currentContainer = AppContainer.makeCurrent()
+        XCTAssertNotNil(currentContainer.makeQuoteViewModel())
     }
+
+    #if DEBUG
+    func testAppContainerStubScenarios() async throws {
+        let defaults = UserDefaults.standard
+        let sourceKey = "developer.source"
+        let scenarioKey = "developer.scenario"
+        let originalSource = defaults.string(forKey: sourceKey)
+        let originalScenario = defaults.string(forKey: scenarioKey)
+
+        defer {
+            if let originalSource { defaults.set(originalSource, forKey: sourceKey) }
+            else { defaults.removeObject(forKey: sourceKey) }
+            if let originalScenario { defaults.set(originalScenario, forKey: scenarioKey) }
+            else { defaults.removeObject(forKey: scenarioKey) }
+        }
+
+        defaults.set("stub", forKey: sourceKey)
+        defaults.set("empty", forKey: scenarioKey)
+        let emptyContainer = AppContainer.makeCurrent()
+        let emptyQuoteVM = emptyContainer.makeQuoteViewModel()
+        let emptyCategories = try await emptyQuoteVM.fetchCategories()
+        XCTAssertTrue(emptyCategories.isEmpty)
+
+        defaults.set("stub", forKey: sourceKey)
+        defaults.set("offline", forKey: scenarioKey)
+        let offlineContainer = AppContainer.makeCurrent()
+        XCTAssertNotNil(offlineContainer.makeFeedPageViewModel())
+    }
+    #endif
 
     #if DEBUG
     func testUITestWallpaperRepository() async throws {

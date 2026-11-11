@@ -416,4 +416,16 @@ final class ViewUnitTests: XCTestCase {
         let adaptedCropped = homeView.adaptContent(content, for: .oneToOne)
         XCTAssertNotNil(adaptedCropped.image)
     }
+
+    func testFeedOfflineView() async {
+        var retried = false
+        let view = FeedOfflineView { retried = true }
+        await evaluate(view)
+    }
+
+    func testFeedEmptyStateView() async {
+        var retried = false
+        let view = FeedEmptyStateView { retried = true }
+        await evaluate(view)
+    }
 }
