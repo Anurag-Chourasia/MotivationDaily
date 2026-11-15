@@ -57,7 +57,12 @@ final class FeedCacheCoordinator: ObservableObject {
         )
     }
 
-    func coordinate(category: CategoryKey?, depth: Int, ratio: WallpaperAspectRatio, pageVM: FeedPageViewModel) -> FeedCoordinate {
+    func coordinate(
+        category: CategoryKey?,
+        depth: Int,
+        ratio: WallpaperAspectRatio,
+        pageVM: FeedPageViewModel
+    ) -> FeedCoordinate {
         FeedCoordinate(
             lane: laneKey(category: category, ratio: ratio, pageVM: pageVM),
             depth: max(depth, 0)
@@ -65,7 +70,8 @@ final class FeedCacheCoordinator: ObservableObject {
     }
 
     func coordinateIdentity(_ coordinate: FeedCoordinate) -> String {
-        "\(coordinate.lane.categoryRawValue)|\(coordinate.lane.ratioRawValue)|\(coordinate.lane.imageWidth)x\(coordinate.lane.imageHeight)|d\(coordinate.depth)"
+        let lane = coordinate.lane
+        return "\(lane.categoryRawValue)|\(lane.ratioRawValue)|\(lane.imageWidth)x\(lane.imageHeight)|d\(coordinate.depth)"
     }
 
     func isCurrentCoordinate(

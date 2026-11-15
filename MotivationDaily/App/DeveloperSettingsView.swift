@@ -271,7 +271,8 @@ struct DeveloperSettingsView: View {
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
             }
             Section(header: Text(\.developerPrivacySupport)) {
-                Link(destination: URL(string: "https://github.com/Anurag-Chourasia/MotivationDaily/blob/main/Docs/PrivacyInventory.md")!) {
+                let privacyURLString = "https://github.com/Anurag-Chourasia/MotivationDaily/blob/main/Docs/PrivacyInventory.md"
+                Link(destination: URL(string: privacyURLString)!) {
                     Label(Text(\.developerPrivacyPolicy), \.handRaised)
                 }
                 .accessibilityIdentifier(.developerPrivacyPolicy)

@@ -17,12 +17,30 @@ actor QuotableClient {
     private var fetchTask: Task<[DummyJSONQuotesResponseDTO.Item], Error>?
 
     private let categoryKeywords: [String: [String]] = [
-        "happiness": ["happy", "happiness", "joy", "smile", "laugh", "pleasure", "peace", "glad", "cheer", "bliss", "delight", "heart", "love", "kind"],
-        "inspirational": ["inspire", "inspiration", "dream", "courage", "brave", "believe", "passion", "strength", "strive", "possible", "great", "future", "hope", "power"],
-        "inspiration": ["inspire", "inspiration", "dream", "courage", "brave", "believe", "passion", "strength", "strive", "possible", "great", "future", "hope", "power"],
-        "life": ["life", "live", "living", "world", "moment", "journey", "day", "time", "experience", "alive", "beauty"],
-        "success": ["success", "succeed", "successful", "work", "goal", "failure", "fail", "effort", "achieve", "win", "action", "perseverance", "result", "discipline"],
-        "wisdom": ["wisdom", "wise", "truth", "know", "knowledge", "mind", "think", "thought", "learn", "understand", "reason", "philosophy", "silence"]
+        "happiness": [
+            "happy", "happiness", "joy", "smile", "laugh", "pleasure",
+            "peace", "glad", "cheer", "bliss", "delight", "heart", "love", "kind"
+        ],
+        "inspirational": [
+            "inspire", "inspiration", "dream", "courage", "brave", "believe",
+            "passion", "strength", "strive", "possible", "great", "future", "hope", "power"
+        ],
+        "inspiration": [
+            "inspire", "inspiration", "dream", "courage", "brave", "believe",
+            "passion", "strength", "strive", "possible", "great", "future", "hope", "power"
+        ],
+        "life": [
+            "life", "live", "living", "world", "moment", "journey", "day",
+            "time", "experience", "alive", "beauty"
+        ],
+        "success": [
+            "success", "succeed", "successful", "work", "goal", "failure",
+            "fail", "effort", "achieve", "win", "action", "perseverance", "result", "discipline"
+        ],
+        "wisdom": [
+            "wisdom", "wise", "truth", "know", "knowledge", "mind",
+            "think", "thought", "learn", "understand", "reason", "philosophy", "silence"
+        ]
     ]
 
     init(apiService: APIService, decoder: JSONDecoder = JSONDecoder()) {

@@ -68,7 +68,9 @@ enum AppRuntime {
 
     static var version: String {
         #if DEBUG
-        let value = UserDefaults.standard.string(forKey: "developer.version")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let defaults = UserDefaults.standard
+        let value = defaults.string(forKey: "developer.version")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return value.isEmpty ? actualVersion : value
         #else
         return actualVersion
@@ -77,7 +79,9 @@ enum AppRuntime {
 
     static var build: String {
         #if DEBUG
-        let value = UserDefaults.standard.string(forKey: "developer.build")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let defaults = UserDefaults.standard
+        let value = defaults.string(forKey: "developer.build")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return value.isEmpty ? actualBuild : value
         #else
         return actualBuild

@@ -39,14 +39,21 @@ nonisolated struct UITestFixtureCatalog: Decodable, Sendable {
                   }
               }), value.randomQuoteCount > 0,
               value.categories.allSatisfy({ !$0.key.isEmpty && $0.quoteCount > 0 }),
-              Set(value.categories.map(\.key)).count == value.categories.count else { throw CocoaError(.coderReadCorrupt) }
+              Set(value.categories.map(\.key)).count == value.categories.count else {
+            throw CocoaError(.coderReadCorrupt)
+        }
         return value
     }
 
     func palette(for seed: Int) -> [UIColor] {
         let paletteIndex = Int(seed.magnitude % UInt(gradientPalettes.count))
         return gradientPalettes[paletteIndex].map { components in
-            let ciColor = CIColor(red: CGFloat(components[0]), green: CGFloat(components[1]), blue: CGFloat(components[2]), alpha: CGFloat(components[3]))
+            let ciColor = CIColor(
+                red: CGFloat(components[0]),
+                green: CGFloat(components[1]),
+                blue: CGFloat(components[2]),
+                alpha: CGFloat(components[3])
+            )
             return UIColor(ciColor: ciColor)
         }
     }

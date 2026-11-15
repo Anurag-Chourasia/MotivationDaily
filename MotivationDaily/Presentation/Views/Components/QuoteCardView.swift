@@ -51,8 +51,12 @@ struct QuoteCardView: View {
     private var lineSpacing: CGFloat { compactStyle ? SpacingTheme.default.four : SpacingTheme.default.five }
     private var authorFontSize: CGFloat { compactStyle ? SpacingTheme.default.twelve : SpacingTheme.default.fourteen }
     private var cardPadding: CGFloat { compactStyle ? SpacingTheme.default.eighteen : SpacingTheme.default.twentyFour }
-    private var cornerRadius: CGFloat { compactStyle ? CornerRadiusTheme.default.fourteen : CornerRadiusTheme.default.twenty }
-    private var fixedCardHeight: CGFloat { cardHeight ?? (compactStyle ? DesignMetricTheme.default.p248 : DesignMetricTheme.default.p320) }
+    private var cornerRadius: CGFloat {
+        compactStyle ? CornerRadiusTheme.default.fourteen : CornerRadiusTheme.default.twenty
+    }
+    private var fixedCardHeight: CGFloat {
+        cardHeight ?? (compactStyle ? DesignMetricTheme.default.p248 : DesignMetricTheme.default.p320)
+    }
 
     var body: some View {
         VStack(spacing: contentSpacing) {

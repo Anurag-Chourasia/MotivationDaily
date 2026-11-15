@@ -10,6 +10,7 @@ only_rules:
   - unused_setter_value
   - force_cast
   - custom_rules
+  - trailing_whitespace
 strict: true
 
 custom_rules:
@@ -54,3 +55,18 @@ custom_rules:
     included:
       - ".*/Domain/.*"
       - ".*/Data/.*"
+
+  # 6. Line content length (excluding leading indentation)
+  line_content_length:
+    name: "Line Content Length"
+    regex: '(?m)^[ \t]*\S[^\r\n]{120,}'
+    message: "Line content exceeds 120 characters (excluding leading whitespace)."
+    severity: error
+    excluded:
+      - ".*Tests.*"
+      - ".*/Generated/.*"
+
+trailing_whitespace:
+  severity: error
+  ignores_empty_lines: false
+  ignores_comments: false

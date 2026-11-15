@@ -37,7 +37,7 @@ struct FullScreenImageView: View {
                 } else {
                     emptyImage
                 }
-                
+
                 if let quote = favorite, let displayedImage {
                     let imageRect = imageRect(for: displayedImage, in: canvasSize, ratio: selectedRatio)
                     favoriteQuote(quote, in: imageRect, canvasSize: canvasSize)
