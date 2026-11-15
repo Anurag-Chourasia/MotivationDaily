@@ -1,42 +1,6 @@
-import LocalizationKit
 import SwiftUI
 import UIKit
 import Combine
-
-enum WallpaperAspectRatio: String, CaseIterable, Identifiable {
-    case oneToOne = "1:1"
-    case sixteenToNine = "16:9"
-    case nineToSixteen = "9:16"
-    case fullScreen = "Fullscreen"
-
-    var id: String { rawValue }
-
-    var value: CGFloat? {
-        switch self {
-        case .oneToOne:
-            return 1.0
-        case .sixteenToNine:
-            return 16.0 / 9.0
-        case .nineToSixteen:
-            return 9.0 / 16.0
-        case .fullScreen:
-            return nil
-        }
-    }
-
-    var components: (width: CGFloat, height: CGFloat)? {
-        switch self {
-        case .oneToOne:
-            return (1, 1)
-        case .sixteenToNine:
-            return (16, 9)
-        case .nineToSixteen:
-            return (9, 16)
-        case .fullScreen:
-            return nil
-        }
-    }
-}
 
 @MainActor
 final class WallpaperViewModel: ObservableObject {
@@ -145,34 +109,6 @@ final class WallpaperViewModel: ObservableObject {
         currentUIImage = image
     }
 
-    func imageRequestSize(for aspectRatio: WallpaperAspectRatio) -> (width: Int, height: Int) {
-        imageRequestSize(
-            for: aspectRatio,
-            screenSize: UIScreen.main.bounds.size,
-            scale: UIScreen.main.scale
-        )
-    }
-
-    func imageRequestSize(
-        for aspectRatio: WallpaperAspectRatio,
-        screenSize: CGSize,
-        scale: CGFloat
-    ) -> (width: Int, height: Int) {
-        let safeScale = max(scale, 1)
-        let screenWidth = max(screenSize.width * safeScale, 1)
-        let screenHeight = max(screenSize.height * safeScale, 1)
-
-        guard let ratio = aspectRatio.components else {
-            return (width: Int(ceil(screenWidth)), height: Int(ceil(screenHeight)))
-        }
-
-        let multiplier = min(screenWidth / ratio.width, screenHeight / ratio.height)
-
-        let width = max(Int(ceil(ratio.width * multiplier)), 1)
-        let height = max(Int(ceil(ratio.height * multiplier)), 1)
-        return (width, height)
-    }
-
     private func loadPayload(
         category: CategoryKey?,
         aspectRatio: WallpaperAspectRatio,
@@ -190,9 +126,7 @@ final class WallpaperViewModel: ObservableObject {
         if let minimumLoaderDuration {
             let elapsed = Date().timeIntervalSince(refreshStart)
             if elapsed < minimumLoaderDuration {
-                try await Task.sleep(
-                    nanoseconds: UInt64((minimumLoaderDuration - elapsed) * 1_000_000_000)
-                )
+                try await Task.sleep(nanoseconds: UInt64((minimumLoaderDuration - elapsed) * 1_000_000_000))
             }
         }
 
@@ -207,11 +141,7 @@ final class WallpaperViewModel: ObservableObject {
             seed: wallpaper.seed,
             imageCategoryTitle: wallpaper.imageCategoryTitle
         )
-        return RefreshPayload(
-            model: model,
-            image: image,
-            requestSize: targetSize
-        )
+        return RefreshPayload(model: model, image: image, requestSize: targetSize)
     }
 
     private func prefetchTaskKey(
@@ -220,28 +150,5 @@ final class WallpaperViewModel: ObservableObject {
         targetSize: (width: Int, height: Int)
     ) -> String {
         "\(category?.rawValue ?? "random")|\(aspectRatio.rawValue)|\(targetSize.width)x\(targetSize.height)"
-    }
-
-    private func userFacingMessage(for error: Error) -> String {
-        if let appError = error as? AppError {
-            return appError.localizedMessage()
-        }
-
-        if let local = error as? LocalizedError, let description = local.errorDescription {
-            return description
-        }
-
-        if let urlError = error as? URLError {
-            switch urlError.code {
-            case .notConnectedToInternet:
-                return String(\CommonStrings.errorsNetworkUnreachable)
-            case .timedOut:
-                return String(\MotivationStrings.errorTimeout)
-            default:
-                break
-            }
-        }
-
-        return String(\MotivationStrings.errorRefresh)
     }
 }
