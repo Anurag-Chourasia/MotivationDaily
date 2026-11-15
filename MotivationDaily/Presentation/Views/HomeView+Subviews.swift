@@ -1,0 +1,70 @@
+import SwiftUI
+import AuthKit
+import DesignTokensKit
+import LocalizationKit
+
+extension HomeView {
+    var feedContainer: some View {
+        HomeFeedContainerView(
+            activeDepth: activeDepth, scrollOffset: scrollOffset,
+            selectedCategory: selectedCategory, selectedRatio: selectedRatio,
+            visualEffectsReduced: visualEffectsReduced,
+            isConnected: networkMonitor.isConnected,
+            hasError: pageVM.refreshError != nil,
+            isEmpty: categories.isEmpty && initialBootHasRun,
+            cachedContent: { depth in
+                let clamped = clampedDepth(depth, for: selectedCategory)
+                return cachedContent(category: selectedCategory, depth: clamped, ratio: selectedRatio)
+            },
+            isFavorited: { quoteVM.isFavorited(quote: $0) },
+            onSelectRatio: { selectRatio($0) },
+            onToggleFavorite: { toggleFavorite(for: $0) },
+            onShare: { shareContent($0) },
+            onRetry: { loadCurrentCoordinate(forceFetch: true) },
+            onPrewarmCell: {
+                let clamped = clampedDepth($0, for: selectedCategory)
+                prewarmCell(category: selectedCategory, depth: clamped, ratio: selectedRatio)
+            }
+        )
+    }
+
+    var topChromeView: some View {
+        HomeTopChromeView(
+            selectedAccentTheme: selectedAccentTheme,
+            user: user, sessionManager: sessionManager,
+            tabs: categoryTabs, selectedCategory: selectedCategory,
+            banner: (showConnectivityBanner, connectivityMessage, connectivityBannerIsWarning),
+            namespace: categoryTabNamespace,
+            actions: HomeTopChromeActions(
+                onSelectTheme: { selectAccentTheme($0) },
+                onSelectCategory: { selectCategory($0) },
+                onShowFavorites: { openFavorites() },
+                onShowAbout: { openAbout() },
+                onRequestDeleteAccount: { requestDeleteAccount() }
+            )
+        )
+    }
+
+    @ViewBuilder
+    var shareSheetContent: some View {
+        let active = sharingContent ?? pageVM.current
+        ShareImageQuoteView(
+            favorite: nil, favoriteImage: nil, quote: active?.quote,
+            wallpaper: active?.image, layoutSize: shareLayoutSize(), imageLoader: imageLoader
+        )
+    }
+
+    @ViewBuilder
+    var deleteAccountButtons: some View {
+        Button(\CommonStrings.accountDeleteConfirmationAction, role: .destructive) {
+            Task { quoteVM.clearAllFavorites(); await sessionManager?.deleteAccount() }
+        }
+        Button(\CommonStrings.cancel, role: .cancel) {}
+    }
+
+    func cleanupTasks() {
+        bannerHideTask?.cancel()
+        visualEffectsRestoreTask?.cancel()
+        cacheCoordinator.cancelAllFetchTasks()
+    }
+}
