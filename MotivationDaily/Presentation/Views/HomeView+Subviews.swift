@@ -59,8 +59,8 @@ extension HomeView {
                 disclaimerText: String(\MotivationStrings.aboutDisclaimer)
             ),
             currentAppScheme: "motivationdaily",
-            onSaveProfile: { first, last, phone in
-                Task { await sessionManager?.updateProfile(firstName: first, lastName: last, phone: phone) }
+            onSaveProfile: { email, first, last, phone in
+                Task { await sessionManager?.updateProfile(email: email, firstName: first, lastName: last, phone: phone) }
             },
             onUpdatePassword: { await sessionManager?.updatePassword($0) },
             onSignOut: { Task { await sessionManager?.signOut(); showUserSettings = false } },
