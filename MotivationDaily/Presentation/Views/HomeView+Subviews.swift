@@ -50,19 +50,29 @@ extension HomeView {
     @ViewBuilder
     var userSettingsSheetContent: some View {
         UserSettingsSheet(
-            user: user, isLoading: sessionManager?.isLoading ?? false,
+            user: resolvedUser,
+            isLoading: sessionManager?.isLoading ?? false,
             aboutConfiguration: UserSettingsAboutConfiguration(
                 appName: String(\MotivationStrings.motivationAppName),
                 version: AppRuntime.version, build: AppRuntime.build,
                 disclaimerTitle: String(\MotivationStrings.profileDisclaimer),
                 disclaimerText: String(\MotivationStrings.aboutDisclaimer)
             ),
+            currentAppScheme: "motivationdaily",
+            onSaveProfile: { first, last, phone in
+                Task { await sessionManager?.updateProfile(firstName: first, lastName: last, phone: phone) }
+            },
+            onUpdatePassword: { await sessionManager?.updatePassword($0) },
             onSignOut: { Task { await sessionManager?.signOut(); showUserSettings = false } },
             onDeleteAccount: {
                 Task { quoteVM.clearAllFavorites(); await sessionManager?.deleteAccount(); showUserSettings = false }
             },
             onDismiss: { showUserSettings = false }
         )
+    }
+
+    private var resolvedUser: AuthUser? {
+        if case .authenticated(let u) = sessionManager?.state { return u } else { return user }
     }
 
     @ViewBuilder

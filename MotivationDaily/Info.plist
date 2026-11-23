@@ -24,8 +24,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>motivationdaily-auth</string>
+				<string>motivationdaily</string>
 			</array>
 		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>showbook</string>
+		<string>mytv</string>
 	</array>
 	<key>SUPABASE_PUBLISHABLE_KEY</key>
 	<string>sb_publishable_1E6uHLzc52xPFVTrT7tl7Q_x2udH9R2</string>
