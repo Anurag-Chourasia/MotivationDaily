@@ -7,27 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A06500000000000000000002 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = A06500000000000000000001 /* AppStubData resources */; };
-		DA752D2D34EA542331C8A730 /* LocalizationAndRTLJourneyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 818F519400EDD7B6C4BCBE42 /* LocalizationAndRTLJourneyTests.swift */; };
 		346EE02C309117C6006198AF /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2C1A0070000000000000001 /* XCTest.framework */; };
 		346EE02D309117C6006198AF /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		346EE02E309117C6006198AF /* SnapshotTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00700000000000000000002 /* SnapshotTestKit */; };
 		7544F1DB267F4C7AA1F540A4 /* AuthKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5E4534C332C0400D99B19C9E /* AuthKit */; };
 		8ADAACDF10904600ADFA7657 /* AuthKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = E162D437EDA7442DA326C667 /* AuthKitUI */; };
-		M00800000000000000000001 /* AuthKitSupabase in Frameworks */ = {isa = PBXBuildFile; productRef = M00800000000000000000002 /* AuthKitSupabase */; };
+		A06500000000000000000002 /* AppStubData resources in Resources */ = {isa = PBXBuildFile; fileRef = A06500000000000000000001 /* AppStubData resources */; };
 		B2C1A0010000000000000001 /* UITestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0010000000000000001 /* UITestBase.swift */; };
 		B2C1A0020000000000000001 /* HomeFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0020000000000000001 /* HomeFlowTests.swift */; };
 		B2C1A0030000000000000001 /* FavoritesFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0030000000000000001 /* FavoritesFlowTests.swift */; };
 		B2C1A0040000000000000001 /* AboutFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0040000000000000001 /* AboutFlowTests.swift */; };
 		B2C1A0050000000000000001 /* ShareDialogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1A0050000000000000001 /* ShareDialogTests.swift */; };
 		B2C1A0060000000000000001 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2C1A0070000000000000001 /* XCTest.framework */; };
-		M00100000000000000000003 /* CommonNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = M00100000000000000000002 /* CommonNetworking */; };
+		M00100000000000000000003 /* CommonNetworkingKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00100000000000000000002 /* CommonNetworkingKit */; };
 		M00200000000000000000003 /* FoundationKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00200000000000000000002 /* FoundationKit */; };
 		M00300000000000000000003 /* LocalizationKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00300000000000000000002 /* LocalizationKit */; };
 		M00400000000000000000003 /* DesignTokensKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00400000000000000000002 /* DesignTokensKit */; };
 		M00500000000000000000003 /* UIComponentsKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00500000000000000000002 /* UIComponentsKit */; };
 		M00600000000000000000003 /* DeveloperProfileKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00600000000000000000002 /* DeveloperProfileKit */; };
 		M00700000000000000000003 /* SnapshotTestKit in Frameworks */ = {isa = PBXBuildFile; productRef = M00700000000000000000002 /* SnapshotTestKit */; };
+		M00800000000000000000001 /* AuthKitSupabase in Frameworks */ = {isa = PBXBuildFile; productRef = M00800000000000000000002 /* AuthKitSupabase */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,10 +54,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A06500000000000000000001 /* AppStubData resources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "AppStubData resources"; path = Submodules/AppStubData/Sources/AppStubData/Resources; sourceTree = SOURCE_ROOT; };
-		818F519400EDD7B6C4BCBE42 /* LocalizationAndRTLJourneyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationAndRTLJourneyTests.swift; sourceTree = "<group>"; };
 		344A416C2EC37AE100B74E80 /* MotivationDaily.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotivationDaily.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		346EE2373091AC06006198AF /* MotivationDailyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotivationDailyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A06500000000000000000001 /* AppStubData resources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "AppStubData resources"; path = Submodules/AppStubData/Sources/AppStubData/Resources; sourceTree = SOURCE_ROOT; };
 		F2C1A0010000000000000001 /* UITestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestBase.swift; sourceTree = "<group>"; };
 		F2C1A0020000000000000001 /* HomeFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFlowTests.swift; sourceTree = "<group>"; };
 		F2C1A0030000000000000001 /* FavoritesFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesFlowTests.swift; sourceTree = "<group>"; };
@@ -113,7 +111,7 @@
 				7544F1DB267F4C7AA1F540A4 /* AuthKit in Frameworks */,
 				8ADAACDF10904600ADFA7657 /* AuthKitUI in Frameworks */,
 				M00800000000000000000001 /* AuthKitSupabase in Frameworks */,
-				M00100000000000000000003 /* CommonNetworking in Frameworks */,
+				M00100000000000000000003 /* CommonNetworkingKit in Frameworks */,
 				M00200000000000000000003 /* FoundationKit in Frameworks */,
 				M00300000000000000000003 /* LocalizationKit in Frameworks */,
 				M00400000000000000000003 /* DesignTokensKit in Frameworks */,
@@ -220,7 +218,7 @@
 				5E4534C332C0400D99B19C9E /* AuthKit */,
 				E162D437EDA7442DA326C667 /* AuthKitUI */,
 				M00800000000000000000002 /* AuthKitSupabase */,
-				M00100000000000000000002 /* CommonNetworking */,
+				M00100000000000000000002 /* CommonNetworkingKit */,
 				M00200000000000000000002 /* FoundationKit */,
 				M00300000000000000000002 /* LocalizationKit */,
 				M00400000000000000000002 /* DesignTokensKit */,
@@ -368,7 +366,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A06500000000000000000002 /* Resources in Resources */,
+				A06500000000000000000002 /* AppStubData resources in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,7 +391,8 @@
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
-			files = ();
+			files = (
+			);
 			inputPaths = (
 				"$(SRCROOT)/Scripts/copy-developer-fixtures.sh",
 				"$(SRCROOT)/Submodules/AppStubData/Sources/AppStubData/Resources/motivationdaily-ui-fixtures.json",
@@ -643,6 +642,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = M4HZKMDG75;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -954,12 +954,7 @@
 			package = 757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */;
 			productName = AuthKitUI;
 		};
-		M00800000000000000000002 /* AuthKitSupabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */;
-			productName = AuthKitSupabase;
-		};
-		M00100000000000000000002 /* CommonNetworking */ = {
+		M00100000000000000000002 /* CommonNetworkingKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = M00100000000000000000001 /* XCRemoteSwiftPackageReference "CommonNetworking" */;
 			productName = CommonNetworkingKit;
@@ -993,6 +988,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = M00700000000000000000001 /* XCRemoteSwiftPackageReference "SnapshotTestKit" */;
 			productName = SnapshotTestKit;
+		};
+		M00800000000000000000002 /* AuthKitSupabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757652603DF04763986CF638 /* XCRemoteSwiftPackageReference "AuthKit" */;
+			productName = AuthKitSupabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

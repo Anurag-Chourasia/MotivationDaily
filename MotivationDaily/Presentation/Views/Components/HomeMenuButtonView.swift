@@ -12,17 +12,20 @@ struct HomeMenuButtonView: View {
 
     var body: some View {
         Menu {
+            Section {
+                Button(action: actions.onShowUserSettings) {
+                    Label(user?.email ?? String(\CommonStrings.accountTitle), \.personCropCircle)
+                }
+            }
+            Divider()
             themeMenu
             Divider()
             Button(action: actions.onShowFavorites) { Label(\.favourites, \.heartFill) }
             Button(action: actions.onShowAbout) { Label(\.aboutDeveloper, \.personCropCircle) }
-            if let user {
-                Divider()
-                userSection(user)
-            }
         } label: {
             Image(\.menu)
-                .font(\.title3)
+                .font(\.title)
+                .imageScale(.large)
                 .foregroundColor(selectedAccentTheme.color)
                 .frame(width: \.p44, height: \.p44)
                 .contentShape(Rectangle())
@@ -46,21 +49,6 @@ struct HomeMenuButtonView: View {
                         Text(theme.localizedDisplayName)
                     }
                 }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func userSection(_ user: AuthUser) -> some View {
-        Section {
-            Button(action: actions.onShowUserSettings) {
-                Label(user.email ?? String(\CommonStrings.accountTitle), \.personCropCircle)
-            }
-            Button(role: .destructive, action: { Task { await sessionManager?.signOut() } }) {
-                Label(\CommonStrings.authButtonSignOut, \.rectanglePortraitAndArrowRight)
-            }
-            Button(role: .destructive, action: actions.onRequestDeleteAccount) {
-                Label(\CommonStrings.authButtonDeleteAccount, \.trash)
             }
         }
     }
