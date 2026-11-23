@@ -8,18 +8,14 @@ struct HomeMenuButtonView: View {
     let selectedAccentTheme: AccentTheme
     let user: AuthUser?
     let sessionManager: SessionManager?
-    let onSelectTheme: (AccentTheme) -> Void
-    let onShowFavorites: () -> Void
-    let onShowAbout: () -> Void
-    let onShowUserSettings: () -> Void
-    let onRequestDeleteAccount: () -> Void
+    let actions: HomeTopChromeActions
 
     var body: some View {
         Menu {
             themeMenu
             Divider()
-            Button(action: onShowFavorites) { Label(\.favourites, \.heartFill) }
-            Button(action: onShowAbout) { Label(\.aboutDeveloper, \.personCropCircle) }
+            Button(action: actions.onShowFavorites) { Label(\.favourites, \.heartFill) }
+            Button(action: actions.onShowAbout) { Label(\.aboutDeveloper, \.personCropCircle) }
             if let user {
                 Divider()
                 userSection(user)
@@ -43,7 +39,7 @@ struct HomeMenuButtonView: View {
             )
         ) {
             ForEach(AccentTheme.allCases) { theme in
-                Button(action: { onSelectTheme(theme) }) {
+                Button(action: { actions.onSelectTheme(theme) }) {
                     if selectedAccentTheme == theme {
                         Label(theme.localizedDisplayName, \.checkmark)
                     } else {
@@ -57,13 +53,13 @@ struct HomeMenuButtonView: View {
     @ViewBuilder
     private func userSection(_ user: AuthUser) -> some View {
         Section {
-            Button(action: onShowUserSettings) {
+            Button(action: actions.onShowUserSettings) {
                 Label(user.email ?? String(\CommonStrings.accountTitle), \.personCropCircle)
             }
             Button(role: .destructive, action: { Task { await sessionManager?.signOut() } }) {
                 Label(\CommonStrings.authButtonSignOut, \.rectanglePortraitAndArrowRight)
             }
-            Button(role: .destructive, action: onRequestDeleteAccount) {
+            Button(role: .destructive, action: actions.onRequestDeleteAccount) {
                 Label(\CommonStrings.authButtonDeleteAccount, \.trash)
             }
         }
