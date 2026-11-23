@@ -14,20 +14,17 @@ struct HomeView: View {
     @State var showFavorites = false
     @State var showShareSheet = false
     @State var showAboutDeveloper = false
+    @State var showUserSettings = false
     @State var showDeleteAccountConfirmation = false
     @State var sharingContent: FeedPageViewModel.FeedPageContent?
     @State var selectedCategory: CategoryKey?
     @State var selectedRatio: WallpaperAspectRatio = .fullScreen
     @State var categories: [Category] = []
 
-    @State var scrollOffset: CGFloat = .zero
-    @State var gestureStartOffset: CGFloat = .zero
-    @State var activeDepth: Int = 0
-    @State var targetDepth: Int = 0
-    @State var isDragging: Bool = false
-    @State var isHorizontallyDragging: Bool = false
-    @State var bootPhase: FeedBootPhase = .cold
-    @State var currentDepth: Int = 0
+    @State var scrollOffset: CGFloat = .zero; @State var gestureStartOffset: CGFloat = .zero
+    @State var activeDepth: Int = 0; @State var targetDepth: Int = 0
+    @State var isDragging: Bool = false; @State var isHorizontallyDragging: Bool = false
+    @State var bootPhase: FeedBootPhase = .cold; @State var currentDepth: Int = 0
 
     @State var initialBootHasRun = false
     @State var hasShownInitialConnectivityBanner = false
@@ -72,6 +69,7 @@ struct HomeView: View {
         .task { await performInitialBootIfNeeded() }
         .fullScreenCover(isPresented: $showFavorites) { FavoritesView(quoteVM: quoteVM, imageLoader: imageLoader) }
         .sheet(isPresented: $showShareSheet, onDismiss: { sharingContent = nil }) { shareSheetContent }
+        .sheet(isPresented: $showUserSettings) { userSettingsSheetContent }
         .fullScreenCover(isPresented: $showAboutDeveloper) { AboutView() }
         .alert(item: $activeAlert) {
             Alert(title: Text($0.title), message: Text($0.message), dismissButton: .default(\.ok) { activeAlert = nil })

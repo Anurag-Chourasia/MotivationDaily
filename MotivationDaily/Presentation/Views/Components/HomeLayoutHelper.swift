@@ -31,6 +31,7 @@ struct HomeTopChromeActions {
     let onSelectCategory: (CategoryKey?) -> Void
     let onShowFavorites: () -> Void
     let onShowAbout: () -> Void
+    let onShowUserSettings: () -> Void
     let onRequestDeleteAccount: () -> Void
 }
 

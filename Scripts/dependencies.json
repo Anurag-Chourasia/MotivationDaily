@@ -1,7 +1,7 @@
 {
   "authkit": {
-    "revision": "f11697851ae8ffbccd753139c3c838718862605c",
-    "version": "0.9.1"
+    "revision": "7448ba02fca573f04d739a325664a26b3ed86dda",
+    "version": "0.10.0"
   },
   "commonnetworking": {
     "revision": "f4649b8f0af2db6a2bbc78acb713b9b3a17e605b",
