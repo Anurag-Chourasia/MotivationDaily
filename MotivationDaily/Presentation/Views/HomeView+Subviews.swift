@@ -37,12 +37,9 @@ extension HomeView {
             banner: (showConnectivityBanner, connectivityMessage, connectivityBannerIsWarning),
             namespace: categoryTabNamespace,
             actions: HomeTopChromeActions(
-                onSelectTheme: { selectAccentTheme($0) },
-                onSelectCategory: { selectCategory($0) },
-                onShowFavorites: { openFavorites() },
-                onShowAbout: { openAbout() },
-                onShowUserSettings: { showUserSettings = true },
-                onRequestDeleteAccount: { requestDeleteAccount() }
+                onSelectTheme: { selectAccentTheme($0) }, onSelectCategory: { selectCategory($0) },
+                onShowFavorites: { openFavorites() }, onShowAbout: { openAbout() },
+                onShowUserSettings: { showUserSettings = true }, onRequestDeleteAccount: { requestDeleteAccount() }
             )
         )
     }
@@ -53,14 +50,17 @@ extension HomeView {
             user: resolvedUser,
             isLoading: sessionManager?.isLoading ?? false,
             aboutConfiguration: UserSettingsAboutConfiguration(
-                appName: String(\MotivationStrings.motivationAppName),
-                version: AppRuntime.version, build: AppRuntime.build,
-                disclaimerTitle: String(\MotivationStrings.profileDisclaimer),
+                appName: String(\MotivationStrings.motivationAppName), version: AppRuntime.version,
+                build: AppRuntime.build, disclaimerTitle: String(\MotivationStrings.profileDisclaimer),
                 disclaimerText: String(\MotivationStrings.aboutDisclaimer)
             ),
             currentAppScheme: "motivationdaily",
             onSaveProfile: { email, first, last, phone in
                 Task { await sessionManager?.updateProfile(email: email, firstName: first, lastName: last, phone: phone) }
+            },
+            onSendOTP: { try await sessionManager?.sendPasswordResetOTP() },
+            onChangePassword: { current, new, otp in
+                await sessionManager?.changePassword(currentPassword: current, newPassword: new, otpCode: otp)
             },
             onUpdatePassword: { await sessionManager?.updatePassword($0) },
             onSignOut: { Task { await sessionManager?.signOut(); showUserSettings = false } },

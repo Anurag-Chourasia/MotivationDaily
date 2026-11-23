@@ -74,7 +74,7 @@ struct HomeView: View {
         .fullScreenCover(isPresented: $showFavorites) { FavoritesView(quoteVM: quoteVM, imageLoader: imageLoader) }
         .sheet(isPresented: $showShareSheet, onDismiss: { sharingContent = nil }) { shareSheetContent }
         .sheet(isPresented: $showUserSettings) { userSettingsSheetContent }
-        .fullScreenCover(isPresented: $showAboutDeveloper) { AboutView() }
+        .sheet(isPresented: $showAboutDeveloper) { AboutView() }
         .alert(item: $activeAlert) {
             Alert(title: Text($0.title), message: Text($0.message), dismissButton: .default(\.ok) { activeAlert = nil })
         }

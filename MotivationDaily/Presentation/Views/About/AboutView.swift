@@ -29,7 +29,7 @@ struct AboutView: View {
                 layout: .list,
                 labels: viewModel.profileLabels
             )
-            .background(\.grouped)
+            .background(\.black)
             .tint(\.primary)
             .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -42,7 +42,29 @@ struct AboutView: View {
                     .accessibilityIdentifier(.aboutBackButton)
                 }
             }
+            #if os(iOS)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(BrandPalette.current.background, for: .navigationBar)
+            #endif
         }
+        .applySheetPresentationBackground()
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func applySheetPresentationBackground() -> some View {
+        #if os(iOS)
+        if #available(iOS 16.4, *) {
+            self
+                .presentationBackground(BrandPalette.current.background)
+                .presentationDragIndicator(.visible)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
     }
 }
 

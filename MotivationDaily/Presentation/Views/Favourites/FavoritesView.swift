@@ -9,6 +9,7 @@ struct FavoritesView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedFavorite: FavoriteQuote?
+    @State private var selectedImage: UIImage?
     @State private var showFullScreen = false
 
     var body: some View {
@@ -20,15 +21,16 @@ struct FavoritesView: View {
                     FavoriteListView(
                         quoteVM: quoteVM,
                         imageLoader: imageLoader,
-                        onImageTap: { favorite in
+                        onImageTap: { favorite, img in
                             selectedFavorite = favorite
+                            selectedImage = img
                             showFullScreen = true
                         }
                     )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(\.grouped)
+            .background(\.black)
             .navigationTitle(Text(\.favourites))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -56,7 +58,7 @@ struct FavoritesView: View {
             .fullScreenCover(isPresented: $showFullScreen) {
                 FullScreenImageView(
                     favorite: selectedFavorite,
-                    favoriteImage: nil,
+                    favoriteImage: selectedImage,
                     imageLoader: imageLoader,
                     isPresented: $showFullScreen,
                     onImageDataResolved: { quoteID, imageData in
@@ -68,6 +70,7 @@ struct FavoritesView: View {
             .onChange(of: showFullScreen) { visible in
                 if !visible {
                     selectedFavorite = nil
+                    selectedImage = nil
                 }
             }
         }

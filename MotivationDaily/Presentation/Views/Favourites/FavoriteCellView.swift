@@ -7,7 +7,7 @@ struct FavoriteCellView: View {
     let favorite: FavoriteQuote
     let imageURL: URL?
     var imageLoader: any ImageLoading = ImageLoader.shared
-    let onImageTap: () -> Void
+    let onImageTap: (UIImage?) -> Void
     let onToggleFavorite: () -> Void
     let onImageDataResolved: ((Data) -> Void)?
 
@@ -34,7 +34,7 @@ struct FavoriteCellView: View {
         .contentShape(RoundedRectangle(cornerRadius: \.sixteen))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(.favoritesCell)
-        .onTapGesture { onImageTap() }
+        .onTapGesture { onImageTap(renderedImage) }
         .onAppear { renderImageIfNeeded() }
         .onChange(of: favorite.localImagePath) { _ in
             renderedImage = nil; renderImageIfNeeded()

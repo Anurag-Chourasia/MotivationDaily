@@ -14,7 +14,7 @@ struct HomeMenuButtonView: View {
         Menu {
             Section {
                 Button(action: actions.onShowUserSettings) {
-                    Label(user?.email ?? String(\CommonStrings.accountTitle), \.personCropCircle)
+                    Label(String(\CommonStrings.authSectionProfile), \.personCropCircle)
                 }
             }
             Divider()

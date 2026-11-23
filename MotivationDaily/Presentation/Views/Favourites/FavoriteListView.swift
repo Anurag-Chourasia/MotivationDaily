@@ -5,7 +5,7 @@ import DesignTokensKit
 struct FavoriteListView: View {
     @ObservedObject var quoteVM: QuoteViewModel
     var imageLoader: any ImageLoading = ImageLoader.shared
-    let onImageTap: (FavoriteQuote) -> Void
+    let onImageTap: (FavoriteQuote, UIImage?) -> Void
 
     var body: some View {
         ScrollView {
@@ -17,7 +17,7 @@ struct FavoriteListView: View {
                         favorite: favorite,
                         imageURL: imageURL,
                         imageLoader: imageLoader,
-                        onImageTap: { onImageTap(favorite) },
+                        onImageTap: { onImageTap(favorite, $0) },
                         onToggleFavorite: { quoteVM.removeFromFavorites(favorite.id) },
                         onImageDataResolved: { imageData in
                             quoteVM.cacheFavoriteImageIfNeeded(quoteID: favorite.id, imageData: imageData)
