@@ -55,15 +55,14 @@ extension HomeView {
                 appName: String(\MotivationStrings.motivationAppName),
                 version: AppRuntime.version, build: AppRuntime.build,
                 disclaimerTitle: String(\MotivationStrings.profileDisclaimer),
-                disclaimerText: String(\MotivationStrings.aboutDisclaimer),
-                developerProfileTitle: String(\MotivationStrings.aboutDeveloper)
+                disclaimerText: String(\MotivationStrings.aboutDisclaimer)
             ),
             onSignOut: { Task { await sessionManager?.signOut(); showUserSettings = false } },
             onDeleteAccount: {
                 Task { quoteVM.clearAllFavorites(); await sessionManager?.deleteAccount(); showUserSettings = false }
             },
             onDismiss: { showUserSettings = false }
-        ) { AboutView() }
+        )
     }
 
     @ViewBuilder
