@@ -46,7 +46,7 @@ extension HomeView {
 
     private func handleVerticalSwipeEnd(_ value: DragGesture.Value) {
         let projected = scrollOffset + project(value.velocity.height)
-        let pageHeight = UIScreen.main.bounds.height
+        let pageHeight = max(containerSize.height, DesignMetric.p1)
         let rawShift = Int(round(-projected / pageHeight))
         let indexShift = max(-1, min(1, rawShift))
         let proposedDepth = activeDepth + indexShift

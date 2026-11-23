@@ -1,4 +1,5 @@
 import SwiftUI
+import DesignTokensKit
 
 extension HomeView {
     @MainActor
@@ -33,7 +34,7 @@ extension HomeView {
     }
 
     func snapToDepth(_ depth: Int) {
-        let pageHeight = UIScreen.main.bounds.height
+        let pageHeight = max(containerSize.height, DesignMetric.p1)
         let destination = -CGFloat(depth - activeDepth) * pageHeight
         withAnimation(.interpolatingSpring(stiffness: 420, damping: 42)) { scrollOffset = destination }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
@@ -45,9 +46,9 @@ extension HomeView {
     }
 
     func isActionRailInteraction(at startLocation: CGPoint) -> Bool {
-        let b = UIScreen.main.bounds
-        return startLocation.x >= (b.width - actionRailExclusionWidth) &&
-               startLocation.y >= (b.height - actionRailExclusionHeight)
+        guard containerSize.width > 0, containerSize.height > 0 else { return false }
+        return startLocation.x >= (containerSize.width - actionRailExclusionWidth) &&
+               startLocation.y >= (containerSize.height - actionRailExclusionHeight)
     }
 
     func reduceVisualEffectsForInteraction() {

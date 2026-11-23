@@ -25,6 +25,7 @@ struct HomeView: View {
     @State var activeDepth: Int = 0; @State var targetDepth: Int = 0
     @State var isDragging: Bool = false; @State var isHorizontallyDragging: Bool = false
     @State var bootPhase: FeedBootPhase = .cold; @State var currentDepth: Int = 0
+    @State var containerSize: CGSize = .zero
 
     @State var initialBootHasRun = false
     @State var hasShownInitialConnectivityBanner = false
@@ -52,18 +53,21 @@ struct HomeView: View {
         imageLoader: (any ImageLoading)? = nil,
         user: AuthUser? = nil, sessionManager: SessionManager? = nil
     ) {
-        _quoteVM = StateObject(wrappedValue: quoteVM)
-        _pageVM = StateObject(wrappedValue: pageVM)
+        _quoteVM = StateObject(wrappedValue: quoteVM); _pageVM = StateObject(wrappedValue: pageVM)
         self.imageLoader = imageLoader ?? pageVM.imageLoader
         self.user = user; self.sessionManager = sessionManager
     }
 
     var body: some View {
-        ZStack {
-            Rectangle().fill(\.black).ignoresSafeArea()
-            if bootPhase != .cold {
-                feedContainer.gesture(feedSwipeGesture).simultaneousGesture(horizontalSwipeGesture)
+        GeometryReader { proxy in
+            ZStack {
+                Rectangle().fill(\.black).ignoresSafeArea()
+                if bootPhase != .cold {
+                    feedContainer.gesture(feedSwipeGesture).simultaneousGesture(horizontalSwipeGesture)
+                }
             }
+            .onAppear { containerSize = proxy.size }
+            .onChange(of: proxy.size) { containerSize = $0 }
         }
         .background(\.black, ignoresSafeAreaEdges: .all)
         .task { await performInitialBootIfNeeded() }

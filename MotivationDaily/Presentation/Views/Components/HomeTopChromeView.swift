@@ -47,11 +47,7 @@ struct HomeTopChromeView: View {
                 HomeMenuButtonView(
                     selectedAccentTheme: selectedAccentTheme,
                     user: user, sessionManager: sessionManager,
-                    onSelectTheme: actions.onSelectTheme,
-                    onShowFavorites: actions.onShowFavorites,
-                    onShowAbout: actions.onShowAbout,
-                    onShowUserSettings: actions.onShowUserSettings,
-                    onRequestDeleteAccount: actions.onRequestDeleteAccount
+                    actions: actions
                 )
             }
         }
