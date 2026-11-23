@@ -1,5 +1,6 @@
 import SwiftUI
 import AuthKit
+import AuthKitUI
 import DesignTokensKit
 import LocalizationKit
 
@@ -40,9 +41,29 @@ extension HomeView {
                 onSelectCategory: { selectCategory($0) },
                 onShowFavorites: { openFavorites() },
                 onShowAbout: { openAbout() },
+                onShowUserSettings: { showUserSettings = true },
                 onRequestDeleteAccount: { requestDeleteAccount() }
             )
         )
+    }
+
+    @ViewBuilder
+    var userSettingsSheetContent: some View {
+        UserSettingsSheet(
+            user: user, isLoading: sessionManager?.isLoading ?? false,
+            aboutConfiguration: UserSettingsAboutConfiguration(
+                appName: String(\MotivationStrings.motivationAppName),
+                version: AppRuntime.version, build: AppRuntime.build,
+                disclaimerTitle: String(\MotivationStrings.profileDisclaimer),
+                disclaimerText: String(\MotivationStrings.aboutDisclaimer),
+                developerProfileTitle: String(\MotivationStrings.aboutDeveloper)
+            ),
+            onSignOut: { Task { await sessionManager?.signOut(); showUserSettings = false } },
+            onDeleteAccount: {
+                Task { quoteVM.clearAllFavorites(); await sessionManager?.deleteAccount(); showUserSettings = false }
+            },
+            onDismiss: { showUserSettings = false }
+        ) { AboutView() }
     }
 
     @ViewBuilder

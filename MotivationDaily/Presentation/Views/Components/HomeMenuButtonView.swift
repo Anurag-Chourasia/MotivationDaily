@@ -11,6 +11,7 @@ struct HomeMenuButtonView: View {
     let onSelectTheme: (AccentTheme) -> Void
     let onShowFavorites: () -> Void
     let onShowAbout: () -> Void
+    let onShowUserSettings: () -> Void
     let onRequestDeleteAccount: () -> Void
 
     var body: some View {
@@ -56,7 +57,7 @@ struct HomeMenuButtonView: View {
     @ViewBuilder
     private func userSection(_ user: AuthUser) -> some View {
         Section {
-            Button(action: { sessionManager?.showAccount() }) {
+            Button(action: onShowUserSettings) {
                 Label(user.email ?? String(\CommonStrings.accountTitle), \.personCropCircle)
             }
             Button(role: .destructive, action: { Task { await sessionManager?.signOut() } }) {

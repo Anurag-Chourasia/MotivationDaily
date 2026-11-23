@@ -50,6 +50,7 @@ struct HomeTopChromeView: View {
                     onSelectTheme: actions.onSelectTheme,
                     onShowFavorites: actions.onShowFavorites,
                     onShowAbout: actions.onShowAbout,
+                    onShowUserSettings: actions.onShowUserSettings,
                     onRequestDeleteAccount: actions.onRequestDeleteAccount
                 )
             }
