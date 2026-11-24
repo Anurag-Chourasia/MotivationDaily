@@ -46,7 +46,7 @@ final class AccessibilityJourneyTests: XCTestCase {
             let cell = FavoriteCellView(
                 favorite: favorite,
                 imageURL: nil,
-                onImageTap: {},
+                onImageTap: { _ in },
                 onToggleFavorite: {},
                 onImageDataResolved: nil
             )

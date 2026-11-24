@@ -1,150 +1,150 @@
 {
-  "originHash": "a897473cd45728db0c75ee42c14c1c46864dd5d02239d359e7af5c68cb3e1e87",
-  "pins": [
+  "originHash" : "a897473cd45728db0c75ee42c14c1c46864dd5d02239d359e7af5c68cb3e1e87",
+  "pins" : [
     {
-      "identity": "authkit",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/AuthKit.git",
-      "state": {
-        "revision": "745d442d158994edd4829c806021ec888b715fb2",
-        "version": "0.17.0"
+      "identity" : "authkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/AuthKit.git",
+      "state" : {
+        "revision" : "82e984d73f953039a5a8f06d57075e44851ff278",
+        "version" : "0.18.0"
       }
     },
     {
-      "identity": "commonnetworking",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/CommonNetworking.git",
-      "state": {
-        "revision": "f4649b8f0af2db6a2bbc78acb713b9b3a17e605b",
-        "version": "2.1.0"
+      "identity" : "commonnetworking",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/CommonNetworking.git",
+      "state" : {
+        "revision" : "f4649b8f0af2db6a2bbc78acb713b9b3a17e605b",
+        "version" : "2.1.0"
       }
     },
     {
-      "identity": "designtokenskit",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/DesignTokensKit.git",
-      "state": {
-        "revision": "68ec1a92e02a2ea374d544a53ce90656a737c756",
-        "version": "1.27.0"
+      "identity" : "designtokenskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/DesignTokensKit.git",
+      "state" : {
+        "revision" : "68ec1a92e02a2ea374d544a53ce90656a737c756",
+        "version" : "1.27.0"
       }
     },
     {
-      "identity": "developerprofilekit",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/DeveloperProfileKit.git",
-      "state": {
-        "revision": "39cd1f3134e98cb3b8890dc4a6976f4feac5762c",
-        "version": "1.4.0"
+      "identity" : "developerprofilekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/DeveloperProfileKit.git",
+      "state" : {
+        "revision" : "67d8df65eff60428042ba106726c51d4546f83b6",
+        "version" : "1.5.0"
       }
     },
     {
-      "identity": "foundationkit",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/FoundationKit.git",
-      "state": {
-        "revision": "9208511f0c83b1ca9be1fc7914b5ea2d698d8cda",
-        "version": "0.3.0"
+      "identity" : "foundationkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/FoundationKit.git",
+      "state" : {
+        "revision" : "9208511f0c83b1ca9be1fc7914b5ea2d698d8cda",
+        "version" : "0.3.0"
       }
     },
     {
-      "identity": "localizationkit",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/LocalizationKit.git",
-      "state": {
-        "revision": "2855345bdad6fdd9bbedc9185fd0053f8ae0f435",
-        "version": "0.11.0"
+      "identity" : "localizationkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/LocalizationKit.git",
+      "state" : {
+        "revision" : "2855345bdad6fdd9bbedc9185fd0053f8ae0f435",
+        "version" : "0.11.0"
       }
     },
     {
-      "identity": "snapshottestkit",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/SnapshotTestKit.git",
-      "state": {
-        "revision": "5c7e0e67813a36a79029f4672c5269805d1b3010",
-        "version": "1.1.0"
+      "identity" : "snapshottestkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/SnapshotTestKit.git",
+      "state" : {
+        "revision" : "5c7e0e67813a36a79029f4672c5269805d1b3010",
+        "version" : "1.1.0"
       }
     },
     {
-      "identity": "supabase-swift",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/supabase/supabase-swift.git",
-      "state": {
-        "revision": "63fa5a8c650fad12a14543186024bd3214a65d9c",
-        "version": "2.55.6"
+      "identity" : "supabase-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/supabase/supabase-swift.git",
+      "state" : {
+        "revision" : "63fa5a8c650fad12a14543186024bd3214a65d9c",
+        "version" : "2.55.6"
       }
     },
     {
-      "identity": "swift-asn1",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/apple/swift-asn1.git",
-      "state": {
-        "revision": "3b6410f7dee09eb33cdd26260c5fd47fda19b0e2",
-        "version": "1.7.3"
+      "identity" : "swift-asn1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-asn1.git",
+      "state" : {
+        "revision" : "3b6410f7dee09eb33cdd26260c5fd47fda19b0e2",
+        "version" : "1.7.3"
       }
     },
     {
-      "identity": "swift-clocks",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/pointfreeco/swift-clocks",
-      "state": {
-        "revision": "82440fa0a8b1c381a6d1e8e0fc7bbba53ec63204",
-        "version": "1.1.1"
+      "identity" : "swift-clocks",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-clocks",
+      "state" : {
+        "revision" : "82440fa0a8b1c381a6d1e8e0fc7bbba53ec63204",
+        "version" : "1.1.1"
       }
     },
     {
-      "identity": "swift-concurrency-extras",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/pointfreeco/swift-concurrency-extras",
-      "state": {
-        "revision": "8a4260f7373493435bd21194585c95b72bfdd401",
-        "version": "1.4.3"
+      "identity" : "swift-concurrency-extras",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-concurrency-extras",
+      "state" : {
+        "revision" : "8a4260f7373493435bd21194585c95b72bfdd401",
+        "version" : "1.4.3"
       }
     },
     {
-      "identity": "swift-crypto",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/apple/swift-crypto.git",
-      "state": {
-        "revision": "da9d28d69ebe3894b18376c8f2395c2f37b8448f",
-        "version": "4.5.2"
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "da9d28d69ebe3894b18376c8f2395c2f37b8448f",
+        "version" : "4.5.2"
       }
     },
     {
-      "identity": "swift-http-types",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/apple/swift-http-types.git",
-      "state": {
-        "revision": "bff4b6903cdc99dda49649dd52f46c11cfd3ed50",
-        "version": "1.8.0"
+      "identity" : "swift-http-types",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-http-types.git",
+      "state" : {
+        "revision" : "bff4b6903cdc99dda49649dd52f46c11cfd3ed50",
+        "version" : "1.8.0"
       }
     },
     {
-      "identity": "swift-issue-reporting",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/pointfreeco/swift-issue-reporting",
-      "state": {
-        "revision": "b23bb4493c439d3e05152bc167014235ba3d47fc",
-        "version": "2.1.2"
+      "identity" : "swift-issue-reporting",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-issue-reporting",
+      "state" : {
+        "revision" : "b23bb4493c439d3e05152bc167014235ba3d47fc",
+        "version" : "2.1.2"
       }
     },
     {
-      "identity": "uicomponentskit",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/Anurag-Chourasia/UIComponentsKit.git",
-      "state": {
-        "revision": "9530eb30791cd1210315547fcd94ad501eeff2e1",
-        "version": "1.11.0"
+      "identity" : "uicomponentskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Anurag-Chourasia/UIComponentsKit.git",
+      "state" : {
+        "revision" : "e3e3f262aaef25c2dcc2b525be9a833cc6c1aa5c",
+        "version" : "1.13.0"
       }
     },
     {
-      "identity": "xctest-dynamic-overlay",
-      "kind": "remoteSourceControl",
-      "location": "https://github.com/pointfreeco/xctest-dynamic-overlay",
-      "state": {
-        "revision": "d9308ad679143c26a30dec52daefe82f54af2b82",
-        "version": "1.13.1"
+      "identity" : "xctest-dynamic-overlay",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
+      "state" : {
+        "revision" : "d9308ad679143c26a30dec52daefe82f54af2b82",
+        "version" : "1.13.1"
       }
     }
   ],
-  "version": 3
+  "version" : 3
 }

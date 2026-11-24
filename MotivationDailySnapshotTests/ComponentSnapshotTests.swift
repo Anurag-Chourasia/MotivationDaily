@@ -245,7 +245,7 @@ final class ComponentSnapshotTests: XCTestCase {
         let view = FavoriteCellView(
             favorite: favorite,
             imageURL: nil,
-            onImageTap: {},
+            onImageTap: { _ in },
             onToggleFavorite: {},
             onImageDataResolved: { _ in }
         )
@@ -270,7 +270,7 @@ final class ComponentSnapshotTests: XCTestCase {
 
         let view = FavoriteListView(
             quoteVM: quoteVM,
-            onImageTap: { _ in }
+            onImageTap: { _, _ in }
         )
 
         SnapshotAssert.assertVariants(

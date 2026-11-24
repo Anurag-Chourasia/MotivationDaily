@@ -60,7 +60,9 @@ extension HomeView {
             },
             onSendOTP: { try await sessionManager?.sendPasswordResetOTP() },
             onChangePassword: { current, new, otp in
-                await sessionManager?.changePassword(currentPassword: current, newPassword: new, otpCode: otp)
+                try await sessionManager?.changePassword(
+                    currentPassword: current, newPassword: new, otpCode: otp
+                )
             },
             onUpdatePassword: { await sessionManager?.updatePassword($0) },
             onSignOut: { Task { await sessionManager?.signOut(); showUserSettings = false } },

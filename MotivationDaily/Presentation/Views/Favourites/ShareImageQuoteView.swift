@@ -54,7 +54,13 @@ struct ShareImageQuoteView: View {
             Button(\.ok) {}
         } message: { Text(\.quoteCopiedToast) }
         .alert(item: $activeSaveAlert) { alert in
-            Alert(title: Text(alert.title), message: Text(alert.message), dismissButton: .default(\.ok))
+            Alert(
+                title: Text(alert.title),
+                message: Text(alert.message),
+                dismissButton: .default(\.ok) {
+                    activeSaveAlert = nil
+                }
+            )
         }
         .confirmationDialog(\.photosAccessAlertTitle, isPresented: $showPermissionSettingsDialog, titleVisibility: .visible) {
             Button(\.openSettings) { openAppSettings() }
@@ -62,7 +68,7 @@ struct ShareImageQuoteView: View {
         } message: { Text(\.photosAccessAlertMessage) }
         .confirmationDialog(\.saveToPhotos, isPresented: $showSaveOptionsDialog, titleVisibility: .visible) {
             if let quoteOnlyImage { Button(\.saveQuoteGradient) { saveImageTask(quoteOnlyImage) } }
-            if let sourceImage { Button(\.saveOnlyImage) { saveImageTask(sourceImage) } }
+            if sourceImage != nil { Button(\.saveOnlyImage) { saveOnlyImageAction() } }
             if let compositeImage { Button(\.saveImagePlusQuote) { saveImageTask(compositeImage) } }
             Button(\.cancel, role: .cancel) {}
         }
@@ -86,4 +92,11 @@ struct ShareImageQuoteView: View {
     func openSaveOptionsAction() { showSaveOptionsDialog = true }
     func shareQuoteOnlyAction() { openShare(items: [shareContent]) }
     func saveImageTask(_ img: UIImage) { Task { await saveImageToPhotos(img) } }
+    func saveOnlyImageAction() {
+        if let sourceImage {
+            let targetSize = preferredLayoutSize() ?? UIScreen.main.bounds.size
+            let cropped = QuoteImageComposer.cropToAspect(sourceImage, targetSize: targetSize)
+            saveImageTask(cropped)
+        }
+    }
 }

@@ -131,6 +131,28 @@ enum QuoteImageComposer {
         )
     }
 
+    static func cropToAspect(_ image: UIImage, targetSize: CGSize) -> UIImage {
+        let targetAspect = targetSize.width / max(targetSize.height, 1)
+        let imageAspect = image.size.width / max(image.size.height, 1)
+        let renderWidth: CGFloat
+        let renderHeight: CGFloat
+        if imageAspect > targetAspect {
+            renderHeight = targetSize.height
+            renderWidth = targetSize.height * imageAspect
+        } else {
+            renderWidth = targetSize.width
+            renderHeight = targetSize.width / imageAspect
+        }
+        let originX = (targetSize.width - renderWidth) / 2.0
+        let originY = (targetSize.height - renderHeight) / 2.0
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = min(max(image.scale, 1.0), 3.0)
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+        return renderer.image { _ in
+            image.draw(in: CGRect(x: originX, y: originY, width: renderWidth, height: renderHeight))
+        }
+    }
+
     static func renderContext(for image: UIImage) -> RenderContext {
         let rawWidth: CGFloat
         let rawHeight: CGFloat

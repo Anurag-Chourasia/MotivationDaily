@@ -136,12 +136,12 @@ final class ViewUnitTests: XCTestCase {
         let cell = FavoriteCellView(
             favorite: favorite,
             imageURL: URL(string: "https://example.com/fav.jpg"),
-            onImageTap: { tapped = true },
+            onImageTap: { _ in tapped = true },
             onToggleFavorite: { deleted = true },
             onImageDataResolved: { _ in }
         )
         await evaluate(cell)
-        cell.onImageTap()
+        cell.onImageTap(nil)
         XCTAssertTrue(tapped)
         cell.onToggleFavorite()
         XCTAssertTrue(deleted)
@@ -158,12 +158,12 @@ final class ViewUnitTests: XCTestCase {
         var tappedFavorite: FavoriteQuote?
         let list = FavoriteListView(
             quoteVM: quoteVM,
-            onImageTap: { tappedFavorite = $0 }
+            onImageTap: { fav, _ in tappedFavorite = fav }
         )
         await evaluate(list)
 
         if let fav = quoteVM.favorites.first {
-            list.onImageTap(fav)
+            list.onImageTap(fav, nil)
             XCTAssertEqual(tappedFavorite?.id, fav.id)
         }
     }
