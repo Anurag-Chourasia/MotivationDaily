@@ -52,16 +52,22 @@ struct HomeTopChromeView: View {
             }
         }
         .padding(.horizontal, \.sixteen).padding(.top, \.five)
+        .background(\.black)
     }
 
     private var chromeBackground: some View {
-        LinearGradient(
-            stops: [
-                ThemeColorStop(\.black, opacity: \.p0_9),
-                ThemeColorStop(\.ink, opacity: \.p0_85),
-                ThemeColorStop(\.clear)
-            ],
-            startPoint: .top, endPoint: .bottom
-        )
+        VStack(spacing: .zero) {
+            Rectangle().fill(\.black)
+            LinearGradient(
+                stops: [
+                    ThemeColorStop(\.black),
+                    ThemeColorStop(\.black, opacity: \.p0_9),
+                    ThemeColorStop(\.clear)
+                ],
+                startPoint: .top, endPoint: .bottom
+            )
+            .frame(height: \.p60)
+        }
+        .ignoresSafeArea(edges: .top)
     }
 }
