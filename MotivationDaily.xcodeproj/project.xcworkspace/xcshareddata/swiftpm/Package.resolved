@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Anurag-Chourasia/AuthKit.git",
       "state" : {
-        "revision" : "3651de064a62ce4b7468dc7a425bd883733032a7",
-        "version" : "0.23.0"
+        "revision" : "fb7ca397adac48e6e2f6f44227e10ad5c1fcb01d",
+        "version" : "0.24.0"
       }
     },
     {
